@@ -4,7 +4,6 @@ from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
 import json
-
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -13,144 +12,173 @@ app = FastAPI()
 
 origins = ["http://localhost:5173"]
 if "PATH" in os.environ:
-	os.environ["PATH"] += ":/opt/homebrew/bin"
+  os.environ["PATH"] += ":/opt/homebrew/bin"
 
 app.add_middleware(
-	CORSMiddleware,
-	allow_origins=origins,
-	allow_credentials=True,
-	allow_methods=["*"],
-	allow_headers=["*"],
+  CORSMiddleware,
+  allow_origins=origins,
+  allow_credentials=True,
+  allow_methods=["*"],
+  allow_headers=["*"],
 )
 
 def configure_model():
-	genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-	return genai.GenerativeModel(
-		model_name="gemini-1.5-flash",
-		generation_config={"response_mime_type": "application/json"},
-	)
+  genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+  return genai.GenerativeModel(
+    model_name="gemini-1.5-flash",
+    generation_config={"response_mime_type": "application/json"},
+  )
 
-def build_prompt(image_description):
-    prompt = f"""
-    STRICT EXTRACTION GUIDELINES:
-
-    1. Question Number Parsing Rules:
-    - ONLY use numeric integers for main question numbers (1, 2, 3, etc.)
-    - Use alphabetic characters (a, b, c) ONLY for sub-questions
-    - Use roman numerals (i, ii, iii) for sub-sub-questions
-
-    2. Extraction Process:
-    - Identify the MAIN question number as a numeric value
-    - Identify sub-questions with alphabetic labels
-    - Identify sub-sub-questions with roman numerals
-    - NEVER use a, b, c as primary question numbers
-
-    3. Structural Requirements:
-    Produce a JSON with this EXACT structure:
-    {{
-        "question_number": "integer",  // MUST be a number
-        "question_text": "string",     // Full main question description
-        "diagram": "string",           // Diagram reference or description
-        "sub_questions": [
-            {{
-                "sub_question": "string",   // Use "a", "b", "c" etc.
-                "question_text": "string",  // Sub-question text
-                "answer": "string",         // Optional answer
-                "sub_sub_questions": [
-                    {{
-                        "sub_sub_question": "string", // Use "i", "ii", "iii"
-                        "question_text": "string",
-                        "answer": "string"
-                    }}
-                ]
-            }}
+def build_prompt(image_description, prev_question):
+  prompt = f"""
+  PREVIOUS main question: {prev_question}
+  
+  QUESTION EXTRACTION PROTOCOL:
+  
+  VERY IMPORTANT, PLEASE EXTRACT CAREFULLY HERE. CHECK IF THERE ARE ANY OF THESE:
+    1. Strict Numbering Format: IMPORTANT!!! CHECK THESE PATTENRS
+      - Main Questions: "1", "2", "3"
+      - Sub-Questions: "(a)", "(b)", "(c)"
+      - Sub-Sub-Questions: "(i)", "(ii)", "(iii)"
+  
+    2. Contextual Attachment Rules:
+      - If NO main question present:
+        * Attach to PREVIOUS main question
+      - If NO sub-question present:
+        * Attach to PREVIOUS main question's sub-question
+      - Preserve exact semantic context
+  
+    3. Comprehensive Content Capture:
+      - Capture ALL question variations
+      - Prepare for consolidation in aggregation stage
+      - Maintain original question numbering
+  
+  OUTPUT STRUCTURE:
+  {{
+    "question_number": "...", 
+    "question_text": "Question text",
+    "sub_questions": [
+      {{
+        "sub_question": "...",
+        "question_text": "Sub-question text",
+        "sub_sub_questions": [
+          {{
+            "sub_sub_question": "...",
+            "question_text": "Sub-sub-question text"
+          }}
         ]
-    }}
-
-    4. Content Extraction Instructions:
-    - Extract ONLY English content
+      }}
+    ]
+  }}
+  
+  CONTENT CONSTRAINTS:
+    - English only
     - Ignore bilingual elements
-    - Ignore diagram text not part of the actual question
-    - Be precise and comprehensive
-
-    Image description:
-    {image_description}
-
-    CRITICAL: If no clear question structure is found, return an empty JSON with an explanation in a comment.
-    """
-    return prompt
+    - Preserve complete question semantics
+  
+  Image Description:
+  {image_description}
+  """
+  return prompt
 
 def build_aggregation_prompt(aggregated_questions):
-	prompt = f"""
-	Consolidate and organize the following extracted questions from multiple pages into a comprehensive, structured document. 
-
-	Aggregated Questions:
-	{json.dumps(aggregated_questions, indent=2)}
-
-	Requirements:
-	1. Group questions by their original question number
-	2. Preserve all details from the original extraction
-	3. Resolve any potential duplicates or overlapping information
-	4. Maintain the original nested structure of sub-questions
-	5. If the page does not explicitly show a new question number:
-	   - Assume the content belongs to the previous question's sub-questions
-	   - If no previous question exists, treat as a new question
-	6. Identify and categorize:
-	   - Main question number
-	   - Question text
-	   - Sub-questions (if any)
-	   - Sub-sub-questions (if present)
-
-	Output the consolidated questions in the same JSON structure as the original prompt.
-	"""
-	return prompt
+  prompt = f"""
+  QUESTION CONSOLIDATION PROTOCOL:
+  
+  MERGE STRATEGY:
+    1. Question Number Consolidation
+      - Identify and merge ALL questions with SAME number
+      - Combine question texts
+      - Merge sub-questions and sub-sub-questions
+      - Preserve FULL semantic content
+  
+    2. Hierarchical Reconstruction
+      - Maintain original question number
+      - Comprehensive sub-question merging
+      - Eliminate redundant content
+  
+    3. Attachment Rules
+      - Preserve original question hierarchy
+      - Intelligently combine overlapping content
+      - Maintain precise semantic nuances
+  
+  INPUT DATA:
+  {json.dumps(aggregated_questions, indent=2)}
+  
+  OUTPUT REQUIREMENTS:
+  {{
+    "question_number": "...", 
+    "question_text": "Comprehensive combined question text",
+    "sub_questions": [
+      {{
+        "sub_question": "...",
+        "question_text": "Merged sub-question content",
+        "sub_sub_questions": [
+          {{
+            "sub_sub_question": "...",
+            "question_text": "Consolidated sub-sub-question"
+          }}
+        ]
+      }}
+    ]
+  }}
+  
+  CRITICAL: Preserve original question numbering while merging identical questions
+  """
+  return prompt
 
 @app.post("/extract_questions")
 async def analyse_pdf(file: UploadFile = File(...)):
-	aggregated_questions = []
+  aggregated_questions = []
+  current_question_number = None  # Initialize the question number
 
-	try:
-		if not file.filename.endswith(".pdf"):
-			raise HTTPException(status_code=400, detail="Only PDF files are supported.")
-
-		pdf_content = await file.read()
-		images = convert_from_bytes(pdf_content)
-
-		model = configure_model()
-
-		for page_number, image in enumerate(images, start=1):
-			try:
-				image_description = "The image contains a physics diagram showing an experiment setup for studying the relationship between current and force."
-				prompt = build_prompt(image_description)
-
-				response = model.generate_content([prompt, image])
-				print(response.text) 
-
-				if not response:
-					raise Exception(f"Failed to generate response from the AI model for page {page_number}.")
-
-				questions = json.loads(response.text)
-				aggregated_questions.append(questions)
-
-			except Exception as e:
-				print(f"Error on page {page_number}: {str(e)}")
-				continue
-		
-		# Aggregate questions across all pages
-		aggregation_prompt = build_aggregation_prompt(aggregated_questions)
-		aggregation_response = model.generate_content(aggregation_prompt)
-		
-		consolidated_questions = json.loads(aggregation_response.text)
-
-		return {
-			"status": "success", 
-			"message": "Success", 
-			# "original_page_questions": aggregated_questions,
-			"consolidated_questions": consolidated_questions
-		}
-
-	except Exception as e:
-		raise HTTPException(
-			status_code=500,
-			detail={"status": "error", "message": str(e), "data": None},
-		)
+  try:
+    if not file.filename.endswith(".pdf"):
+      raise HTTPException(status_code=400, detail="Only PDF files are supported.")
+  
+    pdf_content = await file.read()
+    images = convert_from_bytes(pdf_content)
+  
+    model = configure_model()
+  
+    for page_number, image in enumerate(images, start=1):
+      try:
+        if page_number < 4:  # Skip first 3 pages
+          continue
+        image_description = "The image contains a physics diagram showing an experiment setup for studying the relationship between current and force."
+        print(f"prev ques number {current_question_number}")
+  
+        prompt = build_prompt(image_description, current_question_number)
+  
+        response = model.generate_content([prompt, image])
+        print(page_number, response.text)
+  
+        if not response:
+          raise Exception(f"Failed to generate response from the AI model for page {page_number}.")
+  
+        questions = json.loads(response.text)
+        aggregated_questions.append(questions)
+  
+        # to ensure the main question is updated correctly
+        current_question_number = questions.get("question_number")  
+  
+      except Exception as e:
+        print(f"Error on page {page_number}: {str(e)}")
+        continue
+  
+    aggregation_prompt = build_aggregation_prompt(aggregated_questions)
+    aggregation_response = model.generate_content(aggregation_prompt)
+  
+    consolidated_questions = json.loads(aggregation_response.text)
+  
+    return {
+      "status": "success", 
+      "message": "Success", 
+      "consolidated_questions": consolidated_questions
+    }
+  
+  except Exception as e:
+    raise HTTPException(
+      status_code=500,
+      detail={"status": "error", "message": str(e), "data": None},
+    )
