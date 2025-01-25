@@ -5,54 +5,29 @@
     "questions": [
       {
         "question_number": "1",
-        "question_text": "Force and Motion I",
+        "question_text": "Kertas modul ini adalah dalam dwibahasa.",
         "diagram": null,
-        "sub_questions": [
-          {
-            "sub_question": "1",
-            "question_text": "v = u + at",
-            "answer": null,
-            "sub_sub_questions": []
-          },
-          {
-            "sub_question": "2",
-            "question_text": "s = 1/2(u+v)t",
-            "answer": null,
-            "sub_sub_questions": []
-          },
-          {
-            "sub_question": "3",
-            "question_text": "s = ut + 1/2at^2",
-            "answer": null,
-            "sub_sub_questions": []
-          },
-          {
-            "sub_question": "4",
-            "question_text": "v^2 = u^2 + 2as",
-            "answer": null,
-            "sub_sub_questions": []
-          },
-          {
-            "sub_question": "5",
-            "question_text": "Momentum = mv",
-            "answer": null,
-            "sub_sub_questions": []
-          },
-          {
-            "sub_question": "6",
-            "question_text": "F = ma",
-            "answer": null,
-            "sub_sub_questions": []
-          }
-        ]
+        "sub_questions": []
+      },
+      {
+        "question_number": "1",
+        "question_text": "v = u + at",
+        "diagram": "Diagram showing an experiment setup for studying the relationship between current and force",
+        "sub_questions": []
+      },
+      {
+        "question_number": "1",
+        "question_text": "F = kx",
+        "diagram": "A physics diagram showing an experiment setup for studying the relationship between current and force.",
+        "sub_questions": []
       },
       {
         "question_number": "1",
         "question_text": "Diagram 1 shows an electromagnetic wave spectrum.",
-        "diagram": "Diagram 1",
+        "diagram": "Diagram showing an electromagnetic wave spectrum with wavelengths ranging from 400nm to 750nm.",
         "sub_questions": [
           {
-            "sub_question": "(a)",
+            "sub_question": "a",
             "question_text": "The type of spectrum shown in Diagram 1 is",
             "answer": null,
             "sub_sub_questions": []
@@ -60,19 +35,43 @@
         ]
       },
       {
-        "question_number": "c",
-        "question_text": "Based on Quantum Physics Theory, light energy exists in the form of photon.",
-        "diagram": null,
+        "question_number": "1",
+        "question_text": "State how the spectrum in 1(a) is produced.",
+        "diagram": "Diagram showing an experiment setup for studying the relationship between current and force",
         "sub_questions": [
           {
-            "sub_question": "(i)",
-            "question_text": "What is the meaning of photon?",
+            "sub_question": "c",
+            "question_text": "Based on Quantum Physics Theory, light energy exists in the form of photon.",
+            "answer": null,
+            "sub_sub_questions": [
+              {
+                "sub_sub_question": "i",
+                "question_text": "What is the meaning of photon?",
+                "answer": null
+              },
+              {
+                "sub_sub_question": "ii",
+                "question_text": "What happens to the photon energy if the frequency of the light wave decreased?",
+                "answer": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "question_number": "2",
+        "question_text": "Diagram 2.1 shows the refraction of water waves when approaching the beach.",
+        "diagram": "Diagram 2.1 shows the refraction of water waves when approaching the beach.",
+        "sub_questions": [
+          {
+            "sub_question": "a",
+            "question_text": "What is the meaning of refraction of waves?",
             "answer": null,
             "sub_sub_questions": []
           },
           {
-            "sub_question": "(ii)",
-            "question_text": "What happens to the photon energy if the frequency of the light wave decreased?",
+            "sub_question": "b",
+            "question_text": "Diagram 2.2 shows the propagation of water wave from the deep sea region.",
             "answer": null,
             "sub_sub_questions": []
           }
@@ -80,42 +79,54 @@
       },
       {
         "question_number": "2",
-        "question_text": "Diagram 2.1 shows the refraction of water waves when approaching the beach. Diagram 2.2 shows the propagation of water wave from the deep sea region.",
-        "diagram": "Diagram 2.1 and Diagram 2.2",
+        "question_text": "On Diagram 2.2,\n(i) complete the direction of propagation of water wave in the shallow sea.\n(ii) draw the wavefronts of the water waves in the shallow sea.",
+        "diagram": "Diagram 2.2",
         "sub_questions": [
           {
-            "sub_question": "(a)",
-            "question_text": "What is the meaning of refraction of waves?",
-            "answer": null,
-            "sub_sub_questions": []
-          },
-          {
-            "sub_question": "(b)",
-            "question_text": "Direction of propagation of wave",
+            "sub_question": "c",
+            "question_text": "The speed of water waves in shallow sea and deep sea are 4.0 m s⁻¹ and 9.0 m s⁻¹ respectively. The wavelength in the deep sea is 5.0 m. Calculate the wavelength in the shallow sea.",
             "answer": null,
             "sub_sub_questions": []
           }
         ]
       },
       {
-        "question_number": "c",
-        "question_text": "The speed of water waves in shallow sea and deep sea are 4.0 m s⁻¹ and 9.0 m s⁻¹ respectively. The wavelength in the deep sea is 5.0 m. Calculate the wavelength in the shallow sea.",
-        "diagram": "Diagram 2.2",
+        "question_number": "3",
+        "question_text": "Diagram 3.1 shows 0.6 kg of ice is heated using a 1000 W immersion heater. Specific latent heat of fusion of ice is 334 000 J kg-1.",
+        "diagram": "Diagram 3.1 shows an experiment setup for studying the relationship between current and force.  It includes a spring balance, immersion heater, ice, beaker, power supply, retort stand etc.",
         "sub_questions": []
       },
       {
-        "question_number": "3",
-        "question_text": "Diagram 3.1 shows 0.6 kg of ice is heated using a 1000 W immersion heater. Specific latent heat of fusion of ice is 334 000 J kg⁻¹. Diagram 3.2 shows a graph of mass of ice, m, change with time, t during heating.",
-        "diagram": "Diagram 3.1 and 3.2",
-        "sub_questions": []
+        "question_number": "1",
+        "question_text": "What is the meaning of specific latent heat of fusion?",
+        "diagram": "Diagram 3.2",
+        "sub_questions": [
+          {
+            "sub_question": "a",
+            "question_text": "Based on Diagram 3.2,",
+            "answer": null,
+            "sub_sub_questions": [
+              {
+                "sub_sub_question": "i",
+                "question_text": "calculate the quantity of heat absorbed by the ice during melting. Assume no heat released to the surrounding.",
+                "answer": null
+              },
+              {
+                "sub_sub_question": "ii",
+                "question_text": "determine the value of X.",
+                "answer": null
+              }
+            ]
+          }
+        ]
       },
       {
         "question_number": "4",
         "question_text": "Diagram 4.1 shows the position of the Sun, Earth and Moon.",
-        "diagram": "Diagram 4.1",
+        "diagram": "Diagram showing the positions of the Sun, Earth, and the Moon.",
         "sub_questions": [
           {
-            "sub_question": "(a)",
+            "sub_question": "a",
             "question_text": "State the Newton's Universal Law of Gravitation.",
             "answer": null,
             "sub_sub_questions": []
@@ -123,55 +134,85 @@
         ]
       },
       {
-        "question_number": "b",
+        "question_number": "1",
         "question_text": "Calculate the gravitational force between the Earth and the Sun.",
-        "diagram": null,
+        "diagram": "A physics diagram showing an experiment setup for studying the relationship between current and force.",
         "sub_questions": []
       },
       {
-        "question_number": "d",
+        "question_number": "1",
+        "question_text": "Diagram 4.2 shows a rocket at a launch site.",
+        "diagram": "Diagram 4.2 showing a rocket at a launch site",
+        "sub_questions": [
+          {
+            "sub_question": "a",
+            "question_text": "The rocket at the launch site experiences gravitational force of 5.0 × 10<sup>5</sup> N. Calculate the mass of the rocket.",
+            "answer": null,
+            "sub_sub_questions": []
+          },
+          {
+            "sub_question": "b",
+            "question_text": "If the rocket is 100 km from the Earth's surface, what is the change of gravitational force acted on the rocket?",
+            "answer": null,
+            "sub_sub_questions": []
+          }
+        ]
+      },
+      {
+        "question_number": "1",
         "question_text": "According to Newton's Universal Law of Gravitation, two persons on the surface of the Earth experience the gravitational force. Explain why the effect of the force is not felt?",
-        "diagram": null,
+        "diagram": "A physics diagram showing an experiment setup for studying the relationship between current and force.",
         "sub_questions": []
       },
       {
         "question_number": "5",
         "question_text": "Diagram 5.1 and Diagram 5.2 shows the arrangement of the apparatus in an experiment to study the relationship between the current and the force acting on a conductor when the switch is closed.",
-        "diagram": "Diagram 5.1 and Diagram 5.2",
+        "diagram": "Diagram 5.1 and Diagram 5.2 showing the experimental setup for studying the relationship between current and force.",
         "sub_questions": []
       },
       {
-        "question_number": "5",
-        "question_text": "Observe Diagram 5.1 and Diagram 5.2. Compare the ammeter reading, the distance travelled by the copper rod, and the magnetic field strength of the permanent magnet. Based on your answer, state the relationship between the magnitude of current and the distance travelled by the copper rod.",
-        "diagram": "Diagram 5.1 and Diagram 5.2",
+        "question_number": "1",
+        "question_text": "Name the rule used to determine the direction of force acted on the conductor.",
+        "diagram": "Diagram 5.1 and Diagram 5.2 showing an experiment setup for studying the relationship between current and force",
         "sub_questions": [
           {
-            "sub_question": "(a)",
-            "question_text": "Name the rule used to determine the direction of force acted on the conductor.",
+            "sub_question": "a",
+            "question_text": "Observe Diagram 5.1 and Diagram 5.2. Compare",
             "answer": null,
-            "sub_sub_questions": []
+            "sub_sub_questions": [
+              {
+                "sub_sub_question": "i",
+                "question_text": "the ammeter reading.",
+                "answer": null
+              },
+              {
+                "sub_sub_question": "ii",
+                "question_text": "the distance travelled by the copper rod.",
+                "answer": null
+              },
+              {
+                "sub_sub_question": "iii",
+                "question_text": "the magnetic field strength of the permanent magnet.",
+                "answer": null
+              }
+            ]
           },
           {
-            "sub_question": "(b)(i)",
-            "question_text": "Compare the ammeter reading.",
-            "answer": null,
-            "sub_sub_questions": []
-          },
-          {
-            "sub_question": "(b)(ii)",
-            "question_text": "Compare the distance travelled by the copper rod.",
-            "answer": null,
-            "sub_sub_questions": []
-          },
-          {
-            "sub_question": "(b)(iii)",
-            "question_text": "Compare the magnetic field strength of the permanent magnet.",
-            "answer": null,
-            "sub_sub_questions": []
-          },
-          {
-            "sub_question": "(c)",
+            "sub_question": "b",
             "question_text": "Based on your answer in 5(b), state the relationship between the magnitude of current and the distance travelled by the copper rod.",
+            "answer": null,
+            "sub_sub_questions": []
+          }
+        ]
+      },
+      {
+        "question_number": "1",
+        "question_text": "Hence, deduce the relationship between the magnitude of the current and the magnetic force produced.",
+        "diagram": "Diagram showing an experiment setup for studying the relationship between current and force",
+        "sub_questions": [
+          {
+            "sub_question": "a",
+            "question_text": "What will happen to the distance travelled by the copper rod if a stronger magnet is used?",
             "answer": null,
             "sub_sub_questions": []
           }
@@ -180,10 +221,10 @@
       {
         "question_number": "6",
         "question_text": "Diagram 6.1(a) and Diagram 6.1(b) show a trolley moves down on inclined plane with different height, h.",
-        "diagram": "Diagram 6.1(a) and Diagram 6.1(b)",
+        "diagram": "Diagram showing two inclined planes with trolleys of different heights.",
         "sub_questions": [
           {
-            "sub_question": "(a)",
+            "sub_question": "a",
             "question_text": "What is the meaning of momentum?",
             "answer": null,
             "sub_sub_questions": []
@@ -191,43 +232,55 @@
         ]
       },
       {
-        "question_number": "b",
+        "question_number": "1",
         "question_text": "Based on Diagram 6.1(a) and Diagram 6.1(b), compare",
         "diagram": "Diagram 6.1(a) and Diagram 6.1(b)",
         "sub_questions": [
           {
-            "sub_question": "(i)",
-            "question_text": "the height of the inclined plane",
+            "sub_question": "a",
+            "question_text": "the height of the inclined plane.",
             "answer": null,
             "sub_sub_questions": []
           },
           {
-            "sub_question": "(ii)",
-            "question_text": "the velocity of the trolley at P",
+            "sub_question": "b",
+            "question_text": "the velocity of the trolley at P.",
             "answer": null,
             "sub_sub_questions": []
           },
           {
-            "sub_question": "(iii)",
-            "question_text": "the momentum of the trolley at P",
+            "sub_question": "c",
+            "question_text": "the momentum of the trolley at P.",
+            "answer": null,
+            "sub_sub_questions": []
+          },
+          {
+            "sub_question": "d",
+            "question_text": "Relate the height of inclined plane and the velocity of the trolley at P.",
+            "answer": null,
+            "sub_sub_questions": []
+          },
+          {
+            "sub_question": "e",
+            "question_text": "State the relationship between the velocity of the trolley and its momentum.",
             "answer": null,
             "sub_sub_questions": []
           }
         ]
       },
       {
-        "question_number": "e",
+        "question_number": "1",
         "question_text": "Based on the ticker tape, calculate",
-        "diagram": "Diagram 6.2",
+        "diagram": "Diagram 6.2 shows a strip of ticker tape for a motion of a trolley with mass of 4 kg. Frequency of the ticker timer used is 50 Hz. The diagram shows a strip of ticker tape with dots indicating the motion of a trolley. The distance between the dots is uniform and a length of 10 cm is marked on the ticker tape.",
         "sub_questions": [
           {
-            "sub_question": "(i)",
+            "sub_question": "a",
             "question_text": "velocity of the trolley",
             "answer": null,
             "sub_sub_questions": []
           },
           {
-            "sub_question": "(ii)",
+            "sub_question": "b",
             "question_text": "momentum of the trolley",
             "answer": null,
             "sub_sub_questions": []
@@ -237,10 +290,10 @@
       {
         "question_number": "7",
         "question_text": "Diagram 7.1 shows an electron beam that is accelerated from the cathode to the anode in a vacuum space. The potential difference across the electrodes is 500 V.",
-        "diagram": "Diagram 7.1",
+        "diagram": "Diagram showing an electron beam accelerated from a cathode to an anode in a vacuum space with a 500V potential difference.",
         "sub_questions": [
           {
-            "sub_question": "(a)",
+            "sub_question": "a",
             "question_text": "State the type of motion of the electron beam which moves across the electrodes in the vacuum space.",
             "answer": null,
             "sub_sub_questions": []
@@ -248,18 +301,25 @@
         ]
       },
       {
-        "question_number": "c",
-        "question_text": "Diagram 7.2 shows the production of cathode rays in a vacuum tube.",
-        "diagram": "Diagram 7.2",
-        "sub_questions": []
+        "question_number": "1",
+        "question_text": "Calculate the maximum velocity of the electron across cathode and anode. [Mass of an electron, m = 9.11 x 10<sup>-31</sup> kg, charge of an electron, e = 1.6 x 10<sup>-19</sup> C]",
+        "diagram": "Diagram showing an experiment setup for studying the relationship between current and force",
+        "sub_questions": [
+          {
+            "sub_question": "a",
+            "question_text": "Explain the process shown in Diagram 7.2.",
+            "answer": null,
+            "sub_sub_questions": []
+          }
+        ]
       },
       {
         "question_number": "1",
         "question_text": "Based on Table 1, state the suitable characteristics of a heating filament. Give a reason.",
-        "diagram": "Table 1",
+        "diagram": "Table showing characteristics of heating filaments P, Q, and R, including type of material and shape.",
         "sub_questions": [
           {
-            "sub_question": "(i)",
+            "sub_question": "a",
             "question_text": "Type of material",
             "answer": null,
             "sub_sub_questions": []
@@ -267,43 +327,18 @@
         ]
       },
       {
-        "question_number": "d",
-        "question_text": "Based on your answer in 7(c)(i) and 7(c)(ii), determine the most suitable heating filament.",
-        "diagram": "physics diagram showing an experiment setup for studying the relationship between current and force",
-        "sub_questions": []
-      },
-      {
-        "question_number": "8",
-        "question_text": "Diagram 8.1 shows a LED lamp labelled 240 V, 12 W.",
-        "diagram": "Diagram 8.1",
-        "sub_questions": [
-          {
-            "sub_question": "(a)",
-            "question_text": "What is the meaning of label 240 V, 12 W?",
-            "answer": null,
-            "sub_sub_questions": []
-          },
-          {
-            "sub_question": "(b)",
-            "question_text": "Calculate the electrical energy used by LED lamp in 5 hours.",
-            "answer": null,
-            "sub_sub_questions": []
-          }
-        ]
-      },
-      {
-        "question_number": "c",
+        "question_number": "1",
         "question_text": "State the characteristics of the wire used in the lamp wiring system to reduce the electrical energy consumption and can function effectively.",
-        "diagram": "Diagram 8.2",
+        "diagram": "Diagram 8.2 shows the layout of the lights that will be built to illuminate the courtyard of a residence at night.",
         "sub_questions": [
           {
-            "sub_question": "(i)",
+            "sub_question": "a",
             "question_text": "Type of connecting wire",
             "answer": null,
             "sub_sub_questions": []
           },
           {
-            "sub_question": null,
+            "sub_question": "b",
             "question_text": "Reason",
             "answer": null,
             "sub_sub_questions": []
@@ -311,12 +346,12 @@
         ]
       },
       {
-        "question_number": "ii",
+        "question_number": "1",
         "question_text": "Cross section area",
-        "diagram": null,
+        "diagram": "Diagram showing an experiment setup for studying the relationship between current and force",
         "sub_questions": [
           {
-            "sub_question": null,
+            "sub_question": "a",
             "question_text": "Reason",
             "answer": null,
             "sub_sub_questions": []
@@ -324,100 +359,103 @@
         ]
       },
       {
-        "question_number": "d",
-        "question_text": "In the model of hydraulic bridge, the cross-sectional area of the large piston and the small piston are 0.01 m² and 0.002 m² respectively. A force of 5 N is applied to the small piston. Calculate",
-        "diagram": null,
+        "question_number": "9",
+        "question_text": "Diagram 9.1 shows a simple structure of a hydraulic system.",
+        "diagram": "Diagram showing a simple structure of a hydraulic system with a small piston (Omboh kecil) on the left and a large piston (Omboh besar) on the right.  A force F1 is applied to the small piston and a force F2 is exerted by the large piston.",
         "sub_questions": [
           {
-            "sub_question": "(i)",
-            "question_text": "the pressure, P produced on the small piston.",
+            "sub_question": "a",
+            "question_text": "State the principle applied to the hydraulic system.",
             "answer": null,
             "sub_sub_questions": []
           },
           {
-            "sub_question": "(ii)",
-            "question_text": "the force, F exerted on the large piston.",
+            "sub_question": "b",
+            "question_text": "Explain the working principle of the hydraulic system.",
             "answer": null,
             "sub_sub_questions": []
           }
         ]
       },
       {
-        "question_number": "10",
-        "question_text": "Diagram 10.1 shows the wavefront pattern of water wave.",
-        "diagram": "Diagram 10.1",
+        "question_number": "1",
+        "question_text": "You are required to investigate the characteristics of a hydraulic bridge as shown in Table 2.",
+        "diagram": "Diagram 9.2 shows a hydraulic bridge.",
+        "sub_questions": []
+      },
+      {
+        "question_number": "1",
+        "question_text": "Explain the suitability of each characteristic of hydraulic bridge. Determine the hydraulic bridge that can be operated more effective.",
+        "diagram": "Diagram showing an experiment setup for studying the relationship between current and force",
         "sub_questions": [
           {
-            "sub_question": "(a)",
-            "question_text": "Name the phenomenon involved.",
-            "answer": null,
-            "sub_sub_questions": []
-          },
-          {
-            "sub_question": "(b)",
-            "question_text": "Based on Diagram 10.1,",
+            "sub_question": "d",
+            "question_text": "In the model of hydraulic bridge, the cross-sectional area of the large piston and the small piston are 0.01 m² and 0.002 m² respectively. A force of 5 N is applied to the small piston. Calculate",
             "answer": null,
             "sub_sub_questions": [
               {
-                "sub_sub_question": "(i)",
-                "question_text": "what happened to the amplitude and speed of the wave after passes through the barrier?",
-                "answer": null,
-                "sub_sub_questions": []
+                "sub_sub_question": "i",
+                "question_text": "the pressure, P produced on the small piston.",
+                "answer": null
               },
               {
-                "sub_sub_question": "(ii)",
-                "question_text": "Explain your answer in 10(b)(i).",
-                "answer": null,
-                "sub_sub_questions": []
+                "sub_sub_question": "ii",
+                "question_text": "the force, F exerted on the large piston.",
+                "answer": null
               }
             ]
           }
         ]
       },
       {
-        "question_number": "3",
-        "question_text": "Table 3 shows the specifications of four transmitting systems, S, T, U and V, that can be used for transmitting electromagnetic waves in telecommunication.  Use the table to answer the following questions.",
-        "diagram": "Diagram 10.2",
+        "question_number": "10",
+        "question_text": "Diagram 10.1 shows the wavefront pattern of a water wave.",
+        "diagram": "Diagram showing the wavefront pattern of water wave after passing through a barrier",
         "sub_questions": [
           {
             "sub_question": "a",
-            "question_text": "What types of waves are transmitted by each system (S, T, U, V)?",
-            "answer": "S: Radio waves\nT: Microwaves\nU: Radio waves\nV: Microwaves",
+            "question_text": "Name the phenomenon involved.",
+            "answer": null,
             "sub_sub_questions": []
           },
           {
             "sub_question": "b",
-            "question_text": "Where are the transmission towers located for each system?",
-            "answer": "S: Hilltops\nT: Sea level\nU: Sea level\nV: Hilltops",
-            "sub_sub_questions": []
-          },
-          {
-            "sub_question": "c",
-            "question_text": "How many relay towers are used for each system?",
-            "answer": "S: More\nT: Less\nU: Less\nV: More",
-            "sub_sub_questions": []
-          },
-          {
-            "sub_question": "d",
-            "question_text": "What is the frequency of waves for each system?",
-            "answer": "S: Low\nT: High\nU: High\nV: High",
-            "sub_sub_questions": []
+            "question_text": "Based on Diagram 10.1,",
+            "answer": null,
+            "sub_sub_questions": [
+              {
+                "sub_sub_question": "i",
+                "question_text": "what happened to the amplitude and speed of the wave after passes through the barrier?",
+                "answer": null
+              },
+              {
+                "sub_sub_question": "ii",
+                "question_text": "Explain your answer in 10(b)(i).",
+                "answer": null
+              }
+            ]
           }
         ]
       },
       {
-        "question_number": "d",
+        "question_number": "1",
+        "question_text": "Diagram 10.2 shows a transmission tower being used for transmission of electromagnetic waves in telecommunication. Table 3 shows the specifications of four transmitting systems, S, T, U and V, that can be used for transmitting electromagnetic waves in telecommunication.",
+        "diagram": "Diagram 10.2 shows a transmission tower",
+        "sub_questions": []
+      },
+      {
+        "question_number": "4",
         "question_text": "A large fishing boat uses ultrasonic wave to detect the location of a shoal of fish below the boat. Ultrasonic wave of speed 1 500 m s⁻¹ is directed to the fish, calculate",
-        "diagram": null,
+        "diagram": "A physics diagram showing an experiment setup for studying the relationship between current and force.",
         "sub_questions": [
           {
-            "sub_question": "(i)",
+            "sub_question": "a",
             "question_text": "the wave frequency, if the wavelength is 3.2 cm,",
             "answer": null,
             "sub_sub_questions": []
           },
           {
-            "sub_question": "(ii)",
+            "sub_question": "b",
             "question_text": "the depth of the fish if the echo is received after 73 ms.",
             "answer": null,
             "sub_sub_questions": []
@@ -427,16 +465,16 @@
       {
         "question_number": "11",
         "question_text": "Diagram 11.1 shows a boy playing a horse spring.",
-        "diagram": "Diagram 11.1",
+        "diagram": "Diagram showing a boy playing on a spring toy.",
         "sub_questions": [
           {
-            "sub_question": "(a)",
+            "sub_question": "a",
             "question_text": "State Hooke's law.",
             "answer": null,
             "sub_sub_questions": []
           },
           {
-            "sub_question": "(b)",
+            "sub_question": "b",
             "question_text": "Diagram 11.2(a) shows the original length of a spring before a load is placed on it. Diagram 11.2(b) shows the same spring after the load is removed. Using the correct physics concept, explain the changes of the condition of spring.",
             "answer": null,
             "sub_sub_questions": []
@@ -444,15 +482,22 @@
         ]
       },
       {
-        "question_number": "c",
-        "question_text": "By using Diagram 11.3(a) and Diagram 11.3(b), compare the initial length of spring, thickness of spring and compression of spring. Relate the thickness of spring and the compression of spring to make a deduction regarding the relationship between the thickness of spring and the spring constant",
-        "diagram": "Diagram 11.3(a) and Diagram 11.3(b)",
-        "sub_questions": []
+        "question_number": "1",
+        "question_text": "By using Diagram 11.3(a) and Diagram 11.3(b), compare the initial length of spring, thickness of spring and compression of spring.",
+        "diagram": "Diagram 11.3(a) shows the initial length, Lo of spring A and spring B. Diagram 11.3(b) shows the length of the spring, L₁ after a load of 100 N is put on it.",
+        "sub_questions": [
+          {
+            "sub_question": "a",
+            "question_text": "Relate the thickness of spring and the compression of spring to make a deduction regarding the relationship between the thickness of spring and the spring constant",
+            "answer": null,
+            "sub_sub_questions": []
+          }
+        ]
       },
       {
-        "question_number": "d",
-        "question_text": "Diagram 11.4 shows a sofa that uses springs as a load supporter. Using appropriate physics concepts, suggest the use of materials and appropriate design of sofa that can accommodate a person with a larger mass and more comfortable. Your proposal must include the characteristics of the spring and the additional features.",
-        "diagram": "Diagram 11.4",
+        "question_number": "1",
+        "question_text": "Using appropriate physics concepts, suggest the use of materials and appropriate design of sofa that can accommodate a person with a larger mass and more comfortable. Your proposal must include the characteristics of the spring and the additional features.",
+        "diagram": "Diagram 11.4 shows a sofa that uses springs as a load supporter.",
         "sub_questions": []
       }
     ]

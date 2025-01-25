@@ -31,34 +31,54 @@ def configure_model():
 	)
 
 def build_prompt(image_description):
-	prompt = f"""
-	Extract the questions, question description, and relevant structure from the following text description of the image. Only extract English content, ignoring bilingual elements or diagram text.
+    prompt = f"""
+    STRICT EXTRACTION GUIDELINES:
 
-	Image description:
-	{image_description}
+    1. Question Number Parsing Rules:
+    - ONLY use numeric integers for main question numbers (1, 2, 3, etc.)
+    - Use alphabetic characters (a, b, c) ONLY for sub-questions
+    - Use roman numerals (i, ii, iii) for sub-sub-questions
 
-	The output must follow this structure:
-	{{
-		"question_number": "string",  // e.g., "5"
-		"question_text": "string",    // Main question description
-		"diagram": "string",          // Diagram reference, if any
-		"sub_questions": [
-			{{
-				"sub_question": "string",   // Sub-question identifier (e.g., "a", "b")
-				"question_text": "string",  // Text of the sub-question
-				"answer": "string",         // Answer, if included
-				"sub_sub_questions": [      // Nested sub-questions, if any
-					{{
-						"sub_sub_question": "string",
-						"question_text": "string",
-						"answer": "string"
-					}}
-				]
-			}}
-		]
-	}}
-	"""
-	return prompt
+    2. Extraction Process:
+    - Identify the MAIN question number as a numeric value
+    - Identify sub-questions with alphabetic labels
+    - Identify sub-sub-questions with roman numerals
+    - NEVER use a, b, c as primary question numbers
+
+    3. Structural Requirements:
+    Produce a JSON with this EXACT structure:
+    {{
+        "question_number": "integer",  // MUST be a number
+        "question_text": "string",     // Full main question description
+        "diagram": "string",           // Diagram reference or description
+        "sub_questions": [
+            {{
+                "sub_question": "string",   // Use "a", "b", "c" etc.
+                "question_text": "string",  // Sub-question text
+                "answer": "string",         // Optional answer
+                "sub_sub_questions": [
+                    {{
+                        "sub_sub_question": "string", // Use "i", "ii", "iii"
+                        "question_text": "string",
+                        "answer": "string"
+                    }}
+                ]
+            }}
+        ]
+    }}
+
+    4. Content Extraction Instructions:
+    - Extract ONLY English content
+    - Ignore bilingual elements
+    - Ignore diagram text not part of the actual question
+    - Be precise and comprehensive
+
+    Image description:
+    {image_description}
+
+    CRITICAL: If no clear question structure is found, return an empty JSON with an explanation in a comment.
+    """
+    return prompt
 
 def build_aggregation_prompt(aggregated_questions):
 	prompt = f"""
