@@ -3,3 +3,4 @@ uvicorn[standard]
 pillow
 google-generativeai
 python-multipart
+pdf2image
