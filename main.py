@@ -72,6 +72,14 @@ def build_aggregation_prompt(aggregated_questions):
 	2. Preserve all details from the original extraction
 	3. Resolve any potential duplicates or overlapping information
 	4. Maintain the original nested structure of sub-questions
+	5. If the page does not explicitly show a new question number:
+	   - Assume the content belongs to the previous question's sub-questions
+	   - If no previous question exists, treat as a new question
+	6. Identify and categorize:
+	   - Main question number
+	   - Question text
+	   - Sub-questions (if any)
+	   - Sub-sub-questions (if present)
 
 	Output the consolidated questions in the same JSON structure as the original prompt.
 	"""
@@ -117,7 +125,7 @@ async def analyse_pdf(file: UploadFile = File(...)):
 		return {
 			"status": "success", 
 			"message": "Success", 
-			"original_page_questions": aggregated_questions,
+			# "original_page_questions": aggregated_questions,
 			"consolidated_questions": consolidated_questions
 		}
 
