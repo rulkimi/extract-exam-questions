@@ -106,15 +106,15 @@ def build_aggregation_prompt(aggregated_questions):
   OUTPUT REQUIREMENTS:
   {{
     "question_number": "...", 
-    "question_text": "Comprehensive combined question text",
-    "sub_questions": [
+    "question_text": ["..."],
+    "questions": [
       {{
-        "sub_question": "...",
-        "question_text": "Merged sub-question content",
-        "sub_sub_questions": [
+        "question": "...",
+        "question_text": ["..."],
+        "sub_questions": [
           {{
-            "sub_sub_question": "...",
-            "question_text": "Consolidated sub-sub-question"
+            "sub_question": "...",
+            "question_text": "sub-question"
           }}
         ]
       }}
@@ -133,41 +133,54 @@ async def analyse_pdf(file: UploadFile = File(...)):
             raise HTTPException(status_code=400, detail="Only PDF files are supported.")
 
         # Read the PDF content (await the asynchronous read)
-        pdf_content = await file.file.read()
-        print(pdf_content)
+        pdf_content = await file.read()
 
         # Encode the PDF content in Base64
         pdf_content_base64 = base64.standard_b64encode(pdf_content).decode("utf-8")
-        print(pdf_content_base64)
 
         # Configure the Gemini AI model
         model = configure_model()
 
         # Define the prompt for question extraction
-        prompt = f"""Extract questions from this document and put them in a JSON file in this format:
+        prompt = f"""Extract questions from this document and put them in a JSON object in this format:
+        VERY IMPORTANT, PLEASE EXTRACT CAREFULLY HERE. CHECK IF THERE ARE ANY OF THESE:
+        1. Strict Numbering Format: IMPORTANT!!! CHECK THESE PATTENRS
+          - Main Questions: "1", "2", "3"
+          - Questions: "(a)", "(b)", "(c)"
+          - Sub-Questions: "(i)", "(ii)", "(iii)"
+
+
         OUTPUT STRUCTURE:
         {{
-            "question_number": "...", 
-            "question_text": "Question text",
-            "sub_questions": [
-                {{
-                    "sub_question": "...",
-                    "question_text": "Sub-question text",
-                    "sub_sub_questions": [
-                        {{
-                            "sub_sub_question": "...",
-                            "question_text": "Sub-sub-question text"
-                        }}
-                    ]
-                }}
+            "result": [
+              {{                
+                  "main_question_number": "...", 
+                  "main_question_header": ["..."],
+                  "questions": [
+                      {{
+                          "question_alphabet": "...",
+                          "question_header": "...",
+                          "question_text": "...",
+                          "sub_questions": [
+                              {{
+                                  "sub_question_numeral": "...",
+                                  "sub_question_text": "..."
+                              }}
+                          ]
+                      }}
+                  ]
+              }}
+              // ... other questions
             ]
         }}
+
         CONTENT CONSTRAINTS:
         - English only
         - Ignore bilingual elements
         - Preserve complete question semantics"""
 
         # Generate content using the Gemini AI model
+        print(prompt)
         response = model.generate_content([
             {'mime_type': 'application/pdf', 'data': pdf_content_base64}, 
             prompt
@@ -175,12 +188,14 @@ async def analyse_pdf(file: UploadFile = File(...)):
 
         if not response:
             raise Exception("Failed to generate response from the AI model.")
+        
+        print(json.loads(response.text))
 
         # Return the extracted questions as JSON
         return {
             "status": "success",
             "message": "Success",
-            "data": response.text
+            "data": json.loads(response.text)
         }
 
     except Exception as e:
