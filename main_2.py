@@ -11,8 +11,6 @@ load_dotenv()
 app = FastAPI()
 
 origins = ["http://localhost:5173"]
-if "PATH" in os.environ:
-  os.environ["PATH"] += ":/opt/homebrew/bin"
 
 app.add_middleware(
   CORSMiddleware,
@@ -135,10 +133,12 @@ async def analyse_pdf(file: UploadFile = File(...)):
             raise HTTPException(status_code=400, detail="Only PDF files are supported.")
 
         # Read the PDF content (await the asynchronous read)
-        pdf_content = await file.read()
+        pdf_content = await file.file.read()
+        print(pdf_content)
 
         # Encode the PDF content in Base64
         pdf_content_base64 = base64.standard_b64encode(pdf_content).decode("utf-8")
+        print(pdf_content_base64)
 
         # Configure the Gemini AI model
         model = configure_model()
