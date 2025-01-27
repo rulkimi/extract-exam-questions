@@ -108,135 +108,135 @@ def build_prompt():
               "sub_questions": [],
               "marks": 1
             }},
-              {{
-                "question_alphabet": "(b)",
-                "question_text": [""],
-                "sub_questions": [
-                  {{
-                    "sub_question_numeral": "(i)",
-                    "sub_question_text": ["Determine the value of the linear speed of the Venus at point X"],
-                    "marks": 2,
-                  }},
-                  {{
-                    "sub_question_numeral": "(ii)",
-                    "sub_question_text": ["State the change in linear speed of the Venus when moving from point C to D."],
-                    "marks": 1,
-                  }}
-                ]
-              }},
-              {{
-                "question_alphabet": "c",
-                "question_text": ["Explain your answer in 3(b)(ii)."],
-                "sub_questions": [],
-                "marks": 2,
-              }}
+            {{
+              "question_alphabet": "(b)",
+              "question_text": [""],
+              "sub_questions": [
+                {{
+                  "sub_question_numeral": "(i)",
+                  "sub_question_text": ["Determine the value of the linear speed of the Venus at point X"],
+                  "marks": 2,
+                }},
+                {{
+                  "sub_question_numeral": "(ii)",
+                  "sub_question_text": ["State the change in linear speed of the Venus when moving from point C to D."],
+                  "marks": 1,
+                }}
+              ]
+            }},
+            {{
+              "question_alphabet": "c",
+              "question_text": ["Explain your answer in 3(b)(ii)."],
+              "sub_questions": [],
+              "marks": 2,
+            }}
           ] 
-      }},
-      {{                
-        "main_question_number": "7", 
-        "main_question_header": [
-          "Diagram 7.1 shows a glass block with refractive index of 1.47 placed in oil reservoir.",
-          "Diagram 7.2 shows a ray diagram of light travel from oil to the glass block from top view."
-        ],
-        "questions": [
-          {{
-            "question_alphabet": "(a)",
-            "question_text": ["What is meant by refractive index?"],
-            "sub_questions": [],
-            "marks": 1,
-          }},
-          {{
-            "question_alphabet": "(b)",
-            "question_text": ["Complete the beam of light when entering the glass block and label the angle of refraction, r."],
-            "sub_questions": [],
-            "marks": 1
-          }},
-          {{
-            "question_alphabet": "(c)",
-            "question_text": [
-                "Calculate the value of the angle of refraction, when the index of refraction of the glass block is 1.47",
-            ]
-            "sub_questions": [],
-            "marks": 2
-          }},
-          {{
-            "question_alphabet": "(d)",
-            "question_text": [
-              "Diagram 7.3 shows the arrangement of the apparatus used to create the magic trick of making the glass rod appear to disappear when placed behind the beaker.",
-              "Table 7 shows the different characteristics of the arrangement of apparatus used to produce the trick.",
-              "Based on Table 7, state the appropriate characteristics to make the glass rod disappear from view"
-            ],
-            "sub_questions": [
-              {{
-                "sub_question_numeral": "(i)",
-                "sub_question_text": [
-                  "Type of rod",
-                  "Reason"
-                ],
-                "marks": 2
-              }},
-              {{
-                "sub_question_numeral": "(ii)",
-                "sub_question_text": [
-                  "Refractive index of the oil",
-                  "Reason"
-                ],
-                "marks": 2
-              }}
-            ]
-          }},
-          {{
-            "question_alphabet": "(e)",
-            "question_text": [
-              "Based on your answers in 7(d)(i) and 7(d)(ii), choose the most appropriate model to create a perfect magic trick"
-            ],
-            "marks": 1
-          }}
-        ]
-      }},
-      {{                
-        "main_question_number": "9", 
-        "main_question_header": ["Diagram 9.1 shows some of the components of the cooling system of a refrigerator using cooling agent with high specific latent heat. 
-        Arrows indicate the flow of cooling agent from the compressor to the condenser coil and back to the compressor."],
-        "questions": [
-          {{
-            "question_alphabet": "(a)",
-            "question_text": ["What is meant by specific latent heat?"],
-            "sub_questions": [],
-            "marks": 1,
-          }},
-          {{
-            "question_alphabet": "(b)",
-            "question_text": ["Based on Diagram 9.1 and appropriate physics concepts, explain how the cooling system in a refrigerator works."],
-            "sub_questions": [],
-            "marks": 3
-          }},
-          {{
-            "question_alphabet": "(c)",
-            "question_text": ["Diagram 9.2 shows an electric steamer without a lid.",
-            "You are required to study the characteristics of an electric steamer as shown in Table 9.",
-            "Explain the suitability of each characteristic of an electric steamer. Determine the most effective electric steamer to use to cook large quantities of food more quickly, efficiently, and safely."],
-            "sub_questions": [],
-            "marks": 10
-          }},
-          {{
-            "question_alphabet": "(d)",
-            "question_text": ["A chicken is cooked in an electric steamer. 0.8 kg of water at a temperature of 30 oC turns into steam.",
-            "[Specific heat capacity of water, c = 4.20 × 103 J kg−1 oC−1]",
-            "[Specific latent heat of vaporization of water, lv = 2.26 × 106 J kg−1]"],
-            "sub_questions": [
-              {{
-                "sub_question_numeral": "(i)",
-                "sub_question_text": ["Calculate the heat energy absorbed to raise the temperature of the water from 30 oC to 100 oC."],
-                "marks": 3
-              }},
-              {{
-                "sub_question_numeral": "(ii)",
-                "sub_question_text": ["Calculate the amount of energy absorbed to change the water into steam."],
-                "marks": 2
-              }}
-            ]
-          }}
+        }},
+        {{                
+          "main_question_number": "7", 
+          "main_question_header": [
+            "Diagram 7.1 shows a glass block with refractive index of 1.47 placed in oil reservoir.",
+            "Diagram 7.2 shows a ray diagram of light travel from oil to the glass block from top view."
+          ],
+          "questions": [
+            {{
+              "question_alphabet": "(a)",
+              "question_text": ["What is meant by refractive index?"],
+              "sub_questions": [],
+              "marks": 1,
+            }},
+            {{
+              "question_alphabet": "(b)",
+              "question_text": ["Complete the beam of light when entering the glass block and label the angle of refraction, r."],
+              "sub_questions": [],
+              "marks": 1
+            }},
+            {{
+              "question_alphabet": "(c)",
+              "question_text": [
+                  "Calculate the value of the angle of refraction, when the index of refraction of the glass block is 1.47",
+              ]
+              "sub_questions": [],
+              "marks": 2
+            }},
+            {{
+              "question_alphabet": "(d)",
+              "question_text": [
+                "Diagram 7.3 shows the arrangement of the apparatus used to create the magic trick of making the glass rod appear to disappear when placed behind the beaker.",
+                "Table 7 shows the different characteristics of the arrangement of apparatus used to produce the trick.",
+                "Based on Table 7, state the appropriate characteristics to make the glass rod disappear from view"
+              ],
+              "sub_questions": [
+                {{
+                  "sub_question_numeral": "(i)",
+                  "sub_question_text": [
+                    "Type of rod",
+                    "Reason"
+                  ],
+                  "marks": 2
+                }},
+                {{
+                  "sub_question_numeral": "(ii)",
+                  "sub_question_text": [
+                    "Refractive index of the oil",
+                    "Reason"
+                  ],
+                  "marks": 2
+                }}
+              ]
+            }},
+            {{
+              "question_alphabet": "(e)",
+              "question_text": [
+                "Based on your answers in 7(d)(i) and 7(d)(ii), choose the most appropriate model to create a perfect magic trick"
+              ],
+              "marks": 1
+            }}
+          ]
+        }},
+        {{                
+          "main_question_number": "9", 
+          "main_question_header": ["Diagram 9.1 shows some of the components of the cooling system of a refrigerator using cooling agent with high specific latent heat. 
+          Arrows indicate the flow of cooling agent from the compressor to the condenser coil and back to the compressor."],
+          "questions": [
+            {{
+              "question_alphabet": "(a)",
+              "question_text": ["What is meant by specific latent heat?"],
+              "sub_questions": [],
+              "marks": 1,
+            }},
+            {{
+              "question_alphabet": "(b)",
+              "question_text": ["Based on Diagram 9.1 and appropriate physics concepts, explain how the cooling system in a refrigerator works."],
+              "sub_questions": [],
+              "marks": 3
+            }},
+            {{
+              "question_alphabet": "(c)",
+              "question_text": ["Diagram 9.2 shows an electric steamer without a lid.",
+              "You are required to study the characteristics of an electric steamer as shown in Table 9.",
+              "Explain the suitability of each characteristic of an electric steamer. Determine the most effective electric steamer to use to cook large quantities of food more quickly, efficiently, and safely."],
+              "sub_questions": [],
+              "marks": 10
+            }},
+            {{
+              "question_alphabet": "(d)",
+              "question_text": ["A chicken is cooked in an electric steamer. 0.8 kg of water at a temperature of 30 oC turns into steam.",
+              "[Specific heat capacity of water, c = 4.20 × 103 J kg−1 oC−1]",
+              "[Specific latent heat of vaporization of water, lv = 2.26 × 106 J kg−1]"],
+              "sub_questions": [
+                {{
+                  "sub_question_numeral": "(i)",
+                  "sub_question_text": ["Calculate the heat energy absorbed to raise the temperature of the water from 30 oC to 100 oC."],
+                  "marks": 3
+                }},
+                {{
+                  "sub_question_numeral": "(ii)",
+                  "sub_question_text": ["Calculate the amount of energy absorbed to change the water into steam."],
+                  "marks": 2
+                }}
+              ]
+            }}
           ]
         }}
       ]
