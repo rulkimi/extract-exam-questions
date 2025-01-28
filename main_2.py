@@ -797,7 +797,6 @@ def prompt3():
         - Identified by alphabets like "(a)", "(b)".
         - Includes `question_text` for instructions or descriptions directly related to the question.
         - **DO NOT include sub-question content here.**
-        - Sometimes question_text can be empty. Example case: "(c)(i) Sub-question text".
         - Texts MUST be separated into `english` and `malay` arrays. English texts are usually italic fonts.
 
       - **Sub-Questions**:
