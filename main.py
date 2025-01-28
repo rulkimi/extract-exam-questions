@@ -1289,53 +1289,6 @@ def configure_model():
 
 @app.post("/extract_questions")
 async def analyse_pdf(file: UploadFile = File(...)):
-<<<<<<< HEAD
-    try:
-        # Check if the uploaded file is a PDF
-        if not file.filename.endswith(".pdf"):
-            raise HTTPException(status_code=400, detail="Only PDF files are supported.")
-
-        # Read the PDF content (await the asynchronous read)
-        pdf_content = await file.read()
-
-        # Encode the PDF content in Base64
-        pdf_content_base64 = base64.standard_b64encode(pdf_content).decode("utf-8")
-
-        # Configure the Gemini AI model
-        model = configure_model()
-
-        # Define the prompt for question extraction
-        prompt = prompt3()
-
-        # Generate content using the Gemini AI model
-        print(prompt)
-        response = model.generate_content([
-            {'mime_type': 'application/pdf', 'data': pdf_content_base64}, 
-            prompt
-        ])
-
-        if not response:
-            raise Exception("Failed to generate response from the AI model.")
-        
-        print(json.loads(response.text))
-
-        # Return the extracted questions as JSON
-        return {
-            "status": "success",
-            "message": "Success",
-            "data": json.loads(response.text)
-        }
-
-    except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail={
-                "status": "error",
-                "message": str(e),
-                "data": None,
-            },
-        )
-=======
   try:
     if not file.filename.endswith(".pdf"):
       raise HTTPException(status_code=400, detail="Only PDF files are supported.")
@@ -1366,4 +1319,3 @@ async def analyse_pdf(file: UploadFile = File(...)):
       status_code=500,
       detail={"status": "error", "message": str(e), "data": None},
     )
->>>>>>> main
