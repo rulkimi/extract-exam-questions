@@ -1,3 +1,26 @@
+answer_space_formats = f"""
+FORMAT FOR SINGLE LINE ANSWERS:
+answer_space: {{ 
+    "type":"single-line",
+}}
+
+FORMAT FOR MULTI LINE ANSWERS:
+answer_space: {{ 
+    "type":"multi-line",
+    "details": {{
+      "lines": 2,  
+    }}
+}}
+
+FORMAT FOR MULTIPLE CHOICE ANSWERS:
+answer_space: {{ 
+    "type":"multiple-choice",
+    "details": {{
+      "options": ["choice 1", "choice 2", "choice 3"], 
+      "answer-format": "single-tick" 
+    }}
+}}"""
+
 def build_prompt():
   prompt = f"""
     Extract questions from this document and put them in a JSON object in this format:
