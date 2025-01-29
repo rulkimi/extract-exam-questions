@@ -69,6 +69,10 @@ INPUT WILL BE IN BILINGUAL FORMAT. MALAY TEXTS ARE NORMAL FONTS, ENGLISH TEXTS A
 **DO NOT** INSERT THE TWO LANGUAGES IN THE SAME ARRAY FOR ALL TEXTS (e.g., `main_question_text`, `question_text`, `sub_question_text`).
 **SEPARATE** THEM INTO MALAY AND ENGLISH ARRAYS.
 
+**DO NOT SKIP ANY SEQUENCE OF NUMBERS, ALPHABETS, OR NUMERALS.**
+- The proper sequence levels are as follows: Main Question -> Question -> Sub-Question (if any).
+- Diagrams and Tables can be possibly placed at any level.
+
 - **Main Question**:
   - Identified by numbers like "1", "2", "3".
   - Includes `main_question_text` for introductory paragraphs (often descriptive containing diagrams, equations, or instructions).
