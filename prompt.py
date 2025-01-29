@@ -65,21 +65,25 @@ rules = f"""
 ---
 
 ### **1. Structure Overview**
+INPUT WILL BE IN BILINGUAL FORMAT. MALAY TEXTS ARE NORMAL FONTS, ENGLISH TEXTS ARE ITALIC FONTS.
+**DO NOT** INSERT THE TWO LANGUAGES IN THE SAME ARRAY FOR ALL TEXTS (e.g., `main_question_text`, `question_text`, `sub_question_text`).
+**SEPARATE** THEM INTO MALAY AND ENGLISH ARRAYS.
+
 - **Main Question**:
   - Identified by numbers like "1", "2", "3".
   - Includes `main_question_text` for introductory paragraphs (often descriptive containing diagrams, equations, or instructions).
-  - Texts MUST be separated into `english` and `malay` arrays. English texts are usually italic fonts.
+  - Every main question **MUST** have **AT LEAST ONE QUESTION**. 
 
 - **Questions**:
-  - Identified by alphabets like "(a)", "(b)".
+  - Identified by alphabets like "(a)", "(b)". (Fonts may vary)
   - Includes `question_text` for instructions or descriptions directly related to the question.
   - **DO NOT include sub-question content here.**
-  - Texts MUST be separated into `english` and `malay` arrays. English texts are usually italic fonts.
+  - Every main question **MUST** have **AT LEAST ONE QUESTION**.
+  - Not every question has sub-questions. 
 
 - **Sub-Questions**:
-  - Identified by numerals like "(i)", "(ii)".
+  - Identified by numerals like "(i)", "(ii)". (Fonts may vary)
   - Includes `sub_question_text` for specific sub-tasks under the question.
-  - Texts MUST be separated into `english` and `malay` arrays. English texts are usually italic fonts.
 
 - **Answer Space**:
   - Space for students to write/input their answers.
