@@ -1,30 +1,65 @@
 answer_space_formats = f"""
-FORMAT FOR SINGLE LINE ANSWERS:
+FORMAT FOR BLANK SPACE ANSWERS:
+```json
 "answer_space": {{ 
     "type":"blank-space",
 }}
+```
 
 FORMAT FOR SINGLE LINE ANSWERS:
+```json
 "answer_space": {{ 
     "type":"single-line",
 }}
+```
 
 FORMAT FOR MULTI LINE ANSWERS:
+```json
 "answer_space": {{ 
     "type":"multi-line",
     "details": {{
       "lines": 2,  
     }}
 }}
+```
 
 FORMAT FOR MULTIPLE CHOICE ANSWERS:
+```json
 "answer_space": {{ 
     "type":"multiple-choice",
     "details": {{
       "options": ["choice 1", "choice 2", "choice 3"], 
       "answer-format": "single-tick" 
     }}
-}}"""
+}}
+```
+
+"""
+
+
+graphics_formats = f"""
+FORMAT FOR DIAGRAMS:
+```json
+"graphics": [
+  {{
+    "name": 4.1,
+    "page":  5,
+    "type": "diagram",
+  }},
+]
+```
+
+FORMAT FOR TABLES:
+```json
+"graphics": [
+  {{
+    "name": 4,
+    "page":  5,
+    "type": "table",
+  }},
+]
+```
+"""
 
 rules = f"""
 ---
@@ -76,10 +111,20 @@ rules = f"""
       "marks": 2
     }}
     ```
-
 ---
 
-### **3. Key Rules**
+### **3. Diagrams and Tables**
+- **Include all diagrams and tables** and assign a name, page number, and type to each one on the same level as the question.
+- If a question includes a diagram or table, include it in `graphics` array.
+  - If a question includes multiple diagrams or tables, include them in `graphics` array as separate items.
+  - If it is a diagram, include `diagram` in `type` field.
+  - If it is a table, include `table` in `type` field.
+- To determine whether a diagram or table is a diagram or table, there will be a caption that starts with "Table" or "Diagram". (e.g., "Diagram 3.1" or "Table 1").
+- A table might have images in the table cell. Check the caption to determine whether it is a table or a diagram.
+- Use the following format: {graphics_formats}
+---
+
+### **4. Key Rules**
 1. **DO NOT DUPLICATE CONTENT**:
   - If a part of the question belongs to a sub-question (e.g., "(i)", "(ii)"), DO NOT include it in `question_text`.
   - `question_text` must ONLY include content directly relevant to the alphabet-level question, excluding any sub-questions.
@@ -125,9 +170,11 @@ rules = f"""
   - Include any diagram or table references (e.g., "On Diagram 2.2...") as part of the respective `main_question_text`, `question_text`, or `sub_question_text`, depending on their context.
 
 7. **Marks**:
-  - Ensure `marks` are assigned only at the correct hierarchy:
+  - Ensure `marks` are assigned only at the correct hierarchy (e.g., `marks` for a sub-question are specific to that sub-question).
     - `marks` for a sub-question are specific to that sub-question.
+    - Do not assign `marks` key to main question. 
     - Do not assign `marks` key to question if sub-question is available. 
+    - Only assign `marks` key to question if sub-question is not available.
 
 8. **Equations/Formulas**:
   - Include formulas as a new item in `question_text` or `sub_question_text`, depending on their location in the PDF.
@@ -318,6 +365,13 @@ EXAMPLE OUTPUT (JSON Object):
     "result": [
       {{                
         "main_question_number": "3", 
+        "graphics": [
+          {{
+            "name": 3,
+            "page":  5,
+            "type": "diagram",
+          }}
+        ],
         "main_question_text": {{
           "english":["Diagram 3 shows the planet Venus orbiting around the Sun. The  area  sweeps  out  by  AOB  and  COD  is  equal  in  the  same  time  interval.",
           "[ r1 = 1.08 x 1011 m and mass of the Sun, M = 1.989 x 1030 kg]"],
@@ -391,6 +445,28 @@ EXAMPLE OUTPUT (JSON Object):
             "Rajah 7.2 menunjukkan gambarajah sinar bagi alur cahaya yang merambat dari minyak ke bongkah kaca dari pandangan atas."
           ]
         }},
+        "graphics": [
+          {{
+            "name": 7.1,
+            "page":  9,
+            "type": "diagram",
+          }},
+          {{
+            "name": 7.2,
+            "page":  9,
+            "type": "diagram",
+          }},
+          {{
+            "name": 7.3,
+            "page":  10,
+            "type": "diagram",
+          }},
+          {{
+            "name": "Table 7",
+            "page":  10,
+            "type": "table",
+          }}
+        ],
         "questions": [
           {{
             "question_alphabet": "(a)",
@@ -498,7 +574,24 @@ EXAMPLE OUTPUT (JSON Object):
         "main_question_header": {{
           "english": ["Diagram 9.1 shows some of the components of the cooling system of a refrigerator using cooling agent with high specific latent heat. Arrows indicate the flow of cooling agent from the compressor to the condenser coil and back to the compressor."],
           "malay": ["Rajah 9.1 menunjukkan sebahagian daripada komponen sistem penyejukan sebuah peti sejuk yang menggunakan agen penyejuk yang mempunyai haba pendam tentu yang tinggi. Anak panah menunjukkan aliran agen penyejuk dari pemampat ke gegelung kondenser dan kembali ke pemampat."]
-        }}
+        }},
+        "graphics": [
+          {{
+            "name": 9.1,
+            "page":  12,
+            "type": "diagram",
+          }},
+          {{
+            "name": "9.2",
+            "page":  12,
+            "type": "diagram",
+          }},
+          {{
+            "name": "Table 9",
+            "page":  12,
+            "type": "table",
+          }}
+        ],
         "questions": [
           {{
             "question_alphabet": "(a)",
