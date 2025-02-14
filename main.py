@@ -774,6 +774,8 @@ async def analyse_pdf(pdf_file: UploadFile = File(...)):
         sections_data = await identify_sections(model, user_pdf_content_base64)
         
         # Step 2: Extract data for each section
+        # NOTE: Gemini is inconsistent in giving valid JSONs (Sometimes ok sometimes not)
+        # Consider cleaning the JSONs (which i've done but errors like delimiter, and double quotes still persists)
         print("Extracting data from sections...")
         all_sections_data = []
         for section in sections_data["sections"]:
