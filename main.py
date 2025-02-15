@@ -727,21 +727,19 @@ async def extract_section_data(model, pdf_content_base64: str, section_info: dic
 
 # Fix generated JSON
 def fix_json_string(json_string: str) -> str:
-    """
-    Cleans a JSON string by removing unnecessary backslashes.
-    """
+    # Cleans a JSON string by removing unnecessary escape characters, newline characters, and extra spaces.
     try:
         # Decode JSON string to remove unnecessary escape characters
         cleaned_json = json.loads(json_string)
-        # Re-encode to a properly formatted JSON string
-        return json.dumps(cleaned_json, indent=4)
+        # Re-encode to a properly formatted JSON string with compact representation
+        return json.dumps(cleaned_json, ensure_ascii=False, separators=(",", ":"))
     except json.JSONDecodeError as e:
         print(f"Error decoding JSON: {e}")
         return json_string  # Return the original string if decoding fails
 
 # Validate if Sections A, B, C has all the required questions
 def validate_section_content(section_data: str, section_name: str) -> None:
-    """Validate section content meets requirements."""
+    # Validate section content meets requirements.
     try:
         # Parse the JSON string into a dictionary
         data = json.loads(section_data)
