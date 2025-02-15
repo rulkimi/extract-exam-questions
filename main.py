@@ -691,7 +691,14 @@ async def extract_section_data(model, pdf_content_base64: str, section_info: dic
             - Verify language separation is correct
             - Check font style to help identify languages
             
-        **MOST IMPORTANT: MAKE SURE THAT YOU ARE RETURNING A VALID JSON OBJECT (I DO NOT WANT ANY DELIMITER ERRORS, PROPERTY NAME ERRORS, ETC. WHEN I  PARSE THE JSON YOU RETURNED ME)**
+        **MOST IMPORTANT (VERY STRICT): MAKE SURE THAT YOU ARE RETURNING A VALID JSON OBJECT**
+        Ensure:
+        1. All keys and values are wrapped in double quotes.
+        2. There are no trailing commas.
+        3. Proper nesting of brackets and braces.
+        4. The response is fully valid JSON.
+
+        If necessary, verify your JSON before responding.
         """},
         {"text": "Return only a valid JSON object. No explanations. No markdown formatting. Just JSON."}
     ]
@@ -702,9 +709,11 @@ async def extract_section_data(model, pdf_content_base64: str, section_info: dic
         if not response:
             raise Exception("Failed to get response from model")
         
+        # Fix model generated JSON before validation
+        fixed_json = fix_json_string(response.text)
         # Validate Section Content (Section A, B, C)
-        validate_section_content(response.text, section_info['name'])
-        return response.text
+        validate_section_content(fixed_json, section_info['name'])
+        return fixed_json
         
     except Exception as e:
         print(f"Error in extract_section_data: {str(e)}")
@@ -715,6 +724,20 @@ async def extract_section_data(model, pdf_content_base64: str, section_info: dic
             if 'response' in locals():
                 f.write(f"Response text:\n{response.text}")
         raise ValueError(f"Error extracting section data: {str(e)}")
+
+# Fix generated JSON
+def fix_json_string(json_string: str) -> str:
+    """
+    Cleans a JSON string by removing unnecessary backslashes.
+    """
+    try:
+        # Decode JSON string to remove unnecessary escape characters
+        cleaned_json = json.loads(json_string)
+        # Re-encode to a properly formatted JSON string
+        return json.dumps(cleaned_json, indent=4)
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON: {e}")
+        return json_string  # Return the original string if decoding fails
 
 # Validate if Sections A, B, C has all the required questions
 def validate_section_content(section_data: str, section_name: str) -> None:
