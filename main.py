@@ -44,52 +44,51 @@ def log_error(error_msg: str, response_text: str = None) -> str:
             f.write(f"Response text:\n{response_text}\n\n")
     return error_log_name
 
-
 # Main Function
 @app.post("/extract_questions")
 async def analyse_pdf(pdf_file: UploadFile = File(...)):
-    try:
-        if not pdf_file.filename.endswith(".pdf"):
-            raise HTTPException(status_code=400, detail="Input PDF file must end with .pdf")
+  try:
+      if not pdf_file.filename.endswith(".pdf"):
+          raise HTTPException(status_code=400, detail="Input PDF file must end with .pdf")
 
-        user_pdf_content = await pdf_file.read()
-        user_pdf_content_base64 = base64.standard_b64encode(user_pdf_content).decode("utf-8")
+      user_pdf_content = await pdf_file.read()
+      user_pdf_content_base64 = base64.standard_b64encode(user_pdf_content).decode("utf-8")
 
-        model = configure_model()
-        
-        # Step 1: Identify sections and their page ranges
-        print("Identifying sections...")
-        sections_data = await identify_sections(model, user_pdf_content_base64)
-        
-        # Step 2: Extract data for each section
-        # NOTE: Gemini is inconsistent in giving valid JSONs (Sometimes ok sometimes not)
-        # Consider cleaning the JSONs (which i've done but errors like delimiter, and double quotes still persists)
-        print("Extracting data from sections...")
-        all_sections_data = []
-        for section in sections_data["sections"]:
-            print(f"Processing section: {section['name']}")
-            section_data = await extract_section_data(
-                model, 
-                user_pdf_content_base64, 
-                section
-            )
-            all_sections_data.append(section_data)
-        
-        # Step 3: Combine results
-        combined_data = {
-            "sections": all_sections_data
-        }
-        
-        return {
-            "status": "success",
-            "message": "Successfully extracted all sections",
-            "data": combined_data
-        }
+      model = configure_model()
+      
+      # Step 1: Identify sections and their page ranges
+      print("Identifying sections...")
+      sections_data = await identify_sections(model, user_pdf_content)
+      
+      # Step 2: Extract data for each section
+      # NOTE: Gemini is inconsistent in giving valid JSONs (Sometimes ok sometimes not)
+      # Consider cleaning the JSONs (which i've done but errors like delimiter, and double quotes still persists)
+      print("Extracting data from sections...")
+      all_sections_data = []
+      for section in sections_data:
+          print(f"Processing section: {section['name']}")
+          section_data = await extract_section_data(
+              model, 
+              user_pdf_content_base64, 
+              section
+          )
+          all_sections_data.append(section_data)
+      
+      # Step 3: Combine results
+      combined_data = {
+          "sections": all_sections_data
+      }
+      
+      return {
+          "status": "success",
+          "message": "Successfully extracted all sections",
+          "data": combined_data
+      }
 
-    except Exception as e:
-        import traceback
-        traceback.print_exc()
-        raise HTTPException(
-            status_code=500,
-            detail={"status": "error", "message": str(e), "data": None}
-        )
+  except Exception as e:
+      import traceback
+      traceback.print_exc()
+      raise HTTPException(
+          status_code=500,
+          detail={"status": "error", "message": str(e), "data": None}
+      )
