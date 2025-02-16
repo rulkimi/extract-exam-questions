@@ -1,13 +1,4 @@
 {
-  "section_title": {
-    "malay": "Bahagian C",
-    "english": ""
-  },
-  "instructions": {
-    "malay": "Soalan ini mesti dijawab.",
-    "english": ""
-  },
-  "section_marks": 20,
   "main_questions": [
     {
       "number": "11",
