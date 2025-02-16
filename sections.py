@@ -48,9 +48,9 @@ async def identify_sections(model, pdf_content: bytes) -> dict:
     
     try:
       section_start_pages=json.loads(response.text)
-      start_A = section_start_pages["sections"]["A"]
-      start_B = section_start_pages["sections"]["B"]
-      start_C = section_start_pages["sections"]["C"]
+      start_C = int(section_start_pages["sections"]["C"])
+      start_A = int(section_start_pages["sections"]["A"])
+      start_B = int(section_start_pages["sections"]["B"])
       last_page = get_last_page(pdf_content)
       sections_data = [
           {"name": "Section A", "start_page": start_A, "end_page": start_B - 1},

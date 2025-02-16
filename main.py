@@ -1,5 +1,5 @@
 import os
-import base64
+import json
 from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 import google.generativeai as genai
@@ -44,6 +44,33 @@ def log_error(error_msg: str, response_text: str = None) -> str:
             f.write(f"Response text:\n{response_text}\n\n")
     return error_log_name
 
+def log_json(json_data):
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    json_log_name = f'json_log_{timestamp}.json'
+
+    # 🔍 Ensure `json_data` is a valid JSON structure
+    if isinstance(json_data, list) and all(isinstance(item, str) for item in json_data):
+        # Convert each string entry to a dictionary
+        json_data = [json.loads(item) for item in json_data]
+    elif isinstance(json_data, str):
+        try:
+            json_data = json.loads(json_data)  # Convert single JSON string to dict
+        except json.JSONDecodeError:
+            print("❌ Invalid JSON string provided!")
+            return
+
+    # 🔄 Merge all "main_questions" into one list
+    if isinstance(json_data, list):  # If input is a list of objects
+        combined_main_questions = [q for entry in json_data if "main_questions" in entry for q in entry["main_questions"]]
+        json_data = {"main_questions": combined_main_questions}
+
+    # 📝 Save merged JSON
+    with open(json_log_name, 'w', encoding='utf-8') as f:
+        json.dump(json_data, f, indent=2, ensure_ascii=False)
+
+    print(f"✅ Merged JSON saved to {json_log_name}")
+
+
 # Main Function
 @app.post("/extract_questions")
 async def analyse_pdf(pdf_file: UploadFile = File(...)):
@@ -52,7 +79,6 @@ async def analyse_pdf(pdf_file: UploadFile = File(...)):
           raise HTTPException(status_code=400, detail="Input PDF file must end with .pdf")
 
       user_pdf_content = await pdf_file.read()
-      user_pdf_content_base64 = base64.standard_b64encode(user_pdf_content).decode("utf-8")
 
       model = configure_model()
       
@@ -69,20 +95,25 @@ async def analyse_pdf(pdf_file: UploadFile = File(...)):
           print(f"Processing section: {section['name']}")
           section_data = await extract_section_data(
               model, 
-              user_pdf_content_base64, 
+              user_pdf_content, 
               section
-          )
+          )    
+          # Ensure section_data is a dictionary
+          if isinstance(section_data, str):
+              section_data = json.loads(section_data)          
           all_sections_data.append(section_data)
       
       # Step 3: Combine results
       combined_data = {
-          "sections": all_sections_data
+          "sections": all_sections_data 
       }
       
+      log_json(combined_data)
+
       return {
           "status": "success",
           "message": "Successfully extracted all sections",
-          "data": combined_data
+          "data": json.dumps(combined_data)
       }
 
   except Exception as e:
