@@ -1,11 +1,11 @@
 from pydantic import BaseModel
 from typing import List, Optional, Union
 
-# content flow types
 class TextContent(BaseModel):
     malay: str
-    english: str
+    english: Optional[str] = None
 
+# content flow types
 class Text(BaseModel):
     type: str = "text"
     text: TextContent
@@ -38,7 +38,6 @@ class TypeQuestion(BaseModel):
     type: str = "question"
     number: str
 
-
 #  question paper structure data models
 class SubQuestion(BaseModel):
     number: str
@@ -49,7 +48,7 @@ class Question(BaseModel):
     number: str
     marks: Optional[int] = None
     content_flow: List[Union[Text, AnswerSpace, TypeQuestion, TypeSubQuestion, Diagram, Row, Table]]
-    sub_questions: Optional[SubQuestion]
+    sub_questions: Optional[List[SubQuestion]] = None
 
 class MainQuestion(BaseModel):
     number: int
