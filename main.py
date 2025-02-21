@@ -63,8 +63,8 @@ async def analyse_pdf(pdf_file: UploadFile = File(...)):
                 print(f"Error in extract_section_data: {str(e)}")
                 log_error(str(e), response.text if 'response' in locals() else None)
                 raise ValueError(f"Error extracting section data: {str(e)}")
-            # Add a delay before processing the next section
-            await asyncio.sleep(5)  # Wait for 2 seconds
+            # 5-second delay before processing the next section
+            await asyncio.sleep(5) 
         
         with open("outputs/temporary_output_data.json", "w", encoding="utf-8") as json_file:
             json.dump(sections_data, json_file, ensure_ascii=False, indent=4)
