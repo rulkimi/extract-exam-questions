@@ -4,3 +4,4 @@ pillow
 google-generativeai
 python-multipart
 pdf2image
+google-genai

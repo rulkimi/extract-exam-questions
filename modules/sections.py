@@ -1,37 +1,20 @@
-import json
 from datetime import datetime
-import re
-import fitz
-import base64
-  
-def get_last_page(pdf_content: bytes) -> int:
-    """Returns the last page number of a PDF."""
-    doc = fitz.open(stream=pdf_content, filetype="pdf")  # Open PDF from bytes
-    last_page = len(doc)  # Get total page count
-    doc.close()
-    return last_page
+from modules.utils import get_last_page  
 
-# Identify Sections
-async def identify_sections(model, pdf_content: bytes) -> dict:
-    # Convert PDF bytes to Base64
-    pdf_content_base64 = base64.standard_b64encode(pdf_content).decode("utf-8")
-    
-    #Make initial call to identify sections and their page ranges.
-    section_prompt = [
-    {"text": "ANALYZE THIS PDF AND IDENTIFY THE MAIN SECTIONS:"},
-    {'mime_type': 'application/pdf', 'data': pdf_content_base64},
-    {"text": """
+def build_identify_sections_prompt():
+    return f"""
+        ANALYZE THIS PDF AND IDENTIFY THE MAIN SECTIONS:
         Identify the **start pages only** for the main sections in this PDF marked by 'Section A/B/C' or 'Bahagian A/B/C'.
         
         Return the result as JSON in this format:
         ```json
-        {
-            "sections": {
+        {{
+            "sections": {{
                 "A": start_page_number,
                 "B": start_page_number,
                 "C": start_page_number
-            }
-        }
+            }}
+        }}
         ```
         
         **Rules for Identifying Sections:**
@@ -39,15 +22,11 @@ async def identify_sections(model, pdf_content: bytes) -> dict:
         - Look for **"Section B" / "Bahagian B"** and return the page number where it appears.
         - Look for **"Section C" / "Bahagian C"** and return the page number where it appears.
         - Do **not** calculate the end pages.
-    """}
-    ]
-    
-    response = model.generate_content(section_prompt)
-    if not response:
-        raise Exception("Failed to identify sections from the PDF.")
-    
+    """
+
+async def identify_sections(response, pdf_content):
     try:
-      section_start_pages=json.loads(response.text)
+      section_start_pages=response
       start_C = int(section_start_pages["sections"]["C"])
       start_A = int(section_start_pages["sections"]["A"])
       start_B = int(section_start_pages["sections"]["B"])
@@ -94,6 +73,6 @@ async def identify_sections(model, pdf_content: bytes) -> dict:
         
         with open(error_log_name, 'w', encoding='utf-8') as f:
             f.write(f"Error identifying sections: {str(e)}\n")
-            f.write(f"Model response:\n{response.text}")
+            # f.write(f"Model response:\n{response.text}")
             
         raise ValueError(f"Failed to identify sections properly: {str(e)}. See {error_log_name} for details")

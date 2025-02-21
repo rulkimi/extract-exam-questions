@@ -1,13 +1,4 @@
 {
-  "section_title": {
-    "malay": "Bahagian A",
-    "english": ""
-  },
-  "instructions": {
-    "malay": "Jawab semua soalan.",
-    "english": ""
-  },
-  "section_marks": 60,
   "main_questions": [
     {
       "number": "1",
