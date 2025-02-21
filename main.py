@@ -52,7 +52,7 @@ async def analyse_pdf(pdf_file: UploadFile = File(...)):
         sections_data = []
         for section in sections:
             print(f"Processing section: {section['name']}")
-            prompt = build_extract_section_data_prompt(section) + f"IMPORTANT: ONLY GET THE ENGLISH CONTENT FOR NOW"
+            prompt = build_extract_section_data_prompt(section)
             try:
                 response = get_ai_response([reference_pdf, pdf, prompt])
                 validate_section_content(response.text, section['name'])
