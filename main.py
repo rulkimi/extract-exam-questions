@@ -1,15 +1,16 @@
-import os
 import json
+from dotenv import load_dotenv
+
 from fastapi import FastAPI, HTTPException, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-import google.generativeai as genai
-from dotenv import load_dotenv
-from datetime import datetime
-import logging
-from sections import identify_sections
-from questions import extract_section_data
 
-logging.basicConfig(level=logging.WARNING)
+from modules.sections import identify_sections
+from modules.questions import build_extract_section_data_prompt, validate_section_content
+from modules.sections import build_identify_sections_prompt, identify_sections
+from modules.utils import get_reference_pdf
+
+from config.logger import log_error
+from config.ai_client import get_ai_response, convert_pdf_to_part
 
 load_dotenv()
 
@@ -25,101 +26,46 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure Model
-def configure_model():
-    genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
-    return genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
-        generation_config={"response_mime_type": "application/json"},
-    )
-
-# Log Errors into error_logs folder
-def log_error(error_msg: str, response_text: str = None) -> str:
-    """Log error details to a file and return the filename."""
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    error_log_name = f'error_log_{timestamp}.txt'
-    with open(error_log_name, 'w', encoding='utf-8') as f:
-        f.write(f"Error: {error_msg}\n\n")
-        if response_text:
-            f.write(f"Response text:\n{response_text}\n\n")
-    return error_log_name
-
-def log_json(json_data):
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    json_log_name = f'json_log_{timestamp}.json'
-
-    # 🔍 Ensure `json_data` is a valid JSON structure
-    if isinstance(json_data, list) and all(isinstance(item, str) for item in json_data):
-        # Convert each string entry to a dictionary
-        json_data = [json.loads(item) for item in json_data]
-    elif isinstance(json_data, str):
-        try:
-            json_data = json.loads(json_data)  # Convert single JSON string to dict
-        except json.JSONDecodeError:
-            print("❌ Invalid JSON string provided!")
-            return
-
-    # 🔄 Merge all "main_questions" into one list
-    if isinstance(json_data, list):  # If input is a list of objects
-        combined_main_questions = [q for entry in json_data if "main_questions" in entry for q in entry["main_questions"]]
-        json_data = {"main_questions": combined_main_questions}
-
-    # 📝 Save merged JSON
-    with open(json_log_name, 'w', encoding='utf-8') as f:
-        json.dump(json_data, f, indent=2, ensure_ascii=False)
-
-    print(f"✅ Merged JSON saved to {json_log_name}")
-
-
 # Main Function
 @app.post("/extract_questions")
 async def analyse_pdf(pdf_file: UploadFile = File(...)):
-  try:
-      if not pdf_file.filename.endswith(".pdf"):
-          raise HTTPException(status_code=400, detail="Input PDF file must end with .pdf")
+    try:
+        if not pdf_file.filename.endswith(".pdf"):
+            raise HTTPException(status_code=400, detail="Input PDF file must end with .pdf")
 
-      user_pdf_content = await pdf_file.read()
+        user_pdf_content = await pdf_file.read()
+        pdf = convert_pdf_to_part(user_pdf_content)
 
-      model = configure_model()
-      
-      # Step 1: Identify sections and their page ranges
-      print("Identifying sections...")
-      sections_data = await identify_sections(model, user_pdf_content)
-      
-      # Step 2: Extract data for each section
-      # NOTE: Gemini is inconsistent in giving valid JSONs (Sometimes ok sometimes not)
-      # Consider cleaning the JSONs (which i've done but errors like delimiter, and double quotes still persists)
-      print("Extracting data from sections...")
-      all_sections_data = []
-      for section in sections_data:
-          print(f"Processing section: {section['name']}")
-          section_data = await extract_section_data(
-              model, 
-              user_pdf_content, 
-              section
-          )    
-          # Ensure section_data is a dictionary
-          if isinstance(section_data, str):
-              section_data = json.loads(section_data)          
-          all_sections_data.append(section_data)
-      
-      # Step 3: Combine results
-      combined_data = {
-          "sections": all_sections_data 
-      }
-      
-      log_json(combined_data)
+        # Step 1: Identify sections and their page ranges
+        print("Identifying sections...")
+        indentify_sections_prompt = build_identify_sections_prompt()
+        sections_response = get_ai_response([pdf, indentify_sections_prompt])
+        sections_response_json = json.loads(sections_response.text)
+        sections = await identify_sections(sections_response_json, user_pdf_content)
 
-      return {
-          "status": "success",
-          "message": "Successfully extracted all sections",
-          "data": json.dumps(combined_data)
-      }
+        reference_pdf_content = get_reference_pdf()
+        reference_pdf = convert_pdf_to_part(reference_pdf_content)
 
-  except Exception as e:
-      import traceback
-      traceback.print_exc()
-      raise HTTPException(
-          status_code=500,
-          detail={"status": "error", "message": str(e), "data": None}
-      )
+        # Step 2: Extract data for each section
+        print("Extracting data from sections...")
+        sections_data = []
+        for section in sections:
+            print(f"Processing section: {section['name']}")
+            prompt = build_extract_section_data_prompt(section) + f"IMPORTANT: ONLY GET THE ENGLISH CONTENT FOR NOW"
+            try:
+                response = get_ai_response([reference_pdf, pdf, prompt])
+                validate_section_content(response.text, section['name'])
+                print(response.text)
+                response_json = json.loads(response.text)
+                sections_data.append(response_json)
+            except Exception as e:
+                print(f"Error in extract_section_data: {str(e)}")
+                log_error(str(e), response.text if 'response' in locals() else None)
+                raise ValueError(f"Error extracting section data: {str(e)}")
+        
+        with open("outputs/temporary_output_data.json", "w", encoding="utf-8") as json_file:
+            json.dump(sections_data, json_file, ensure_ascii=False, indent=4)
+        return {"status": "Success", "data": sections_data}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail={"status": "error", "message": str(e), "data": None})

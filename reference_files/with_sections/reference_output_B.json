@@ -1,13 +1,4 @@
 {
-  "section_title": {
-    "malay": "Bahagian B",
-    "english": ""
-  },
-  "instructions": {
-    "malay": "Bahagian ini mengandungi dua soalan. Jawab satu soalan.",
-    "english": ""
-  },
-  "section_marks": 20,
   "main_questions": [
     {
       "number": "9",
