@@ -18,28 +18,61 @@ async def identify_sections(model, pdf_content: bytes) -> dict:
     
     #Make initial call to identify sections and their page ranges.
     section_prompt = [
-    {"text": "ANALYZE THIS PDF AND IDENTIFY THE MAIN SECTIONS:"},
+    {"text": "ANALYZE THIS PDF AND IDENTIFY THE MAIN QUESTIONS:"},
     {'mime_type': 'application/pdf', 'data': pdf_content_base64},
     {"text": """
-        Identify the **start pages only** for the main sections in this PDF marked by 'Section A/B/C' or 'Bahagian A/B/C'.
+        This PDF contains main questions from 1-11.
+        INSTRUCTIONS:
+        - Identify the **start and end pages** for the main questions in this PDF.
+        - The start page is the page where the main question starts (e.g., "1").
+        - The main question does not end until the next main question starts.
+        - Some main questions may **overlap across pages**, meaning the start page of one main question might also be the end page of the previous question.
         
         Return the result as JSON in this format:
         ```json
-        {
-            "sections": {
-                "A": start_page_number,
-                "B": start_page_number,
-                "C": start_page_number
-            }
-        }
+        [
+          {"main_question": "1", "start_page": start_1, "end_page": end_1},
+          {"main_question": "2", "start_page": start_2, "end_page": end_2},
+          {"main_question": "3", "start_page": start_3, "end_page": end_3},
+          {"main_question": "4", "start_page": start_4, "end_page": end_4},
+          {"main_question": "5", "start_page": start_5, "end_page": end_5},
+          {"main_question": "6", "start_page": start_6, "end_page": end_6},
+          {"main_question": "7", "start_page": start_7, "end_page": end_7},
+          {"main_question": "8", "start_page": start_8, "end_page": end_8},
+          {"main_question": "9", "start_page": start_9, "end_page": end_9},
+          {"main_question": "10", "start_page": start_10, "end_page": end_10},
+          {"main_question": "11", "start_page": start_11, "end_page": end_11}
+        ]
         ```
+     
+      **Important Considerations**:
+      - If a question starts on the same page where another ends, reflect this in the output.
+      - Ensure no pages are skipped between questions.
+
+    """},
+    # {"text": """
+    #     This PDF contains main questions from 1-11.
+    #     Identify the **start pages only** for the main questions in this PDF.
         
-        **Rules for Identifying Sections:**
-        - Look for **"Section A" / "Bahagian A"** and return the page number where it appears.
-        - Look for **"Section B" / "Bahagian B"** and return the page number where it appears.
-        - Look for **"Section C" / "Bahagian C"** and return the page number where it appears.
-        - Do **not** calculate the end pages.
-    """}
+    #     Return the result as JSON in this format:
+    #     ```json
+    #     {
+    #         "main_questions": {
+    #             "1": start_page_number,
+    #             "2": start_page_number,
+    #             "3": start_page_number,
+    #             "4": start_page_number,
+    #             "5": start_page_number,
+    #             "6": start_page_number,
+    #             "7": start_page_number,
+    #             "8": start_page_number,
+    #             "9": start_page_number,
+    #             "10": start_page_number,
+    #             "11": start_page_number
+    #         }
+    #     }
+    #     ```
+    # """}
     ]
     
     response = model.generate_content(section_prompt)
@@ -47,43 +80,52 @@ async def identify_sections(model, pdf_content: bytes) -> dict:
         raise Exception("Failed to identify sections from the PDF.")
     
     try:
-      section_start_pages=json.loads(response.text)
-      start_C = int(section_start_pages["sections"]["C"])
-      start_A = int(section_start_pages["sections"]["A"])
-      start_B = int(section_start_pages["sections"]["B"])
-      last_page = get_last_page(pdf_content)
-      sections_data = [
-          {"name": "Section A", "start_page": start_A, "end_page": start_B - 1},
-          {"name": "Section B", "start_page": start_B, "end_page": start_C - 1},
-          {"name": "Section C", "start_page": start_C, "end_page": last_page}
-      ]
+      sections_data=json.loads(response.text)
+      # section_start_pages=json.loads(response.text)
+      # start_1 = int(section_start_pages["main_questions"]["1"])
+      # start_2 = int(section_start_pages["main_questions"]["2"])
+      # start_3 = int(section_start_pages["main_questions"]["3"])
+      # start_4 = int(section_start_pages["main_questions"]["4"])
+      # start_5 = int(section_start_pages["main_questions"]["5"])
+      # start_6 = int(section_start_pages["main_questions"]["6"])
+      # start_7 = int(section_start_pages["main_questions"]["7"])
+      # start_8 = int(section_start_pages["main_questions"]["8"])
+      # start_9 = int(section_start_pages["main_questions"]["9"])
+      # start_10 = int(section_start_pages["main_questions"]["10"])
+      # start_11 = int(section_start_pages["main_questions"]["11"])
+      # last_page = get_last_page(pdf_content)
+      # sections_data = [
+      #     {"main_question": "1", "start_page": start_1, "end_page": start_2 - 1},
+      #     {"main_question": "2", "start_page": start_2, "end_page": start_3 - 1},
+      #     {"main_question": "3", "start_page": start_3, "end_page": start_4 - 1},
+      #     {"main_question": "4", "start_page": start_4, "end_page": start_5 - 1},
+      #     {"main_question": "5", "start_page": start_5, "end_page": start_6 - 1},
+      #     {"main_question": "6", "start_page": start_6, "end_page": start_7 - 1},
+      #     {"main_question": "7", "start_page": start_7, "end_page": start_8 - 1},
+      #     {"main_question": "8", "start_page": start_8, "end_page": start_9 - 1},
+      #     {"main_question": "9", "start_page": start_9, "end_page": start_10 - 1},
+      #     {"main_question": "10", "start_page": start_10, "end_page": start_11 - 1},
+      #     {"main_question": "11", "start_page": start_11, "end_page": last_page}
+      # ]
       
       # Normalize section names and print section info
       for section in sections_data:
-          name = section["name"].lower()
-          if 'bahagian a' in name or 'section a' in name:
-              section["name"] = 'Section A'
-          elif 'bahagian b' in name or 'section b' in name:
-              section["name"] = 'Section B'
-          elif 'bahagian c' in name or 'section c' in name:
-              section["name"] = 'Section C'
-              
-          print(f"{section['name']} (pages {section['start_page']}-{section['end_page']})")
+          print(f"Question {section['main_question']} (pages {section['start_page']}-{section['end_page']})")
       
       # Validate that we found at least one section
       if not sections_data or len(sections_data) == 0:
           raise ValueError("No sections (Section A/B/C or Bahagian A/B/C) were found in the PDF")
       
-      # Validate each section has required fields
-      for section in sections_data:  # Directly iterate over the list
-          if not section.get("name"):
-              raise ValueError("Section missing name field")
-          if not isinstance(section.get("start_page"), (int, float)):
-              raise ValueError(f"Invalid start_page for section {section.get('name')}")
-          if not isinstance(section.get("end_page"), (int, float)):
-              raise ValueError(f"Invalid end_page for section {section['name']}")
-          if section["start_page"] > section["end_page"]:
-              raise ValueError(f"Start page greater than end page for section {section['name']}")
+      # # Validate each section has required fields
+      # for section in sections_data:  # Directly iterate over the list
+      #     if not section.get("main_question"):
+      #         raise ValueError("Section missing main_question field")
+      #     if not isinstance(section.get("start_page"), (int, float)):
+      #         raise ValueError(f"Invalid start_page for section {section.get('main_question')}")
+      #     if not isinstance(section.get("end_page"), (int, float)):
+      #         raise ValueError(f"Invalid end_page for section {section['main_question']}")
+      #     if section["start_page"] > section["end_page"]:
+      #         raise ValueError(f"Start page greater than end page for section {section['main_question']}")
 
       
       return sections_data
