@@ -29,7 +29,7 @@ app.add_middleware(
 def configure_model():
     genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
     return genai.GenerativeModel(
-        model_name="gemini-1.5-flash",
+        model_name="gemini-2.0-flash",
         generation_config={"response_mime_type": "application/json"},
     )
 
@@ -83,38 +83,43 @@ async def analyse_pdf(pdf_file: UploadFile = File(...)):
       model = configure_model()
       
       # Step 1: Identify sections and their page ranges
-      print("Identifying sections...")
+      print("Identifying questions...")
       sections_data = await identify_sections(model, user_pdf_content)
+      return {
+          "status": "success",
+          "message": "Successfully extracted all sections",
+          "data": json.dumps(sections_data)
+      }
       
       # Step 2: Extract data for each section
       # NOTE: Gemini is inconsistent in giving valid JSONs (Sometimes ok sometimes not)
       # Consider cleaning the JSONs (which i've done but errors like delimiter, and double quotes still persists)
-      print("Extracting data from sections...")
-      all_sections_data = []
-      for section in sections_data:
-          print(f"Processing section: {section['name']}")
-          section_data = await extract_section_data(
-              model, 
-              user_pdf_content, 
-              section
-          )    
-          # Ensure section_data is a dictionary
-          if isinstance(section_data, str):
-              section_data = json.loads(section_data)          
-          all_sections_data.append(section_data)
+      # print("Extracting data from sections...")
+      # all_sections_data = []
+      # for section in sections_data:
+      #     print(f"Processing section: {section['name']}")
+      #     section_data = await extract_section_data(
+      #         model, 
+      #         user_pdf_content, 
+      #         section
+      #     )    
+      #     # Ensure section_data is a dictionary
+      #     if isinstance(section_data, str):
+      #         section_data = json.loads(section_data)          
+      #     all_sections_data.append(section_data)
       
-      # Step 3: Combine results
-      combined_data = {
-          "sections": all_sections_data 
-      }
+      # # Step 3: Combine results
+      # combined_data = {
+      #     "sections": all_sections_data 
+      # }
       
-      log_json(combined_data)
+      # log_json(combined_data)
 
-      return {
-          "status": "success",
-          "message": "Successfully extracted all sections",
-          "data": json.dumps(combined_data)
-      }
+      # return {
+      #     "status": "success",
+      #     "message": "Successfully extracted all sections",
+      #     "data": json.dumps(combined_data)
+      # }
 
   except Exception as e:
       import traceback
