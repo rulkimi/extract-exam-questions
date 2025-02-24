@@ -2,8 +2,8 @@ import { createWebHistory, createRouter } from "vue-router";
 import UploadPage from "@/views/UploadPage.vue";
 
 const routes = [
-  { path: '/', redirect: '/upload' },
-  { path: '/upload', component: UploadPage },
+  { path: '/', redirect: '/docs' },
+  // { path: '/upload', component: UploadPage },
   { path: '/docs', component: () => import("@/views/Documents.vue")}
 ];
 

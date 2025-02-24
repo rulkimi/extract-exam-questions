@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 
 const isSidebarExpanded = ref(false);
 
@@ -9,16 +9,15 @@ const toggleSidebar = () => {
 };
 
 const menus = [
-  { label: "Upload Document", url: "/upload", icon: ["fas", "arrow-up-from-bracket"] },
+  // { label: "Upload Document", url: "/upload", icon: ["fas", "arrow-up-from-bracket"] },
   { label: "Documents", url: "/docs", icon: ["far", "file"] },
 ]
-const route = useRoute();
 const router = useRouter();
-const activeMenu = ref(route.path);
+const activeMenu = ref("/docs");
 const setActiveMenu = (url) => {
   activeMenu.value = url;
   router.push(url);
-}
+};
 </script>
 <template>
   <nav
@@ -56,7 +55,7 @@ const setActiveMenu = (url) => {
       </div>
     </div>
 
-    <div class="flex items-center p-2 hover:bg-gray-200 border-t cursor-pointer" @click="toggleSidebar">
+    <div class="flex items-center p-2 hover:bg-gray-100 border-t cursor-pointer" @click="toggleSidebar">
       <div class="size-10 flex items-center justify-center rounded-lg">
         <font-awesome-icon class="text-slate-500" :class="isSidebarExpanded ? 'rotate-180' : ''" :icon="['fas', 'chevron-right']" />
       </div>
