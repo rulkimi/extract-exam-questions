@@ -37,7 +37,7 @@
 					:class="[
 						areFilesSelected || skipInitialUpload ? 'order-md-last' : '',
 						error ? ' text-red-500 border-red-500 hover:text-white hover:bg-red-500' : 'text-teal-500 border-teal-500 hover:text-white hover:bg-teal-500',
-						loading ? 'disabled btn-outline-secondary' : ''
+						loading ? '!text-slate-500 !border-slate-500' : ''
 					]"
 					for="dropzoneFile"
 				>
@@ -80,12 +80,12 @@
 							{{ cancelButtonText }}
 						</button>
 						<button v-if="!noUploadButton"
-							class="px-3 py-2 rounded-lg border cursor-pointer text-white bg-teal-500"
-							:class="{ 'w-full': noCancelButton }"
+							class="px-3 py-2 rounded-lg border cursor-pointer text-white bg-teal-500 flex items-center gap-2"
+							:class="{ 'w-full': noCancelButton, 'opacity-50' : loading }"
 							:disabled="loading || !areFilesSelected || disableUploadButton"
 							@click="upload"
 						>
-							<span v-if="loading" class="spinner-border spinner-border-sm mr-2" role="status" aria-hidden="true"></span>
+							<Spinner v-if="loading" />
 							<span>{{ uploadButtonText }}</span>
 						</button>
 					</div>
@@ -96,9 +96,13 @@
 </template>
 <script>
 import { formatFileSize, truncateString } from '@/utils';
+import Spinner from '@/components/Spinner.vue';
 
 export default {
 	name: 'DropZone',
+  components: {
+    Spinner
+  },
 	data() {
 		return {
 			active: false,

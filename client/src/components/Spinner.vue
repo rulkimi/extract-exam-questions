@@ -15,7 +15,7 @@ defineProps({
 	<div role="status">
 		<svg 
 			aria-hidden="true" 
-			class="animate-spin text-gray-200 dark:text-gray-600" 
+			class="animate-spin text-gray-200" 
 			:class="{
 				'w-12 h-12': size === 'xl',
 				'w-8 h-8': size === 'large',
@@ -23,7 +23,7 @@ defineProps({
 				'w-3 h-3': size === 'small',
 
 				'fill-black ': variant.includes('default'),
-				'fill-teal-500 ': variant.includes('primary'),
+				'fill-teal-600 ': variant.includes('primary'),
 				'fill-secondary ': variant.includes('secondary'),
 				'fill-tertiary ': variant.includes('tertiary'),
 			}"

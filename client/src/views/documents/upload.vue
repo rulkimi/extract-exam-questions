@@ -1,5 +1,23 @@
 <script setup>
 import FileUploadBox from "@/components/FileUploadBox.vue";
+import axios from 'axios';
+import { ref } from 'vue';
+
+const loading = ref(false);
+
+const uploadFile = async (file) => {
+  loading.value = true;
+  try {
+    const formData = new FormData();
+    formData.append('pdf_file', file);
+    const response = await axios.post(import.meta.env.VITE_BACKEND_URL + '/extract_questions', formData);
+    console.log(response.data);
+  } catch (error) {
+    console.error(error)
+  } finally {
+    loading.value = false;
+  }
+}
 </script>
 
 <template>
@@ -21,7 +39,8 @@ import FileUploadBox from "@/components/FileUploadBox.vue";
       verticalUI
       accept=".pdf"
       :max-size="30"
-      :loading="false"
+      :loading="loading"
+      @upload-files="uploadFile"
     />
   </div>
 </template>
