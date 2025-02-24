@@ -27,8 +27,8 @@
     >
       <DocNavigation
         :id="id"
-        class="relative -bottom-32 transition-all duration-300"
-        :class="{ 'bottom-0': isHovered || isScrolling }"
+        class="relative transition-all duration-300"
+        :class="isHovered || isScrolling ? 'bottom-0' : '-bottom-32'"
         :currentPage="currentPage"
         :totalPages="totalPages"
         @page-changed="handleInputPageChanged"
