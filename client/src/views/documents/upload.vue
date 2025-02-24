@@ -17,9 +17,10 @@ import FileUploadBox from "@/components/FileUploadBox.vue";
   </div>
   <div class="flex w-full justify-center">
     <FileUploadBox
-      description="PDF files not more than 20MB"
+      description="PDF files not more than 30MB"
       verticalUI
       accept=".pdf"
+      :max-size="30"
       :loading="false"
     />
   </div>
