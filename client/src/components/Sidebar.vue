@@ -1,6 +1,6 @@
 <script setup>
-import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { onMounted, ref, nextTick, watch } from "vue";
+import { useRouter, useRoute } from "vue-router";
 
 const isSidebarExpanded = ref(false);
 
@@ -13,12 +13,25 @@ const menus = [
   { label: "Playground", url: "/playground", icon: ["fas", "vial"] },
 ]
 const router = useRouter();
+const route = useRoute();
+
+onMounted(() => {
+  nextTick(() => {
+    activeMenu.value = route.path;
+  })
+})
+
+watch(route, (newRoute) => {
+  activeMenu.value = newRoute.path;
+});
+
 const activeMenu = ref("/docs");
 const setActiveMenu = (url) => {
   activeMenu.value = url;
   router.push(url);
 };
 </script>
+
 <template>
   <nav
     class="sticky top-0 h-screen shrink-0 border-r border-slate-300 bg-white flex flex-col justify-between transition-all duration-300 overflow-hidden"
@@ -40,7 +53,7 @@ const setActiveMenu = (url) => {
           v-for="menu in menus"
           :key="menu.url"
           class="flex items-center mx-2 gap-3 cursor-pointer rounded-lg"
-          :class="activeMenu === menu.url ? 'bg-teal-50 text-teal-500' : 'text-slate-500 hover:bg-gray-100'"
+          :class="activeMenu.startsWith(menu.url) ? 'bg-teal-50 text-teal-500' : 'text-slate-500 hover:bg-gray-100'"
           @click="setActiveMenu(menu.url)"
         >
           <div class="size-10 p-3 flex items-center justify-center">
