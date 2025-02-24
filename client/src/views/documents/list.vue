@@ -48,7 +48,7 @@ const onRowClick = (item) => {
       Upload Paper
     </router-link>
   </div>
-  <div class="bg-white rounded-lg p-4 border border-slate-200 shadow-sm">
+  <div class="bg-white rounded-lg p-4 border border-slate-300 shadow-sm">
     <Table clickable-row :headers="headers" :data="data" @row-click="onRowClick">
       <template #cell-content="{ rowData, header }">
         <div
