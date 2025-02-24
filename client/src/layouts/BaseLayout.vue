@@ -3,9 +3,9 @@ import Sidebar from '@/components/Sidebar.vue';
 </script>
 
 <template>
-  <div class="flex bg-teal-50/60">
+  <div class="flex bg-teal-50">
     <Sidebar />
-    <div class="p-4">
+    <div class="p-4 flex-grow">
       <slot></slot>
     </div>
   </div>
