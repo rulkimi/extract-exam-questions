@@ -2,16 +2,20 @@
 import FileUploadBox from "@/components/FileUploadBox.vue";
 import axios from 'axios';
 import { ref } from 'vue';
+import { useRouter } from "vue-router";
+import PDFViewerWithNavigation from "@/components/PDFViewerWithNavigation.vue";
 
 const loading = ref(false);
+const router = useRouter();
+const pdf = ref()
 
 const uploadFile = async (file) => {
+  pdf.value = URL.createObjectURL(file)
   loading.value = true;
   try {
     const formData = new FormData();
     formData.append('pdf_file', file);
     const response = await axios.post(import.meta.env.VITE_BACKEND_URL + '/extract_questions', formData);
-    console.log(response.data);
   } catch (error) {
     console.error(error)
   } finally {
@@ -41,6 +45,15 @@ const uploadFile = async (file) => {
       :max-size="30"
       :loading="loading"
       @upload-files="uploadFile"
+    />
+  </div>
+  <div v-if="pdf" class="flex w-full justify-center">
+    <PDFViewerWithNavigation
+      id="pdf-viewer"
+      file-name="Uploaded Document"
+      :fileURL="pdf"
+      :scale="1.0"
+      @total-pages="totalPages => console.log(totalPages)"
     />
   </div>
 </template>
