@@ -1,3 +1,8 @@
 .env
 __pycache__
 my_env
+<<<<<<< HEAD
+error_logs
+=======
+outputs/temporary_output_data.json
+>>>>>>> 810cced28dc858539a815340c926a16503403011
