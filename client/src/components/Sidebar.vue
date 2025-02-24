@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 const isSidebarExpanded = ref(false);
 
@@ -7,6 +8,17 @@ const toggleSidebar = () => {
   isSidebarExpanded.value = !isSidebarExpanded.value;
 };
 
+const menus = [
+  { label: "Upload Document", url: "/upload", icon: ["fas", "arrow-up-from-bracket"] },
+  { label: "Documents", url: "/docs", icon: ["far", "file"] },
+]
+const route = useRoute();
+const router = useRouter();
+const activeMenu = ref(route.path);
+const setActiveMenu = (url) => {
+  activeMenu.value = url;
+  router.push(url);
+}
 </script>
 <template>
   <nav
@@ -24,12 +36,22 @@ const toggleSidebar = () => {
           <span class="text-slate-500 text-sm">Physics Paper 2</span>
         </div>
       </div>
-      <div>
-        <div class="flex items-center m-2 gap-3 cursor-pointer hover:bg-gray-100 rounded-lg">
+      <div class="flex flex-col gap-1 py-2">
+        <div
+          v-for="menu in menus"
+          :key="menu.url"
+          class="flex items-center mx-2 gap-3 cursor-pointer rounded-lg"
+          :class="activeMenu === menu.url ? 'bg-teal-100 text-teal-500' : 'text-slate-500 hover:bg-gray-100'"
+          @click="setActiveMenu(menu.url)"
+        >
           <div class="size-10 p-3 flex items-center justify-center">
-            <font-awesome-icon class="text-slate-500" :icon="['fas', 'arrow-up-from-bracket']" />
+            <font-awesome-icon
+              :icon="menu.icon" 
+            />
           </div>
-          <div class="text-nowrap text-slate-500">Upload Document</div>
+          <div class="text-nowrap">
+            {{ menu.label }}
+          </div>
         </div>
       </div>
     </div>
