@@ -10,7 +10,7 @@ const toggleSidebar = () => {
 
 const menus = [
   { label: "Documents", url: "/docs", icon: ["far", "file"] },
-  { label: "Upload Document", url: "/upload", icon: ["fas", "arrow-up-from-bracket"] },
+  { label: "Playground", url: "/playground", icon: ["fas", "vial"] },
 ]
 const router = useRouter();
 const activeMenu = ref("/docs");

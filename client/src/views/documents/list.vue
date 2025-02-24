@@ -39,7 +39,7 @@ const onRowClick = (item) => {
 </script>
 
 <template>
-  <div class="flex items-center justify-between mb-4">
+  <div class="flex justify-between mb-4">
     <h1 class="text-xl font-semibold">Documents</h1>
     <router-link
       class="px-3 py-2 bg-teal-500 text-white rounded-lg font-semibold"

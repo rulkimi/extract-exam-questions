@@ -1,5 +1,4 @@
 import { createWebHistory, createRouter } from "vue-router";
-import UploadPage from "@/views/UploadPage.vue";
 
 const routes = [
   { path: '/', redirect: '/docs' },
@@ -11,7 +10,8 @@ const routes = [
       { path: 'list', component: () => import("@/views/documents/list.vue") },
       { path: 'upload', component: () => import("@/views/documents/upload.vue") },
     ]
-  }
+  },
+  { path: '/playground', component: () => import("@/views/playground.vue") }
 ];
 
 const router = createRouter({
