@@ -2,21 +2,21 @@
 	<div v-if="pdf" class="flex flex-col items-center text-center">
 
 		<!-- search word input -->
-		<div class="sticky top-0 z-[1020] h-0 w-9/12">
+		<div class="sticky top-0 z-[1020] h-0 w-[400px]">
 			<div
-				class="relative opacity-0 top-[-100px] transition-all duration-300 p-4 bg-black text-white rounded-md flex items-center"
+				class="relative opacity-0 top-[-100px] transition-all duration-300 p-4 bg-black text-white rounded-md flex items-center justify-between"
 				:class="{ 'opacity-100 top-[5px]' : isSearchInputVisible }"
 			>
 				<input
 					v-model="highlightText"
 					:id="id + '-highlightText'"
 					type="text"
-					class="form-input"
+					class="bg-black text-white focus:outline-none"
 					style="height: 30px;"
 					autocomplete="off"
 				/>
-				<span v-if="highlightCount > 0" class="text-white me-2">
-					<div class="d-inline-flex">
+				<span v-if="highlightCount > 0" class="text-white mr-2">
+					<div class="inline-flex">
 						<span v-if="currentHighlightIndex !== -1">{{ currentHighlightIndex + 1 }}/</span>
 						{{ highlightCount }}
 						<span v-if="currentHighlightIndex === -1">&nbsp;found</span>
@@ -248,6 +248,6 @@ export default {
 }
 
 :deep(.current-highlight) {
-	background-color: yellow !important;
+	background-color: rgba(255, 255, 0, 0.5) !important; /* Yellow with 0.5 opacity */
 }
 </style>

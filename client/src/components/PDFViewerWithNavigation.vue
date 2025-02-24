@@ -1,9 +1,9 @@
 <template>
   <div
-    class="tw-w-full tw-overflow-y-auto position-relative tw-shadow-md"
+    class="w-full h-full relative overflow-y-scroll"
     @scroll="handleScroll"
   >
-    <div class="tw-flex tw-justify-center tw-items-center">
+    <div class="flex justify-center items-center">
       <PDFViewer
         :ref="id + '-ref'"
         :id="id"
@@ -21,13 +21,13 @@
       </PDFViewer>
     </div>
     <div
-      class="tw-max-w-fit tw-p-5 tw-mx-auto tw-sticky tw-bottom-0 tw-z-[1020] tw-mb-6"
+      class="max-w-fit p-5 mx-auto sticky bottom-0 z-[1020] mb-6"
       @mouseenter="handleMouseEnter" 
       @mouseleave="handleMouseLeave"
     >
       <DocNavigation
         :id="id"
-        class="tw-relative tw--bottom-32 tw-transition-all tw-duration-300"
+        class="relative -bottom-32 transition-all duration-300"
         :class="{ 'bottom-0': isHovered || isScrolling }"
         :currentPage="currentPage"
         :totalPages="totalPages"
