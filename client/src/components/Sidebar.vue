@@ -9,8 +9,8 @@ const toggleSidebar = () => {
 };
 
 const menus = [
-  // { label: "Upload Document", url: "/upload", icon: ["fas", "arrow-up-from-bracket"] },
   { label: "Documents", url: "/docs", icon: ["far", "file"] },
+  { label: "Upload Document", url: "/upload", icon: ["fas", "arrow-up-from-bracket"] },
 ]
 const router = useRouter();
 const activeMenu = ref("/docs");
@@ -40,7 +40,7 @@ const setActiveMenu = (url) => {
           v-for="menu in menus"
           :key="menu.url"
           class="flex items-center mx-2 gap-3 cursor-pointer rounded-lg"
-          :class="activeMenu === menu.url ? 'bg-teal-100 text-teal-500' : 'text-slate-500 hover:bg-gray-100'"
+          :class="activeMenu === menu.url ? 'bg-teal-50 text-teal-500' : 'text-slate-500 hover:bg-gray-100'"
           @click="setActiveMenu(menu.url)"
         >
           <div class="size-10 p-3 flex items-center justify-center">
