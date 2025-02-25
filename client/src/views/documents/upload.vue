@@ -6,7 +6,7 @@ import { useRouter } from "vue-router";
 
 const loading = ref(false);
 const router = useRouter();
-const uploadSuccess = ref(true)
+const uploadSuccess = ref(false)
 const pdf = ref()
 
 const uploadFile = async (file) => {

@@ -12,7 +12,6 @@ def build_extract_section_data_prompt(section_info: dict):
     if not reference_config:
         raise ValueError(f"Unknown section name: {section_info['name']}")
         
-    # Load the appropriate reference structure
     try:
         with open(reference_config['file'], 'r', encoding='utf-8') as f:
             reference_structure = f.read()
@@ -28,21 +27,37 @@ def build_extract_section_data_prompt(section_info: dict):
         question_range = "11"
 
     section_prompt = f"""
-        You are an Exam Paper Structure Extractor. Your task is to:
-        
-        1. ANALYZE THE PROVIDED PDF CONTENT ONLY
-        2. CREATE NEW JSON based on the PDF content
-        3. NEVER COPY FROM THE REFERENCE JSON
+        You are an Exam Paper Structure Extractor. Your task is to create a valid JSON structure from the PDF content.
 
-        First, study the REFERENCE PDF (First PDF) (Pages {reference_config['start_page']} to {reference_config['end_page']}) and its corresponding JSON structure
-        Below is how the reference pdf section was correctly extracted:
+        IMPORTANT JSON STRUCTURE RULES:
+        1. Each question should appear EXACTLY ONCE in the structure
+        2. DO NOT create nested duplicate questions
+        3. DO NOT create recursive question structures
+        4. Questions should follow this exact hierarchy:
+           - main_questions (array)
+             - number (string)
+             - content_flow (array)
+             - questions (array)
+               - sub_questions (array) [if applicable]
+        5. Every JSON object must be properly closed
+        6. All arrays and objects must have proper comma delimiters
+        7. All property names and string values must be in double quotes
+
+        TASK STEPS:
+        1. ANALYZE the provided PDF content for {section_info['name']}, Pages {section_info['start_page']} to {section_info['end_page']}
+        2. Extract questions {question_range}
+        3. Create NEW JSON following the structure below:
         {reference_structure}
 
-        Now, ANALYZE YOUR TARGET PDF (Second PDF) SECTION: {section_info['name']}, Pages {section_info['start_page']} to {section_info['end_page']}, and extract questions {question_range}:
-        same structure: 
-        {reference_structure}
+        REQUIREMENTS:
+        - Return ONLY valid JSON
+        - NO explanations or markdown
+        - NO extra backslashes
+        - Each question should appear in exactly ONE place in the hierarchy
+        - Verify all brackets and braces are properly matched
+        - Ensure all required commas are present between elements
 
-        Return only a valid JSON object. No explanations. No markdown formatting. No unnecessary backslashes \\. Just JSON.
+        Generate the JSON structure now.
     """
     return section_prompt
 

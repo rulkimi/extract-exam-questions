@@ -13,6 +13,7 @@ def configure_model():
 def get_ai_response(contents, response_schema=None, model="gemini-1.5-flash"):
   model = configure_model()
   response = model.generate_content(contents)
+  print(response.usage_metadata)
   return response
 
 def convert_pdf_to_part(pdf_file):
