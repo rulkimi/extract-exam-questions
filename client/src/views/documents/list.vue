@@ -1,5 +1,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
 import axios from "axios"
 import Table from '@/components/Table.vue';
 
@@ -45,9 +46,9 @@ const deleteItem = (id) => {
   console.log(`Delete item with ID: ${id}`);
 };
 
+const router = useRouter()
 const onRowClick = (item) => {
-  console.log(`Row clicked for the item with ID: ${item.id}. The data:`);
-  console.table(item)
+  router.push({ name: 'doc-detail', params: { id: item.id } });
 }
 
 </script>

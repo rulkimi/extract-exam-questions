@@ -9,6 +9,7 @@ const routes = [
     children: [
       { path: 'list', component: () => import("@/views/documents/list.vue") },
       { path: 'upload', component: () => import("@/views/documents/upload.vue") },
+      { path: ':id', name: 'doc-detail', component: () => import("@/views/documents/detail.vue"), props: route => ({ id: route.params.id }) }
     ]
   },
   { path: '/playground', component: () => import("@/views/playground.vue") }

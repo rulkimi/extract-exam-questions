@@ -41,6 +41,17 @@ def get_documents():
         }
     }
 
+@app.get("/documents/{id}")
+def get_document_by_id(id: str):
+    response = supabase.table("documents").select("*").eq("id", id).execute()
+    if not response.data:
+        raise HTTPException(status_code=404, detail="Document not found")
+    return {
+        "status": "success",
+        "message": "Document fetched successfully",
+        "data": response.data[0]
+    }
+
 @app.post("/extract_questions")
 async def analyse_pdf(background_tasks: BackgroundTasks, pdf_file: UploadFile = File(...)):
     try:
