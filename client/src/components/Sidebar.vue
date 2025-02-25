@@ -2,10 +2,11 @@
 import { onMounted, ref, nextTick, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 
-const isSidebarExpanded = ref(false);
+const isSidebarExpanded = ref(localStorage.getItem('minisidebar') === 'true' ? false : true);
 
 const toggleSidebar = () => {
   isSidebarExpanded.value = !isSidebarExpanded.value;
+  localStorage.setItem('minisidebar', !isSidebarExpanded.value);
 };
 
 const menus = [
