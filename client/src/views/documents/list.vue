@@ -50,6 +50,10 @@ const deleteItem = (id) => {
 
 const router = useRouter()
 const onRowClick = (item) => {
+  if (item.status === 'failed' || item.status === 'in process') {
+    alert(`Item is ${item.status}. Please try again later or contact the team.`);
+    return;
+  }
   router.push({ name: 'doc-detail', params: { id: item.id } });
 }
 
