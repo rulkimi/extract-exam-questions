@@ -1,19 +1,32 @@
 <script setup>
+import { ref, onMounted } from "vue";
+import axios from "axios"
 import Table from '@/components/Table.vue';
 
 const headers = [
   // { key: 'id', label: 'ID'  },
-  { key: 'name', label: 'Name' },
+  { key: 'file_name', label: 'Name' },
   { key: 'status', label: 'Status' },
-  { key: 'date', label: 'Date' },
+  { key: 'uploaded_date', label: 'Date' },
   { key: 'actions', width: '100px' }
 ];
+const tableData = ref([])
 
-const data = [
-  { id: 1, name: 'Kedah Physics P2 Q 2023.pdf', date: '2023-01-01', status: 'in process' },
-  { id: 2, name: 'Trial Fizik P2 Kelantan 2022.pdf', date: '2023-01-02', status: 'extracted' },
-  { id: 3, name: 'Physics P2 MRSM 2023.pdf', date: '2023-01-03', status: 'edited' },
-];
+onMounted(() => {
+  fetchDocuments()
+})
+const fetchDocuments = async () => {
+  try {
+    const response = await axios.get(import.meta.env.VITE_BACKEND_URL + '/documents');
+    const { data, message, status } = response.data;
+    tableData.value = data.documents;
+    console.log(tableData.value)
+  } catch (error) {
+    console.error(error)
+  } finally {
+    // loading.value = false;
+  }
+}
 
 const getStatusClass = (status) => {
   switch (status) {
@@ -36,6 +49,7 @@ const onRowClick = (item) => {
   console.log(`Row clicked for the item with ID: ${item.id}. The data:`);
   console.table(item)
 }
+
 </script>
 
 <template>
@@ -49,7 +63,7 @@ const onRowClick = (item) => {
     </router-link>
   </div>
   <div class="bg-white rounded-lg p-4 border border-slate-300 shadow-sm">
-    <Table clickable-row :headers="headers" :data="data" @row-click="onRowClick">
+    <Table clickable-row :headers="headers" :data="tableData" @row-click="onRowClick">
       <template #cell-content="{ rowData, header }">
         <div
           v-if="header.key === 'status'"

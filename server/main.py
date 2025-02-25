@@ -30,7 +30,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Main Function
+@app.get("/documents")
+def get_documents():
+    response = supabase.table("documents").select("*").execute()
+    return {
+        "status": "success",
+        "message": "Documents fetched successfully",
+        "data": {
+            "documents": response.data
+        }
+    }
+
 @app.post("/extract_questions")
 async def analyse_pdf(background_tasks: BackgroundTasks, pdf_file: UploadFile = File(...)):
     try:
