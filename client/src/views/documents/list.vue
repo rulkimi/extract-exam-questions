@@ -3,6 +3,7 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios"
 import Table from '@/components/Table.vue';
+import { formatDate } from "@/utils";
 
 const headers = [
   // { key: 'id', label: 'ID'  },
@@ -86,6 +87,11 @@ const onRowClick = (item) => {
           :class="getStatusClass(rowData.status)"
         >
           {{ rowData.status.toUpperCase() }}
+        </div>
+        <div
+          v-else-if="header.key === 'uploaded_date'"
+        >
+          {{ formatDate(rowData[header.key]) }}
         </div>
         <div v-else-if="header.key === 'actions'">
           <div class="flex justify-end space-x-2">

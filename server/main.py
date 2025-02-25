@@ -32,7 +32,7 @@ app.add_middleware(
 
 @app.get("/documents")
 def get_documents():
-    response = supabase.table("documents").select("*").execute()
+    response = supabase.table("documents").select("*").order("uploaded_date", desc=True).execute()
     return {
         "status": "success",
         "message": "Documents fetched successfully",
