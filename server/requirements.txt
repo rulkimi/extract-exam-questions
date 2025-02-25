@@ -6,3 +6,4 @@ python-multipart
 pdf2image
 pymupdf
 google-genai
+supabase
