@@ -1,6 +1,6 @@
 <template>
   <div
-    class="w-full h-full relative overflow-y-scroll"
+    class="h-full relative overflow-y-scroll"
     @scroll="handleScroll"
   >
     <div class="flex justify-center items-center">
