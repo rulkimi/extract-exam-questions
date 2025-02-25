@@ -1,5 +1,6 @@
 <script setup>
 import Sidebar from '@/components/Sidebar.vue';
+import AlertToast from '@/components/AlertToast.vue';
 </script>
 
 <template>
@@ -9,4 +10,5 @@ import Sidebar from '@/components/Sidebar.vue';
       <slot></slot>
     </div>
   </div>
+  <AlertToast />
 </template>

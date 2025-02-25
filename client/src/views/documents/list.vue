@@ -4,6 +4,7 @@ import { useRouter } from "vue-router";
 import axios from "axios"
 import Table from '@/components/Table.vue';
 import { formatDate } from "@/utils";
+import { useToastStore } from "@/stores/toastStore";
 
 const headers = [
   // { key: 'id', label: 'ID'  },
@@ -51,9 +52,10 @@ const deleteItem = (id) => {
 };
 
 const router = useRouter()
+const toast = useToastStore()
 const onRowClick = (item) => {
   if (item.status === 'failed' || item.status === 'in process') {
-    alert(`Item is ${item.status}. Please try again later or contact the team.`);
+    toast.showToast({ message: `Item is ${item.status}. Please try again later or contact the team.` });
     return;
   }
   router.push({ name: 'doc-detail', params: { id: item.id } });
