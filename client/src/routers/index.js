@@ -8,7 +8,7 @@ const routes = [
     redirect: '/docs/list',
     children: [
       { path: 'list', component: () => import("@/views/documents/list.vue") },
-      { path: 'upload', component: () => import("@/views/documents/upload.vue") },
+      // { path: 'upload', component: () => import("@/views/documents/upload.vue") },
       { path: ':id', name: 'doc-detail', component: () => import("@/views/documents/detail.vue"), props: route => ({ id: route.params.id }) }
     ]
   },

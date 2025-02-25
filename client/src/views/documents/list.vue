@@ -5,6 +5,8 @@ import axios from "axios"
 import Table from '@/components/Table.vue';
 import { formatDate } from "@/utils";
 import { useToastStore } from "@/stores/toastStore";
+import Dialog from "@/components/Dialog.vue";
+import UploadFile from "@/components/UploadFile.vue";
 
 const headers = [
   // { key: 'id', label: 'ID'  },
@@ -61,18 +63,29 @@ const onRowClick = (item) => {
   router.push({ name: 'doc-detail', params: { id: item.id } });
 }
 
+const showUploadDialog = ref(false);
+
+const uploadFileKey = ref(1);
+const onUploadDialogClose = () => {
+  uploadFileKey.value++;
+}
 </script>
 
 <template>
   <div class="flex justify-between mb-4">
     <h1 class="text-xl font-semibold">Documents</h1>
-    <router-link
+    <button
       class="px-3 py-2 bg-teal-500 text-white rounded-lg font-semibold"
-      to="/docs/upload"
+      @click="showUploadDialog = true"
     >
       Upload Paper
-    </router-link>
+    </button>
   </div>
+  <Dialog v-model="showUploadDialog" title="Upload Paper" size="fit-content" @on-close="onUploadDialogClose">
+    <template #content>
+      <UploadFile :key="uploadFileKey" />
+    </template>
+  </Dialog>
   <div class="bg-white rounded-lg p-4 border border-slate-300 shadow-sm">
     <Table
       clickable-row

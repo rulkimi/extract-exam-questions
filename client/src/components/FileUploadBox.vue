@@ -1,7 +1,7 @@
 <template>
 	<div class="flex flex-col justify-center items-center">
 		<div
-			class="transition-all ease duration-300 p-3 rounded-lg shadow-md"
+			class="transition-all ease duration-300 p-3 rounded-lg"
 			:class="active ? 'bg-primary bg-opacity-25' : 'bg-white'"
 		>
 			<div
