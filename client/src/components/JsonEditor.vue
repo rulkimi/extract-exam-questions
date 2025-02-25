@@ -1,33 +1,14 @@
 <script setup>
-import { ref } from "vue";
-
 defineProps({
   allQuestions: {
     type: Array,
     required: false
   }
 });
-
-// const handleFileUpload = (event) => {
-//   const file = event.target.files[0];
-//   if (!file) return;
-
-//   const reader = new FileReader();
-//   reader.onload = (e) => {
-//     allQuestions.value = JSON.parse(e.target.result);
-//     console.log(allQuestions.value)
-
-//   };
-//   reader.readAsText(file);
-// };
 </script>
 
 <template>
   <div class="p-6 space-y-4 text-black">
-    <!-- <h1 class="text-2xl font-bold">JSON Question Table</h1> -->
-
-    <!-- <input type="file" @change="handleFileUpload" class="mb-4 border p-2" /> -->
-
     <div v-for="questions in allQuestions">
       <div v-if="questions" class="space-y-8 mt-4">
         <template v-for="mainQuestion in questions.main_questions" :key="mainQuestion.number">
@@ -100,6 +81,15 @@ defineProps({
                           <span v-if="content.format === 'checkbox'">
                             <div class="checkbox"></div>
                           </span>
+                          <div v-else-if="content.format === 'multiple-choice'" class="space-y-4">
+                            <span v-for="(option, index) in content.options" :key="index" class="flex gap-8 items-center">
+                              <div class="w-16 h-12 border-2 border-black"></div>
+                              <div>
+                                {{ option.malay }} <br />
+                                <em>{{ option.english }}</em> <br />
+                              </div>
+                            </span>
+                          </div>
                           <span v-else>
                             ...........................................................................................................
                           </span>
@@ -136,6 +126,9 @@ defineProps({
                           >
                             <span v-if="content.format === 'checkbox'">
                               <div class="checkbox"></div>
+                            </span>
+                            <span v-else-if="content.format === 'multiple-choice'">
+                              multiple choice
                             </span>
                             <span v-else>
                               ...........................................................................................................

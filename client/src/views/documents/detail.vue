@@ -5,13 +5,18 @@ import PDFViewerWithNavigation from '@/components/PDFViewerWithNavigation.vue';
 import JsonEditor from '@/components/JsonEditor.vue';
 import axios from 'axios'
 
-const route = useRoute();
-const id = route.params.id;
 const documentDetail = ref(null)
+
+const props = defineProps({
+  id: {
+    type: String,
+    required: true
+  }
+})
 
 const fetchDocumentDetail = async () => {
   try {
-    const response = await axios.get(import.meta.env.VITE_BACKEND_URL + `/documents/${id}`);
+    const response = await axios.get(import.meta.env.VITE_BACKEND_URL + `/documents/${props.id}`);
     const { data, status, message } = response.data;
     documentDetail.value = data;
     console.log(documentDetail.value)
