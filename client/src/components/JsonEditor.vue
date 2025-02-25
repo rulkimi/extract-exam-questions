@@ -43,12 +43,13 @@ defineProps({
                       </span>
                     </td>
                   </tr>
-                  <tr v-if="content.marks">
+                  <tr v-if="mainQuestion.marks">
                     <td
                       colspan="4"
                       style="text-align: right; font-weight: bold"
                     >
-                      [{{ content.marks }} marks]
+                      <span class="block">[{{ mainQuestion.marks }} Markah]</span>
+                      <span class="block">[{{ mainQuestion.marks }} <em>{{ mainQuestion.marks > 1 ? 'Marks' : 'Mark' }}</em>]</span>
                     </td>
                   </tr>
                 </template>
@@ -97,6 +98,14 @@ defineProps({
                       </template>
                     </td>
                   </tr>
+                  <tr v-if="question.marks" class="border bg-gray-100">
+                    <td></td>
+                    <td></td>
+                    <td colspan="2" align="right">
+                      <span class="block">[{{ question.marks }} Markah]</span>
+                      <span class="block">[{{ question.marks }} <em>{{ question.marks > 1 ? 'Marks' : 'Mark' }}</em>]</span>
+                    </td>
+                  </tr>
                   <template
                     v-for="subQuestion in question.sub_questions"
                     :key="subQuestion.number"
@@ -135,6 +144,15 @@ defineProps({
                             </span>
                           </div>
                         </template>
+                      </td>
+                    </tr>
+                    <tr v-if="subQuestion.marks" class="border bg-gray-100" align="right">
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                      <td colspan="2">
+                        <span class="block">[{{ subQuestion.marks }} Markah]</span>
+                        <span class="block">[{{ subQuestion.marks }} <em>{{ subQuestion.marks > 1 ? 'Marks' : 'Mark' }}</em>]</span>
                       </td>
                     </tr>
                   </template>
