@@ -46,7 +46,7 @@ onMounted(() => {
   <div class="flex h-[92%] w-full">
     <JsonEditor
       v-if="documentDetail && documentDetail.data"
-      class="h-full overflow-auto w-2/3" :all-questions="documentDetail.data"
+      class="h-full overflow-auto w-2/3" :sections="documentDetail.data"
     />
     <PDFViewerWithNavigation
       v-if="documentDetail && documentDetail.file_url"

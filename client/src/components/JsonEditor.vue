@@ -1,6 +1,6 @@
 <script setup>
 defineProps({
-  allQuestions: {
+  sections: {
     type: Array,
     required: false
   }
@@ -9,7 +9,7 @@ defineProps({
 
 <template>
   <div class="p-6 space-y-4 text-black">
-    <div v-for="questions in allQuestions">
+    <div v-for="questions in sections">
       <div v-if="questions" class="space-y-8 mt-4">
         <template v-for="mainQuestion in questions.main_questions" :key="mainQuestion.number">
           <div class="border p-4 rounded-md bg-white shadow-md text-left">
