@@ -63,7 +63,13 @@ const onRowClick = (item) => {
     </router-link>
   </div>
   <div class="bg-white rounded-lg p-4 border border-slate-300 shadow-sm">
-    <Table clickable-row :headers="headers" :data="tableData" @row-click="onRowClick">
+    <Table
+      clickable-row
+      :headers="headers"
+      :data="tableData"
+      @row-click="onRowClick"
+      no-result-statement="No document found. Upload one to start"
+    >
       <template #cell-content="{ rowData, header }">
         <div
           v-if="header.key === 'status'"

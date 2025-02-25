@@ -108,7 +108,7 @@
               </td>
             </template>
           </tr>
-        </template>
+        </template> -->
         <tr v-if="data && !data.length">
           <td
             :colspan="headers.length"
@@ -116,7 +116,7 @@
           >
             {{ noResultStatement }}
           </td>
-        </tr> -->
+        </tr> 
       </tbody>
 
       <!-- Grouped / Expandable row -->

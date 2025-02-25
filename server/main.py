@@ -1,5 +1,5 @@
 import json
-import asyncio
+from datetime import datetime
 from dotenv import load_dotenv
 
 from fastapi import FastAPI, HTTPException, File, UploadFile, BackgroundTasks
@@ -56,16 +56,20 @@ async def analyse_pdf(background_tasks: BackgroundTasks, pdf_file: UploadFile = 
         sections_response_json = json.loads(sections_response.text)
         sections = await identify_sections(sections_response_json, user_pdf_content)
 
+        unique_id = pdf_file.filename.lower().replace(" ", "_") + datetime.now().strftime("%Y%m%d%H%M%S")
+        supabase.storage.from_("files").upload(unique_id, user_pdf_content)
+        download_link = supabase.storage.from_("files").get_public_url(unique_id)
+
         # insert document and get the inserted record's ID
-        insert_response = supabase.table("documents").insert({"file_name": pdf_file.filename}).execute()
-        document_id = insert_response.data[0]['id'] 
+        insert_response = supabase.table("documents").insert({"file_name": pdf_file.filename, "file_url": download_link}).execute()
+        document_id = insert_response.data[0]['id']
 
         background_tasks.add_task(extract_data, pdf, sections, document_id)
 
         return {
             "status": "success", 
             "message": "File uploaded successfully. Please wait while it being processed.", 
-            "data": { "document_id": document_id }
+            "data": { "document_id": document_id, "file_url": download_link }
         }
 
     except Exception as e:
