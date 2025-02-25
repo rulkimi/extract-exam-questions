@@ -26,7 +26,19 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="flex h-full w-full">
+  <div class="space-y-2 mb-4">
+    <h1 class="text-xl font-semibold">Document Detail</h1>
+    <nav>
+      <ol class="list-reset flex items-center">
+        <li>
+          <router-link to="/docs" class="text-teal-500 hover:underline">Documents</router-link>
+        </li>
+        <font-awesome-icon class="mx-2" :icon="['fas', 'chevron-right']" size="xs" />
+        <li v-if="documentDetail" class="text-gray-500">{{ documentDetail.file_name }}</li>
+      </ol>
+    </nav>
+  </div>
+  <div class="flex h-[92%] w-full">
     <JsonEditor
       v-if="documentDetail && documentDetail.data"
       class="h-full overflow-auto w-2/3" :all-questions="documentDetail.data"
