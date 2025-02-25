@@ -69,6 +69,8 @@ const uploadFileKey = ref(1);
 const onUploadDialogClose = () => {
   uploadFileKey.value++;
 }
+
+const onUploaded = () => fetchDocuments();
 </script>
 
 <template>
@@ -83,11 +85,12 @@ const onUploadDialogClose = () => {
   </div>
   <Dialog v-model="showUploadDialog" title="Upload Paper" size="fit-content" @on-close="onUploadDialogClose">
     <template #content>
-      <UploadFile :key="uploadFileKey" />
+      <UploadFile :key="uploadFileKey" @uploaded="onUploaded" />
     </template>
   </Dialog>
   <div class="bg-white rounded-lg p-4 border border-slate-300 shadow-sm">
     <Table
+      class="overflow-y-auto h-[calc(100vh-150px)]"
       clickable-row
       :headers="headers"
       :data="tableData"

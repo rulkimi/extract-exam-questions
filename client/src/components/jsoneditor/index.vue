@@ -43,7 +43,7 @@ defineProps({
                 >
                   <tr class="border bg-gray-100">
                     <td></td>
-                    <td class="border p-2">
+                    <td v-if="question.number" class="border p-2">
                       {{ question.number.replace(/^\d+/, "") }}
                     </td>
                     <td class="border p-2 space-y-6" colspan="2">
@@ -71,7 +71,7 @@ defineProps({
                     <tr class="border">
                       <td></td>
                       <td></td>
-                      <td class="border p-2 pl-8">
+                      <td v-if="subQuestion.number" class="border p-2 pl-8">
                         {{ subQuestion.number.match(/\([^)]*\)$/)?.[0] }}
                       </td>
                       <td class="border p-2 space-y-6">

@@ -2,12 +2,12 @@
 import FileUploadBox from "@/components/FileUploadBox.vue";
 import axios from 'axios';
 import { ref } from 'vue';
-import { useRouter } from "vue-router";
 
 const loading = ref(false);
-const router = useRouter();
 const uploadSuccess = ref(false)
 const pdf = ref()
+
+const emit = defineEmits(['uploaded'])
 
 const uploadFile = async (file) => {
   pdf.value = URL.createObjectURL(file)
@@ -24,6 +24,7 @@ const uploadFile = async (file) => {
     console.error(error)
   } finally {
     loading.value = false;
+    emit('uploaded')
   }
 }
 </script>

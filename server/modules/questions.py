@@ -46,9 +46,9 @@ def build_extract_section_data_prompt(section_info: dict):
         TASK STEPS:
         1. ANALYZE the provided PDF content for {section_info['name']}, Pages {section_info['start_page']} to {section_info['end_page']}
         2. Extract questions {question_range}
-        3. Create NEW JSON following the structure below:
-        {reference_structure}
-
+        3. Follow the JSON structure format shown here: {reference_structure}
+        4. Use ONLY content from the provided PDF, DO NOT COPY FROM REFERENCE
+        
         REQUIREMENTS:
         - Return ONLY valid JSON
         - NO explanations or markdown
@@ -56,6 +56,8 @@ def build_extract_section_data_prompt(section_info: dict):
         - Each question should appear in exactly ONE place in the hierarchy
         - Verify all brackets and braces are properly matched
         - Ensure all required commas are present between elements
+        - Extract actual content from PDF, do not use reference data
+        - Keep only the structure format from reference, populate with PDF content
 
         Generate the JSON structure now.
     """
