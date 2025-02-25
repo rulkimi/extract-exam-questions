@@ -6,3 +6,14 @@
 
 4. Store data (JSON first, Firebase, Supabase, local??)
 5. Frontend (upload, editable, save, output csv??)
+
+create this table
+
+create table documents (
+  id uuid primary key default gen_random_uuid(),
+  file_name text not null,
+  file_url text not null,
+  uploaded_date timestamp default now(),
+  data JSONB,
+  status text check (status IN ('pending', 'processed', 'failed')) default 'pending'
+);
