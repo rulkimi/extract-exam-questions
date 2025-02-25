@@ -15,5 +15,5 @@ create table documents (
   file_url text not null,
   uploaded_date timestamp default now(),
   data JSONB,
-  status text check (status IN ('pending', 'processed', 'failed')) default 'pending'
+  status text check (status IN ('in process', 'extracted', 'edited', 'failed')) default 'in process'
 );
