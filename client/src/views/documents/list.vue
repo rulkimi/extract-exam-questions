@@ -37,6 +37,8 @@ const getStatusClass = (status) => {
       return 'border-teal-500 text-teal-500'; 
     case 'edited':
       return 'border-blue-500 text-blue-500'; 
+    case 'failed':
+      return 'border-red-500 text-red-500'; 
     default:
       return 'border-gray-400'; 
   }
