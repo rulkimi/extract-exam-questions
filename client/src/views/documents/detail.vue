@@ -2,7 +2,7 @@
 import { useRoute } from 'vue-router';
 import { ref, onMounted } from 'vue';
 import PDFViewerWithNavigation from '@/components/PDFViewerWithNavigation.vue';
-import JsonEditor from '@/components/JsonEditor.vue';
+import JSONEditor from '@/components/jsoneditor/index.vue';
 import axios from 'axios'
 
 const documentDetail = ref(null)
@@ -44,7 +44,7 @@ onMounted(() => {
     </nav>
   </div>
   <div class="flex h-[92%] w-full">
-    <JsonEditor
+    <JSONEditor
       v-if="documentDetail && documentDetail.data"
       class="h-full overflow-auto w-2/3" :sections="documentDetail.data"
     />
