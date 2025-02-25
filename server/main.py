@@ -67,7 +67,7 @@ async def analyse_pdf(background_tasks: BackgroundTasks, pdf_file: UploadFile = 
         sections_response_json = json.loads(sections_response.text)
         sections = await identify_sections(sections_response_json, user_pdf_content)
 
-        unique_id = pdf_file.filename.lower().replace(" ", "_") + datetime.now().strftime("%Y%m%d%H%M%S")
+        unique_id = datetime.now().strftime("%Y%m%d%H%M%S") + '_' + pdf_file.filename.lower().replace(" ", "_")
         supabase.storage.from_("files").upload(unique_id, user_pdf_content)
         download_link = supabase.storage.from_("files").get_public_url(unique_id)
 
