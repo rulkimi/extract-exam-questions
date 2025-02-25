@@ -52,8 +52,8 @@ const setActiveMenu = (url) => {
         <div
           v-for="menu in menus"
           :key="menu.url"
-          class="flex items-center mx-2 gap-3 cursor-pointer rounded-lg"
-          :class="activeMenu.startsWith(menu.url) ? 'bg-teal-50 text-teal-500' : 'text-slate-500 hover:bg-gray-100'"
+          class="flex items-center mx-2 gap-3 cursor-pointer rounded-lg border"
+          :class="activeMenu.startsWith(menu.url) ? 'bg-teal-50 text-teal-500 shadow-sm border-teal-100' : 'text-slate-500 hover:bg-gray-100 border-transparent'"
           @click="setActiveMenu(menu.url)"
         >
           <div class="size-10 p-3 flex items-center justify-center">

@@ -12,11 +12,12 @@ const headers = [
   { key: 'actions', width: '100px' }
 ];
 const tableData = ref([])
-
+const loading = ref(false)
 onMounted(() => {
   fetchDocuments()
 })
 const fetchDocuments = async () => {
+  loading.value = true;
   try {
     const response = await axios.get(import.meta.env.VITE_BACKEND_URL + '/documents');
     const { data, message, status } = response.data;
@@ -25,7 +26,7 @@ const fetchDocuments = async () => {
   } catch (error) {
     console.error(error)
   } finally {
-    // loading.value = false;
+    loading.value = false;
   }
 }
 
@@ -76,6 +77,7 @@ const onRowClick = (item) => {
       :data="tableData"
       @row-click="onRowClick"
       no-result-statement="No document found. Upload one to start"
+      :loading="loading"
     >
       <template #cell-content="{ rowData, header }">
         <div
