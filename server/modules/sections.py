@@ -26,46 +26,46 @@ def build_identify_sections_prompt():
 
 async def identify_sections(response, pdf_content):
     try:
-      section_start_pages=response
-      start_C = int(section_start_pages["sections"]["C"])
-      start_A = int(section_start_pages["sections"]["A"])
-      start_B = int(section_start_pages["sections"]["B"])
-      last_page = get_last_page(pdf_content)
-      sections_data = [
-          {"name": "Section A", "start_page": start_A, "end_page": start_B - 1},
-          {"name": "Section B", "start_page": start_B, "end_page": start_C - 1},
-          {"name": "Section C", "start_page": start_C, "end_page": last_page}
-      ]
-      
-      # Normalize section names and print section info
-      for section in sections_data:
-          name = section["name"].lower()
-          if 'bahagian a' in name or 'section a' in name:
-              section["name"] = 'Section A'
-          elif 'bahagian b' in name or 'section b' in name:
-              section["name"] = 'Section B'
-          elif 'bahagian c' in name or 'section c' in name:
-              section["name"] = 'Section C'
-              
-          print(f"{section['name']} (pages {section['start_page']}-{section['end_page']})")
-      
-      # Validate that we found at least one section
-      if not sections_data or len(sections_data) == 0:
-          raise ValueError("No sections (Section A/B/C or Bahagian A/B/C) were found in the PDF")
-      
-      # Validate each section has required fields
-      for section in sections_data:  # Directly iterate over the list
-          if not section.get("name"):
-              raise ValueError("Section missing name field")
-          if not isinstance(section.get("start_page"), (int, float)):
-              raise ValueError(f"Invalid start_page for section {section.get('name')}")
-          if not isinstance(section.get("end_page"), (int, float)):
-              raise ValueError(f"Invalid end_page for section {section['name']}")
-          if section["start_page"] > section["end_page"]:
-              raise ValueError(f"Start page greater than end page for section {section['name']}")
+        section_start_pages=response
+        start_C = int(section_start_pages["sections"]["C"])
+        start_A = int(section_start_pages["sections"]["A"])
+        start_B = int(section_start_pages["sections"]["B"])
+        last_page = get_last_page(pdf_content)
+        sections_data = [
+            {"name": "Section A", "start_page": start_A, "end_page": start_B - 1},
+            {"name": "Section B", "start_page": start_B, "end_page": start_C - 1},
+            {"name": "Section C", "start_page": start_C, "end_page": last_page}
+        ]
+        
+        # Normalize section names and print section info
+        for section in sections_data:
+            name = section["name"].lower()
+            if 'bahagian a' in name or 'section a' in name:
+                section["name"] = 'Section A'
+            elif 'bahagian b' in name or 'section b' in name:
+                section["name"] = 'Section B'
+            elif 'bahagian c' in name or 'section c' in name:
+                section["name"] = 'Section C'
+                
+            print(f"{section['name']} (pages {section['start_page']}-{section['end_page']})")
+        
+        # Validate that we found at least one section
+        if not sections_data or len(sections_data) == 0:
+            raise ValueError("No sections (Section A/B/C or Bahagian A/B/C) were found in the PDF")
+        
+        # Validate each section has required fields
+        for section in sections_data:  # Directly iterate over the list
+            if not section.get("name"):
+                raise ValueError("Section missing name field")
+            if not isinstance(section.get("start_page"), (int, float)):
+                raise ValueError(f"Invalid start_page for section {section.get('name')}")
+            if not isinstance(section.get("end_page"), (int, float)):
+                raise ValueError(f"Invalid end_page for section {section['name']}")
+            if section["start_page"] > section["end_page"]:
+                raise ValueError(f"Start page greater than end page for section {section['name']}")
 
-      
-      return sections_data
+        
+        return sections_data
         
     except Exception as e:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
