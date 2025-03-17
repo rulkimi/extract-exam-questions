@@ -15,7 +15,7 @@ const toastStore = useToastStore();
           v-for="toast in toastStore.toasts"
           :key="toast.id"
           v-show="toast.isVisible"
-          class="z-10 bg-white border p-4 shadow rounded-lg flex items-center gap-2 justify-between min-w-[300px] hover:scale-105 transition-all duration-200"
+          class="z-10 bg-white border p-4 shadow rounded-lg flex items-center gap-2 justify-between min-w-[300px] hover:shadow-lg transition-all duration-200"
         >
           <div class="flex items-center gap-2">
             <font-awesome-icon v-if="toast.icon" :icon="toast.icon" />
