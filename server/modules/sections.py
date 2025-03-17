@@ -4,7 +4,7 @@ from modules.utils import get_last_page
 def build_identify_sections_prompt():
     return f"""
         ANALYZE THIS PDF AND IDENTIFY THE MAIN SECTIONS:
-        Identify the **start pages only** for the main sections in this PDF marked by 'Section A/B/C' or 'Bahagian A/B/C'.
+        Identify the **start pages** for the main sections in this PDF marked by 'Section A/B/C' or 'Bahagian A/B/C'.
         
         Return the result as JSON in this format:
         ```json
@@ -13,30 +13,37 @@ def build_identify_sections_prompt():
                 "A": start_page_number,
                 "B": start_page_number,
                 "C": start_page_number
-            }}
+            }},
+            "first_page_number": first_page_number
         }}
         ```
         
         **Rules for Identifying Sections:**
-        - Look for **"Section A" / "Bahagian A"** and return the page number where it appears.
-        - Look for **"Section B" / "Bahagian B"** and return the page number where it appears.
-        - Look for **"Section C" / "Bahagian C"** and return the page number where it appears.
+        - Look for **"Section A" / "Bahagian A"** and return the page number as shown in the PDF.
+        - Look for **"Section B" / "Bahagian B"** and return the page number as shown in the PDF.
+        - Look for **"Section C" / "Bahagian C"** and return the page number as shown in the PDF.
+        - Also identify the first page number shown in the PDF (e.g., if PDF starts at page 4, return 4).
         - Do **not** calculate the end pages.
     """
 
 async def identify_sections(response, pdf_content):
     try:
-        section_start_pages=response
+        section_start_pages = response
         start_C = int(section_start_pages["sections"]["C"])
         start_A = int(section_start_pages["sections"]["A"])
         start_B = int(section_start_pages["sections"]["B"])
-        last_page = get_last_page(pdf_content)
+        first_page = int(section_start_pages.get("first_page_number", 1))  # Default to 1 if not provided
+        
+        # Calculate the page offset
+        offset = first_page - 1
+        last_page = get_last_page(pdf_content) + offset
+        
         sections_data = [
             {"name": "Section A", "start_page": start_A, "end_page": start_B - 1},
             {"name": "Section B", "start_page": start_B, "end_page": start_C - 1},
             {"name": "Section C", "start_page": start_C, "end_page": last_page}
         ]
-        
+
         # Normalize section names and print section info
         for section in sections_data:
             name = section["name"].lower()
