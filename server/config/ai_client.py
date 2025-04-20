@@ -5,13 +5,15 @@ import time
 from typing import List, Tuple
 from google import genai
 from google.genai import types
+import winsound
+
 
 class AIClient:
     def __init__(self):
         print("Initializing AI client...")
         self.client = genai.Client(
             api_key=os.getenv("GOOGLE_API_KEY"),
-            http_options=types.HttpOptions(timeout=60000)
+            # http_options=types.HttpOptions(timeout=60000)
         )
         self.model = "gemini-2.0-flash"
         self.fixed_content = None
@@ -22,9 +24,9 @@ class AIClient:
         base_dir = os.path.dirname(os.path.abspath(__file__))
         reference_files = [
             os.path.join(base_dir, "..", "assets", "reference_input_1.pdf"),
-            os.path.join(base_dir, "..", "assets", "reference_output_1.txt"),
+            os.path.join(base_dir, "..", "assets", "reference_output_1_sanitized.txt"),
             os.path.join(base_dir, "..", "assets", "reference_input_2.pdf"),
-            os.path.join(base_dir, "..", "assets", "reference_output_2.txt")
+            os.path.join(base_dir, "..", "assets", "reference_output_2_sanitized.txt")
         ]
         
         print("Uploading reference files...")
@@ -183,6 +185,7 @@ Guide to identify main questions:
     - will always be in ascending order, and there will be no skips in the PDF. e.g. (a), (b), (c)
     - do not skip any numbers (if you extract (a), (b), (d); you are wrong)
     - Numbered \"1(a)\", \"2(b)\", \"3(c)\", etc in the output JSON.
+    - In some cases, visually the question looks like this "(a)(i)<sub-question text>" in the PDF. In this case, do not add content_flow to the question and proceed with sub-question.
     - Example JSON object inside a main_question's \"questions\" array:
 ```json
 \"main_questions\": [
@@ -460,17 +463,7 @@ I will use the provided example JSON snippets as a guide for structuring the out
                         mime_type=self.uploaded_files[1].mime_type,
                     ),
                     types.Part.from_text(text="""Attached here are the first input (reference_input_1.pdf) and output (reference_output_1.txt) examples that can be used as **reference** when extracting contents from provided PDF later.
-**STRICTLY DO NOT COPY CONTENTS FROM THESE REFERENCE FILES GIVEN** when generating JSON output. ONLY study the reference PDF and its output structure.
-
-Reference outputs are given only for the following:
-✅ Understanding of JSON hierarchy
-✅ Recognizing how content_flow elements appear
-✅ Interpreting marks, diagrams, tables, etc.
-
-Reference outputs are NOT to be used for:
-🚫 Generating any question text
-🚫 Reusing sentence structures
-🚫 Copying anything word-for-word"""),
+**STRICTLY DO NOT COPY CONTENTS FROM THESE REFERENCE FILES GIVEN** when generating JSON output. ONLY study the reference PDF and its output structure."""),
                 ],
             ),
             # Reference 2
@@ -486,17 +479,7 @@ Reference outputs are NOT to be used for:
                         mime_type=self.uploaded_files[3].mime_type,
                     ),
                     types.Part.from_text(text="""Attached here are the second input (reference_input_2.pdf) and output (reference_output_2.txt) examples that can be used as reference when extracting contents from provided PDF later.
-**STRICTLY DO NOT COPY CONTENTS FROM THESE REFERENCE FILES GIVEN** when generating JSON output. ONLY study the reference PDF and its output structure.
-
-Reference outputs are given only for the following:
-✅ Understanding of JSON hierarchy
-✅ Recognizing how content_flow elements appear
-✅ Interpreting marks, diagrams, tables, etc.
-
-Reference outputs are NOT to be used for:
-🚫 Generating any question text
-🚫 Reusing sentence structures
-🚫 Copying anything word-for-word"""),
+**STRICTLY DO NOT COPY CONTENTS FROM THESE REFERENCE FILES GIVEN** when generating JSON output. ONLY study the reference PDF and its output structure.""")
                 ],
             ),
             # Model Acknowledgment
@@ -558,6 +541,7 @@ I am ready to process new PDF files according to these guidelines.
                 print(result)
 
         full_json['main_questions'] = combined_main_questions
+        winsound.Beep(2000, 500)
         return full_json
 
 
