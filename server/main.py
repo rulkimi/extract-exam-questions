@@ -10,7 +10,6 @@ from fastapi import FastAPI, HTTPException, File, UploadFile, BackgroundTasks, R
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 
-from modules.new import newPrompt, newPrompt2
 from modules.utils import get_reference_pdf, get_rasterized_pdf
 from modules.wordgen import generate
 from modules.crop_img import get_images, update_json_with_url
@@ -87,8 +86,9 @@ async def analyse_pdf(background_tasks: BackgroundTasks, pdf_file: UploadFile = 
         # insert document and get the inserted record's ID
         insert_response = supabase.table("documents").insert({"file_name": pdf_file.filename, "file_url": download_link}).execute()
         document_id = insert_response.data[0]['id']
-
+   
         background_tasks.add_task(extract_data, user_pdf_content, document_id)
+        
         return {
             "status": "success", 
             "message": "File uploaded successfully. Please wait while it being processed.", 
@@ -100,14 +100,10 @@ async def analyse_pdf(background_tasks: BackgroundTasks, pdf_file: UploadFile = 
 def extract_data(pdf, document_id):
     start_time = time.time()  # Capture the start time
     full_json = {}
-    combined_main_questions = []  # Initialize a list to hold combined questions
     ai_client = AIClient()
-    
-    ranges = [(1, 4), (5, 8), (9, 11)]
 
     try:
-        combined_main_questions = ai_client.extract_questions(pdf, ranges)
-        full_json = {"main_questions": combined_main_questions}
+        full_json = ai_client.extract_full(pdf)
         
         # Call the cropping function and get cropped images
         # cropped_images = get_images(pdf, full_json)
@@ -161,7 +157,7 @@ def extract_data(pdf, document_id):
         }
     except Exception as e:
         print(f"Error extracting questions: {str(e)}")
-        supabase.table("documents").update({"status": "failed"}).eq("id", document_id).execute()
+        # supabase.table("documents").update({"status": "failed"}).eq("id", document_id).execute()
         raise HTTPException(status_code=500, detail=str(e))
 
     

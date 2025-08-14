@@ -6,17 +6,12 @@ from typing import List, Tuple
 from google import genai
 from google.genai import types
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type, before_sleep_log
-# import logging
-
-# # Set up logging
-# logging.basicConfig(level=logging.INFO)
-# logger = logging.getLogger(__name__)
 
 class AIClient:
     def __init__(self):
         print("Initializing AI client...")
         self.client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
-        self.model = "gemini-2.0-flash"
+        self.model = "gemini-2.5-flash"
         self.chat_history = []
         self.uploaded_files = []
         self._initialize_chat_history()
@@ -447,85 +442,47 @@ Do not copy exactly from these references when generating JSON output, ONLY stud
     """),
                 ],
             )
-        ]
-        
-        
+        ]  
 
-    def _process_single_range(self, pdf_bytes: bytes, start: int, end: int) -> dict:
-        """Process a single question range with automatic retries"""
-        start_time = time.time()
-        current_message = self.chat_history.copy()
-        current_message.extend([
-            types.Content(
-                role="user",
-                parts=[
-                    types.Part.from_bytes(data=pdf_bytes, mime_type="application/pdf"),
-                    types.Part.from_text(text=f"Extract **Main Questions {start} to {end}** ONLY. Do not extract anything else.")
-                ]
-            )
-        ])
-
-        response = self.client.models.generate_content(
-            model=self.model,
-            contents=current_message,
-            config=types.GenerateContentConfig(
-                temperature=0.2,
-                top_p=0.9,
-                response_mime_type="application/json"
-            )
-        )
-        
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        print(f"API usage for range {start}-{end}: {response.usage_metadata}")
-        print(f"Total elapsed time for range {start}-{end}: {elapsed_time} seconds")
-        
-        return response
-    
-    def extract_questions(self, pdf_bytes: bytes, ranges: List[Tuple[int, int]]) -> List[dict]:
-        """Process multiple question ranges with comprehensive error handling"""
-        results = []
-        total_attempts = 0
-        
-        for start, end in ranges:
-            range_success = False
-            last_exception = None
-            
-            for attempt in range(1, 3):  # Maximum 5 attempts per range
-                total_attempts += 1
-                try:
-                    print(f"Question {start}-{end} (Attempt {attempt})")
-                    response = self._process_single_range(pdf_bytes, start, end)
-                    response_json = json.loads(response.text)
-                    results.extend(response_json["main_questions"])
-                    range_success = True
-                    break
-                except Exception as e:
-                    last_exception = e
-                    print(
-                        f"Attempt {attempt} failed for range {start}-{end}. "
-                        f"Error: {str(e)}"
-                    )
-                    print(response.text)
-                    print(f"^^^^^^^ questions {start}-{end} ^^^^^^^")
-            
-            if not range_success and last_exception:
-                print(
-                    f"Failed to process range {start}-{end} after 5 attempts. "
-                    f"Last error: {str(last_exception)}"
+    def extract_full(self, pdf_bytes: bytes, start: int = 1, end: int = 11) -> dict:
+        try:
+            start_time = time.time()
+            current_message = self.chat_history.copy()
+            current_message.extend([
+                types.Content(
+                    role="user",
+                    parts=[
+                        types.Part.from_bytes(data=pdf_bytes, mime_type="application/pdf"),
+                        types.Part.from_text(text=f"Extract **Main Questions {start} to {end}** ONLY. Do not extract anything else.")
+                    ]
                 )
-                raise RuntimeError(
-                    f"Failed to extract questions {start}-{end} after 5 attempts. "
-                    f"Original error: {str(last_exception)}"
-                ) from last_exception
+            ])
+
+            response = self.client.models.generate_content(
+                model=self.model,
+                contents=current_message,
+                config=types.GenerateContentConfig(
+                    temperature=0.2,
+                    top_p=0.9,
+                    response_mime_type="application/json"
+                )
+            )
+            
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            print(f"API usage for range {start}-{end}: {response.usage_metadata}")
+            print(f"Total elapsed time for range {start}-{end}: {elapsed_time} seconds")
+            response_json = json.loads(response.text)
+        except Exception as e:
+            print(
+                f"Error: {str(e)}"
+            )
+            print(response.text)
+            print(f"^^^^^^^ questions {start}-{end} ^^^^^^^")
         
-        print(
-            f"Completed processing all ranges. Total attempts: {total_attempts}. "
-            f"Successfully extracted {len(results)} questions."
-        )
-        return results
+        return response_json
 
     @staticmethod
     def convert_pdf_to_part(pdf_bytes: bytes):
-        """Utility method for PDF conversion"""
+        # Utility method for PDF conversion
         return {"mime_type": "application/pdf", "data": base64.b64encode(pdf_bytes).decode("utf-8")}
