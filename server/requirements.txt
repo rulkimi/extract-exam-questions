@@ -8,4 +8,4 @@ pymupdf
 google-genai
 supabase
 tenacity
-opencv-python
+opencv-python-headless
