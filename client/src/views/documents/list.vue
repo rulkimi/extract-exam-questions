@@ -7,6 +7,7 @@ import { formatDate } from "@/utils";
 import { useToastStore } from "@/stores/toastStore";
 import Dialog from "@/components/Dialog.vue";
 import UploadFile from "@/components/UploadFile.vue";
+import Spinner from "@/components/Spinner.vue";
 
 const headers = [
   // { key: 'id', label: 'ID'  },
@@ -17,20 +18,43 @@ const headers = [
 ];
 const tableData = ref([])
 const loading = ref(false)
+let pollInterval = null;
+
 onMounted(() => {
-  fetchDocuments()
-})
+  fetchDocuments();
+});
+
 const fetchDocuments = async () => {
   loading.value = true;
   try {
     const response = await axios.get(import.meta.env.VITE_BACKEND_URL + '/documents');
     const { data, message, status } = response.data;
     tableData.value = data.documents;
+    // If any document is in process, start polling
+    if (tableData.value.some(doc => doc.status === 'in process')) {
+      startPolling();
+    } else {
+      stopPolling();
+    }
     console.log(tableData.value)
   } catch (error) {
     console.error(error)
   } finally {
     loading.value = false;
+  }
+}
+
+function startPolling() {
+  if (pollInterval) return;
+  pollInterval = setInterval(() => {
+    fetchDocuments();
+  }, 20000);
+}
+
+function stopPolling() {
+  if (pollInterval) {
+    clearInterval(pollInterval);
+    pollInterval = null;
   }
 }
 
@@ -102,8 +126,11 @@ const onUploadDialogClose = () => {
   uploadFileKey.value++;
 }
 
-const onUploaded = () => fetchDocuments();
-
+const onUploaded = () => {
+  fetchDocuments();
+  // Polling will be started by fetchDocuments if needed
+  console.log('Document uploaded, refreshing list');
+}
 
 </script>
 
@@ -126,6 +153,9 @@ const onUploaded = () => fetchDocuments();
         <div v-if="header.key === 'status'" class="px-2 py-1 w-fit rounded-full font-semibold text-xs border"
           :class="getStatusClass(rowData.status)">
           {{ rowData.status.toUpperCase() }}
+          <div v-if="rowData.status === 'in process'" class="ml-2 inline-flex items-center">
+            <Spinner size="small" variant="primary" />
+          </div>
         </div>
         <div v-else-if="header.key === 'uploaded_date'">
           {{ formatDate(rowData[header.key]) }}
