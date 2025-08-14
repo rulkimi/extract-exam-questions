@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 import time
-import cv2
+# import cv2
 
 from fastapi import FastAPI, HTTPException, File, UploadFile, BackgroundTasks, Request, Path
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,7 +12,7 @@ from fastapi.responses import FileResponse
 
 from modules.utils import get_reference_pdf, get_rasterized_pdf
 from modules.wordgen import generate
-from modules.crop_img import get_images, update_json_with_url
+# from modules.crop_img import get_images, update_json_with_url
 
 # from config.ai_client import get_ai_response
 from config.ai_client import AIClient
