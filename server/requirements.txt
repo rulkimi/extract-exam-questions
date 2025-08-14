@@ -9,4 +9,4 @@ google-genai
 supabase
 tenacity
 opencv-python-headless
-docx
+python-docx
