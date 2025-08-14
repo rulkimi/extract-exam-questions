@@ -58,14 +58,15 @@ def get_document_by_id(id: str):
 
 @app.delete("/documents/{id}")
 def delete_document(id: str = Path(...)):
-    response = supabase.table("documents").delete().eq("id", id).execute()
-    if response.status_code == 204:  # No content means successful deletion
-        return {
-            "status": "success",
-            "message": "Document deleted successfully."
-        }
-    else:
-        raise HTTPException(status_code=404, detail="Document not found")
+	response = supabase.table("documents").delete().eq("id", id).execute()
+	# Supabase Python client returns deleted rows in response.data
+	if response.data and len(response.data) > 0:
+		return {
+			"status": "success",
+			"message": "Document deleted successfully."
+		}
+	else:
+		raise HTTPException(status_code=404, detail="Document not found")
 
 @app.post("/extract_questions")
 async def analyse_pdf(background_tasks: BackgroundTasks, pdf_file: UploadFile = File(...)):
