@@ -5,6 +5,8 @@ import PDFViewerWithNavigation from '@/components/PDFViewerWithNavigation.vue';
 import JSONEditor from '@/components/jsoneditor/index.vue';
 import axios from 'axios'
 
+const API_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL;
+
 const documentDetail = ref(null)
 
 const props = defineProps({
@@ -16,7 +18,7 @@ const props = defineProps({
 
 const fetchDocumentDetail = async () => {
   try {
-    const response = await axios.get(import.meta.env.VITE_BACKEND_URL + `/documents/${props.id}`);
+    const response = await axios.get(API_URL + `/documents/${props.id}`);
     const { data, status, message } = response.data;
     documentDetail.value = data;
     console.log(documentDetail.value)
@@ -29,7 +31,7 @@ const fetchDocumentDetail = async () => {
 function download(jsonData, pdfname) {
   const filename = pdfname.replace(/\.pdf$/, '.docx');
 
-  axios.post(import.meta.env.VITE_BACKEND_URL + '/generate_word', { jsonData, filename }, {
+  axios.post(API_URL + '/generate_word', { jsonData, filename }, {
     responseType: 'blob' // This is important for file downloads
   })
     .then(response => {

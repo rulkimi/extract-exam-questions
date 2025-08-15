@@ -9,6 +9,7 @@ import Dialog from "@/components/Dialog.vue";
 import UploadFile from "@/components/UploadFile.vue";
 import Spinner from "@/components/Spinner.vue";
 
+const API_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL;
 const headers = [
 	// { key: 'id', label: 'ID'  },
 	{ key: 'file_name', label: 'Name' },
@@ -27,7 +28,7 @@ onMounted(() => {
 const fetchDocuments = async () => {
   loading.value = true;
   try {
-    const response = await axios.get(import.meta.env.VITE_BACKEND_URL + '/documents');
+    const response = await axios.get(API_URL + '/documents');
     const { data, message, status } = response.data;
     tableData.value = data.documents;
     // If any document is in process, start polling
@@ -76,7 +77,7 @@ const getStatusClass = (status) => {
 function download(jsonData, pdfname) {
 	const filename = pdfname.replace(/\.pdf$/, '.docx');
 
-	axios.post(import.meta.env.VITE_BACKEND_URL + '/generate_word', { jsonData, filename }, {
+  axios.post(API_URL + '/generate_word', { jsonData, filename }, {
 		responseType: 'blob' // This is important for file downloads
 	})
 		.then(response => {
@@ -108,7 +109,7 @@ const confirmDelete = (id, name) => {
 const deleteItem = async () => {
 	if (!deleteTargetId.value) return;
 	try {
-		const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/documents/${deleteTargetId.value}`);
+		const response = await axios.delete(`${API_URL}/documents/${deleteTargetId.value}`);
 		if (response.status === 200) {
 			toast.showToast({ message: 'Document deleted successfully.' });
 			fetchDocuments();

@@ -3,6 +3,7 @@ import FileUploadBox from "@/components/FileUploadBox.vue";
 import axios from 'axios';
 import { ref } from 'vue';
 
+const API_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL;
 const loading = ref(false);
 const uploadSuccess = ref(false)
 const pdf = ref()
@@ -15,7 +16,7 @@ const uploadFile = async (file) => {
   try {
     const formData = new FormData();
     formData.append('pdf_file', file);
-    const response = await axios.post(import.meta.env.VITE_BACKEND_URL + '/extract_questions', formData);
+    const response = await axios.post(API_URL + '/extract_questions', formData);
     const { status } = response.data;
     if (status === "success") {
       uploadSuccess.value = true;
