@@ -24,7 +24,15 @@ load_dotenv()
 app = FastAPI()
 supabase = init_db()
 
+RAILWAY_URL = os.getenv("RAILWAY_STATIC_URL") 
+GITHUB_PAGES_URL = os.getenv("GITHUB_PAGES_URL")
+
 origins = ["http://localhost:5173"]
+
+if RAILWAY_URL:
+    origins.append(RAILWAY_URL)
+if GITHUB_PAGES_URL:
+    origins.append(GITHUB_PAGES_URL)
 
 app.add_middleware(
     CORSMiddleware,
