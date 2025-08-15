@@ -4,7 +4,7 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 import time
-import cv2
+# import cv2
 
 from fastapi import FastAPI, HTTPException, File, UploadFile, BackgroundTasks, Request, Path
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,7 +12,7 @@ from fastapi.responses import FileResponse
 
 from modules.utils import get_reference_pdf, get_rasterized_pdf
 from modules.wordgen import generate
-from modules.crop_img import get_images, update_json_with_url
+# from modules.crop_img import get_images, update_json_with_url
 
 # from config.ai_client import get_ai_response
 from config.ai_client import AIClient
@@ -58,14 +58,15 @@ def get_document_by_id(id: str):
 
 @app.delete("/documents/{id}")
 def delete_document(id: str = Path(...)):
-    response = supabase.table("documents").delete().eq("id", id).execute()
-    if response.status_code == 204:  # No content means successful deletion
-        return {
-            "status": "success",
-            "message": "Document deleted successfully."
-        }
-    else:
-        raise HTTPException(status_code=404, detail="Document not found")
+	response = supabase.table("documents").delete().eq("id", id).execute()
+	# Supabase Python client returns deleted rows in response.data
+	if response.data and len(response.data) > 0:
+		return {
+			"status": "success",
+			"message": "Document deleted successfully."
+		}
+	else:
+		raise HTTPException(status_code=404, detail="Document not found")
 
 @app.post("/extract_questions")
 async def analyse_pdf(background_tasks: BackgroundTasks, pdf_file: UploadFile = File(...)):

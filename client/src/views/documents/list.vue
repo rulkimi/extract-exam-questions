@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios"
 import Table from '@/components/Table.vue';
@@ -10,11 +10,11 @@ import UploadFile from "@/components/UploadFile.vue";
 import Spinner from "@/components/Spinner.vue";
 
 const headers = [
-  // { key: 'id', label: 'ID'  },
-  { key: 'file_name', label: 'Name' },
-  { key: 'status', label: 'Status' },
-  { key: 'uploaded_date', label: 'Date' },
-  { key: 'actions', width: '100px' }
+	// { key: 'id', label: 'ID'  },
+	{ key: 'file_name', label: 'Name' },
+	{ key: 'status', label: 'Status' },
+	{ key: 'uploaded_date', label: 'Date' },
+	{ key: 'actions', width: '100px' }
 ];
 const tableData = ref([])
 const loading = ref(false)
@@ -59,71 +59,85 @@ function stopPolling() {
 }
 
 const getStatusClass = (status) => {
-  switch (status) {
-    case 'in process':
-      return 'border-indigo-500 text-indigo-500';
-    case 'extracted':
-      return 'border-teal-500 text-teal-500';
-    case 'edited':
-      return 'border-blue-500 text-blue-500';
-    case 'failed':
-      return 'border-red-500 text-red-500';
-    default:
-      return 'border-gray-400';
-  }
+	switch (status) {
+		case 'in process':
+			return 'border-indigo-500 text-indigo-500';
+		case 'extracted':
+			return 'border-teal-500 text-teal-500';
+		case 'edited':
+			return 'border-blue-500 text-blue-500';
+		case 'failed':
+			return 'border-red-500 text-red-500';
+		default:
+			return 'border-gray-400';
+	}
 };
 
 function download(jsonData, pdfname) {
-  const filename = pdfname.replace(/\.pdf$/, '.docx');
+	const filename = pdfname.replace(/\.pdf$/, '.docx');
 
-  axios.post(import.meta.env.VITE_BACKEND_URL + '/generate_word', { jsonData, filename }, {
-    responseType: 'blob' // This is important for file downloads
-  })
-    .then(response => {
-      const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', filename); // Use the specified filename
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    })
-    .catch(error => {
-      console.error('Error:', error);
-    });
+	axios.post(import.meta.env.VITE_BACKEND_URL + '/generate_word', { jsonData, filename }, {
+		responseType: 'blob' // This is important for file downloads
+	})
+		.then(response => {
+			const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+			const url = window.URL.createObjectURL(blob);
+			const link = document.createElement('a');
+			link.href = url;
+			link.setAttribute('download', filename); // Use the specified filename
+			document.body.appendChild(link);
+			link.click();
+			link.remove();
+		})
+		.catch(error => {
+			console.error('Error:', error);
+		});
 }
 
-const deleteItem = async (id) => {
-  try {
-    const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/documents/${id}`);
-    if (response.status === 200) {
-      // Optionally, you can show a success message
-      toast.showToast({ message: 'Document deleted successfully.' });
-      // Refresh the document list
-      fetchDocuments();
-    }
-  } catch (error) {
-    console.error('Error deleting item:', error);
-    toast.showToast({ message: 'Failed to delete document. Please try again.' });
-  }
+// State for delete confirmation dialog
+const showDeleteDialog = ref(false);
+const deleteTargetId = ref(null);
+const deleteTargetName = ref('');
+
+const confirmDelete = (id, name) => {
+	deleteTargetId.value = id;
+	deleteTargetName.value = name;
+	showDeleteDialog.value = true;
+};
+
+const deleteItem = async () => {
+	if (!deleteTargetId.value) return;
+	try {
+		const response = await axios.delete(`${import.meta.env.VITE_BACKEND_URL}/documents/${deleteTargetId.value}`);
+		if (response.status === 200) {
+			toast.showToast({ message: 'Document deleted successfully.' });
+			fetchDocuments();
+		}
+	} catch (error) {
+		console.error('Error deleting item:', error);
+		toast.showToast({ message: 'Failed to delete document. Please try again.' });
+	} finally {
+		showDeleteDialog.value = false;
+		deleteTargetId.value = null;
+		deleteTargetName.value = '';
+	}
 };
 
 const router = useRouter()
 const toast = useToastStore()
 const onRowClick = (item) => {
-  if (item.status === 'failed' || item.status === 'in process') {
-    toast.showToast({ message: `Item is ${item.status}. Please try again later or contact the team.` });
-    return;
-  }
-  router.push({ name: 'doc-detail', params: { id: item.id } });
+	if (item.status === 'failed' || item.status === 'in process') {
+		toast.showToast({ message: `Item is ${item.status}. Please try again later or contact the team.` });
+		return;
+	}
+	router.push({ name: 'doc-detail', params: { id: item.id } });
 }
 
 const showUploadDialog = ref(false);
 
 const uploadFileKey = ref(1);
 const onUploadDialogClose = () => {
-  uploadFileKey.value++;
+	uploadFileKey.value++;
 }
 
 const onUploaded = () => {
