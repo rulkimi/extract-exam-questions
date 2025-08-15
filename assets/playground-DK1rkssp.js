@@ -1,0 +1,1 @@
+import{P as e}from"./PDFViewerWithNavigation-CNiRFGWv.js";import{b as t,g as a,o}from"./index-Co3vsqOV.js";import"./Spinner-DgEFZafB.js";const s={class:"flex justify-between h-full w-full"},n={__name:"playground",setup(i){return(l,r)=>(o(),t("div",s,[a(e,{class:"w-1/2",id:"pdf-viewer-1","file-name":"File 1",fileURL:"/sample-pdf.pdf"})]))}};export{n as default};
