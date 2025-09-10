@@ -5,7 +5,7 @@ import PDFViewerWithNavigation from '@/components/PDFViewerWithNavigation.vue';
 import JSONEditor from '@/components/jsoneditor/index.vue';
 import axios from 'axios'
 
-const API_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 
 const documentDetail = ref(null)
 
@@ -22,7 +22,6 @@ const fetchDocumentDetail = async () => {
     const { data, status, message } = response.data;
     documentDetail.value = data;
     console.log(documentDetail.value)
-    console.log(documentDetail.data)
   } catch (error) {
     console.error(error)
   }

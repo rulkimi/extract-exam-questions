@@ -9,7 +9,7 @@ import Dialog from "@/components/Dialog.vue";
 import UploadFile from "@/components/UploadFile.vue";
 import Spinner from "@/components/Spinner.vue";
 
-const API_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL;
+const API_URL = import.meta.env.VITE_API_URL;
 const headers = [
 	// { key: 'id', label: 'ID'  },
 	{ key: 'file_name', label: 'Name' },
