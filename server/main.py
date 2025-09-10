@@ -4,18 +4,15 @@ import os
 from datetime import datetime
 from dotenv import load_dotenv
 import time
-# import cv2
 
 from fastapi import FastAPI, HTTPException, File, UploadFile, BackgroundTasks, Request, Path
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 
 from modules.utils import get_reference_pdf, get_rasterized_pdf
 from modules.wordgen import generate
 from modules.extract_images import get_images_and_update_json
-# from modules.crop_img import get_images, update_json_with_url
 
-# from config.ai_client import get_ai_response
 from config.ai_client import AIClient
 
 from db.init import init_db
@@ -137,7 +134,6 @@ async def generate_word(request: Request):
     
     json_data = data.get('jsonData')  # Access jsonData
     filename = data.get('filename')  # Access filename
-
-    document_path = generate(json_data)  # Call generate and get the document path
+    buffer = generate(json_data)
     
-    return FileResponse(document_path, media_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename=filename)
+    return StreamingResponse(buffer, media_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document', headers={"Content-Disposition": f"attachment; filename={filename}"})

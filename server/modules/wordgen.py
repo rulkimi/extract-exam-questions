@@ -4,7 +4,6 @@ from docx import Document
 from docx.shared import Inches, Cm, Twips
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ROW_HEIGHT
-import json
 
 def add_content_to_cell(cell, content, level):
     """Helper function to add content to a cell."""
@@ -150,7 +149,7 @@ def replace_newlines(data):
             
 def generate(data):
     replace_newlines(data)
-
+    buffer = io.BytesIO()
     doc = Document()
 
     # Set page margins
@@ -262,10 +261,7 @@ def generate(data):
         # Add a page break after each table
         doc.add_page_break()
 
-    # Save document
-    doc.save("table.docx")
-    
-    print("Document saved!")
-    
-    return "table.docx"  # Return the path of the saved document
+    doc.save(buffer)
+    buffer.seek(0)
+    return buffer
     
