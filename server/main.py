@@ -12,6 +12,7 @@ from fastapi.responses import FileResponse
 
 from modules.utils import get_reference_pdf, get_rasterized_pdf
 from modules.wordgen import generate
+from modules.extract_images import get_images_and_update_json
 # from modules.crop_img import get_images, update_json_with_url
 
 # from config.ai_client import get_ai_response
@@ -83,16 +84,11 @@ async def analyse_pdf(background_tasks: BackgroundTasks, pdf_file: UploadFile = 
             raise HTTPException(status_code=400, detail="Input PDF file must end with .pdf")
 
         user_pdf_content = await pdf_file.read()
-        # rasterized_pdf = get_rasterized_pdf(user_pdf_content)
-        # pdf = convert_pdf_to_part(user_pdf_content)
-    
-        # return extract_data2(user_pdf_content)
     
         unique_id = datetime.now().strftime("%Y%m%d%H%M%S") + '_' + pdf_file.filename.lower().replace(" ", "_")
         supabase.storage.from_("files").upload(unique_id, user_pdf_content)
         download_link = supabase.storage.from_("files").get_public_url(unique_id)
 
-        # insert document and get the inserted record's ID
         insert_response = supabase.table("documents").insert({"file_name": pdf_file.filename, "file_url": download_link}).execute()
         document_id = insert_response.data[0]['id']
    
@@ -108,51 +104,16 @@ async def analyse_pdf(background_tasks: BackgroundTasks, pdf_file: UploadFile = 
 
 def extract_data(pdf, document_id):
     start_time = time.time()  # Capture the start time
+    initial_json = {}
     full_json = {}
     ai_client = AIClient()
 
     try:
-        full_json = ai_client.extract_full(pdf)
-        
-        # Call the cropping function and get cropped images
-        # cropped_images = get_images(pdf, full_json)
+        initial_json = ai_client.extract_full(pdf)
+        print("Initial JSON extraction complete.")
 
-        # for cropped_image, expected_num, expected_type, page_num in cropped_images:
-        #     # Validate image
-        #     if cropped_image is None or cropped_image.size == 0:
-        #         print(f"Invalid image data for page {page_num} - skipping")
-        #         continue
-            
-        #     try:
-        #         h, w = cropped_image.shape[:2]
-        #         if h == 0 or w == 0:
-        #             print(f"Empty image dimensions for page {page_num} - skipping")
-        #             continue
-        #     except Exception as e:
-        #         print(f"Invalid image format for page {page_num}: {str(e)} - skipping")
-        #         continue
+        full_json = get_images_and_update_json(initial_json, pdf, supabase, "img", document_id)
 
-        #     # Encode image
-        #     success, buffer = cv2.imencode('.jpg', cropped_image, [cv2.IMWRITE_JPEG_QUALITY, 90])
-        #     if not success or buffer.size == 0:
-        #         print(f"Failed to encode image for page {page_num} - skipping")
-        #         continue
-
-        #     # Create safe filename
-        #     file_name = f"page_{page_num}_{expected_type}_{expected_num}.jpg"
-        #     file_name = re.sub(r'[^\w\-_. ]', '_', file_name)
-            
-        #     # Save image
-        #     try:
-        #         supabase.storage.from_("img").upload(f"{document_id}/{file_name}", buffer.tobytes())
-        #         file_url = supabase.storage.from_("img").get_public_url(f"{document_id}/{file_name}")
-        #         update_json_with_url(full_json, page_num, expected_type, expected_num, file_url)
-                
-        #         print(f"Successfully uploaded image. URL: {file_url}")
-        #     except Exception as e:
-        #         print(f"Failed to upload image {file_name}: {str(e)}")
-        #         continue
-                
         supabase.table("documents").update({"data": full_json, "status": "extracted"}).eq("id", document_id).execute()
         end_time = time.time()  # Capture the end time
         elapsed_time = end_time - start_time  # Calculate elapsed time
