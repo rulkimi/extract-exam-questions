@@ -2,10 +2,8 @@ import os
 import json
 import base64
 import time
-from typing import List, Tuple
 from google import genai
 from google.genai import types
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type, before_sleep_log
 
 class AIClient:
     def __init__(self):
@@ -444,7 +442,7 @@ Do not copy exactly from these references when generating JSON output, ONLY stud
             )
         ]  
 
-    def extract_full(self, pdf_bytes: bytes, start: int = 1, end: int = 11) -> dict:
+    def extract_full(self, pdf_bytes: bytes) -> dict:
         try:
             start_time = time.time()
             current_message = self.chat_history.copy()
@@ -453,7 +451,7 @@ Do not copy exactly from these references when generating JSON output, ONLY stud
                     role="user",
                     parts=[
                         types.Part.from_bytes(data=pdf_bytes, mime_type="application/pdf"),
-                        types.Part.from_text(text=f"Extract **Main Questions {start} to {end}** ONLY. Do not extract anything else.")
+                        types.Part.from_text(text=f"Extract **ALL Main Questions with their questions and sub-questions**. Do not extract anything else.")
                     ]
                 )
             ])
@@ -470,15 +468,14 @@ Do not copy exactly from these references when generating JSON output, ONLY stud
             
             end_time = time.time()
             elapsed_time = end_time - start_time
-            print(f"API usage for range {start}-{end}: {response.usage_metadata}")
-            print(f"Total elapsed time for range {start}-{end}: {elapsed_time} seconds")
+            print(f"API usage: {response.usage_metadata}")
+            print(f"Total elapsed time for text extraction: {elapsed_time} seconds")
             response_json = json.loads(response.text)
         except Exception as e:
             print(
                 f"Error: {str(e)}"
             )
             print(response.text)
-            print(f"^^^^^^^ questions {start}-{end} ^^^^^^^")
         
         return response_json
 
