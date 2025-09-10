@@ -13,15 +13,17 @@ def add_content_to_cell(cell, content, level):
         return  # Exit the function if content is empty or not a dictionary
 
     if content["type"] == "text":
-        # Add Malay text
-        malay_text = content["text"]["malay"]
-        # Directly set the text of the first paragraph
-        cell.paragraphs[0].text = malay_text  # Set Malay text in the first paragraph
+        if "malay" in content["text"]:
+            # Add Malay text
+            malay_text = content["text"]["malay"]
+            # Directly set the text of the first paragraph
+            cell.paragraphs[0].text = malay_text  # Set Malay text in the first paragraph
         
         # Add English text in italics
-        english_text = content["text"]["english"]
-        run = cell.paragraphs[0].add_run(f"\n{english_text}")  # Add English text in the same paragraph
-        run.italic = True  # Set the run to italic
+        if "english" in content["text"]:
+            english_text = content["text"]["english"]
+            run = cell.paragraphs[0].add_run(f"\n{english_text}")  # Add English text in the same paragraph
+            run.italic = True  # Set the run to italic
     elif content["type"] == "row":
         # Create a table within the cell for the row items
         if "items" in content and len(content["items"]) > 0:
