@@ -10,12 +10,12 @@ const props = defineProps({
 })
 
 const formattedMalay = computed(() => {
-  const text = props.content.text.malay.replace(/\\n/g, '<br />'); 
+  const text = props.content.text.malay?.replace(/\\n/g, '<br />'); 
   return text;
 })
 
 const formattedEnglish = computed(() => {
-  const text = props.content.text.english.replace(/\\n/g, '<br />');
+  const text = props.content.text.english?.replace(/\\n/g, '<br />');
   return text;
 })
 </script>
