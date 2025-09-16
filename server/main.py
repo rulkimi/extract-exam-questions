@@ -124,7 +124,7 @@ def extract_data(pdf, document_id):
         }
     except Exception as e:
         print(f"Error extracting questions: {str(e)}")
-        # supabase.table("documents").update({"status": "failed"}).eq("id", document_id).execute()
+        supabase.table("documents").update({"status": "failed"}).eq("id", document_id).execute()
         raise HTTPException(status_code=500, detail=str(e))
 
     
