@@ -26,3 +26,4 @@ matplotlib
 scipy
 pandas
 easyocr
+opencv-python-headless
