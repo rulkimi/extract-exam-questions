@@ -32,10 +32,15 @@ def merge_urls_into_json(data_structure, match_dictionary):
         obj_type = data_structure.get("type")
         obj_page = data_structure.get("page")
         obj_number = data_structure.get("number")
+        # Only clean obj_number if it's not None
+        if obj_number is not None:
+            obj_number_clean = str(obj_number).replace(' ', '')
+        else:
+            obj_number_clean = None
 
         # Check if the current dictionary is a target we need to update
-        if obj_type and obj_page and obj_number:
-            match_key = (int(obj_page), obj_type, str(obj_number))
+        if obj_type and obj_page and obj_number_clean:
+            match_key = (int(obj_page), obj_type, obj_number_clean)
             if match_key in match_dictionary:
                 data_structure['url'] = match_dictionary[match_key]
 
@@ -83,26 +88,82 @@ def run_pipeline(pdf, page_numbers, model, reader, supabase_client, bucket_name,
                 
                 # Run OCR on the caption area
                 ocr_result = reader.readtext(caption_area, detail=0, paragraph=True, blocklist='&')
-                ocr_text = " ".join(ocr_result)
-                print(ocr_result)
+                ocr_text = ocr_result[0] if ocr_result else ""
+                print(f"  -> OCR Text: {ocr_text}")
                 
                 object_number = None
+    
+                diagram_pattern = r'(Rajah|Diagram)\s*([\d\.]+(?:\s*\([a-hA-H]\))?)'
+                table_pattern = r'(Jadual|Table)\s*([\d\.]+(?:\s*\([a-hA-H]\))?)'
                 
-                regex_pattern = r'(Rajah|Diagram|Jadual|Table)\s*([\d\.]+(?:\s*\([a-hA-H]\))?)'
-
                 # Find all matches in the OCR text
-                all_matches = re.findall(regex_pattern, ocr_text, re.IGNORECASE)
+                all_diagram_matches = re.findall(diagram_pattern, ocr_text, re.IGNORECASE)
+                all_table_matches = re.findall(table_pattern, ocr_text, re.IGNORECASE)
                 
                 object_number = "NA"
-                if all_matches:
+                if all_diagram_matches and class_name == 'diagram':
+                    print('Caption below diagram matched!')
                     # The result is a list of tuples, e.g., [('Rajah', '1(b)'), ('Diagram', '11(b)')]
-                    
+                
                     # Sort the matches based on the length of the number string
-                    best_match = max(all_matches, key=lambda match: len(match[1]))
+                    best_match = max(all_diagram_matches, key=lambda match: len(match[1]))
                     
                     # The longest number is the second item in the best_match tuple
                     object_number = best_match[1].strip()
                     object_number = object_number.replace(' ', '')
+                elif all_table_matches and class_name == 'table':
+                    print('Caption below table matched!')
+                    best_match = max(all_table_matches, key=lambda match: len(match[1]))
+                    object_number = best_match[1].strip()
+                    object_number = object_number.replace(' ', '')
+                else:
+                    print('No caption below matched, checking above diagam/table...')
+                    caption_area_above = img_bgr[max(y1 - 250, 0):y1, x1-250:x2]
+                    if caption_area_above.size == 0: continue
+                    ocr_result_above = reader.readtext(caption_area_above, detail=0, paragraph=True)
+                    ocr_text_above = " ".join(ocr_result_above)
+                    
+                    all_diagram_matches_above = re.findall(diagram_pattern, ocr_text_above, re.IGNORECASE)
+                    all_table_matches_above = re.findall(table_pattern, ocr_text_above, re.IGNORECASE)
+                    if all_diagram_matches_above and class_name == 'diagram':
+                        print('Diagram number above diagram matched!')
+                        best_match = max(all_diagram_matches_above, key=lambda match: len(match[1]))
+                        object_number = best_match[1].strip()
+                        object_number = object_number.replace(' ', '')
+                    elif all_table_matches_above and class_name == 'table':
+                        print('Table number above table matched!')
+                        best_match = max(all_table_matches_above, key=lambda match: len(match[1]))
+                        object_number = best_match[1].strip()
+                        object_number = object_number.replace(' ', '')
+                    else:
+                        print('No number above found, checking previous page...')
+                        # Run OCR detection on the full previous page
+                        prev_page = doc.load_page(page_num - 2)
+                        prev_pix = prev_page.get_pixmap(dpi=300)
+                        prev_img_array = np.frombuffer(prev_pix.samples, dtype=np.uint8).reshape(prev_pix.height, prev_pix.width, prev_pix.n)
+                        prev_img_bgr = cv2.cvtColor(prev_img_array, cv2.COLOR_RGB2BGR)
+                        prev_ocr_result = reader.readtext(prev_img_bgr, detail=0, paragraph=True)
+                        prev_ocr_text = " ".join(prev_ocr_result)
+                        print(f"Previous page OCR: {prev_ocr_text}")
+                        # Find all matches for diagram and table on the previous page
+                        all_diagram_matches_prev = list(re.finditer(r'(Rajah|Diagram)\s*([\d\.]+)\s*(\([a-zA-Z0-9]+\))?', prev_ocr_text, re.IGNORECASE))
+                        all_table_matches_prev = list(re.finditer(r'(Jadual|Table)\s*([\d\.]+)\s*(\([a-zA-Z0-9]+\))?', prev_ocr_text, re.IGNORECASE))
+                        
+                        print('diagram matches:', all_diagram_matches_prev)
+                        print('table matches:', all_table_matches_prev)
+                        # Get the last match for the correct class
+                        if class_name == 'diagram' and all_diagram_matches_prev:
+                            print('Diagram number on previous page found!')
+                            last_match = all_diagram_matches_prev[-1]
+                            object_number = last_match.group(2)
+                            if last_match.group(3):
+                                object_number += last_match.group(3)
+                        elif class_name == 'table' and all_table_matches_prev:
+                            print('Table number on previous page found!')
+                            last_match = all_table_matches_prev[-1]
+                            object_number = last_match.group(2)
+                            if last_match.group(3):
+                                object_number += last_match.group(3)
 
                 if not object_number:
                     print(f"  -> Warning: Could not find number for a {class_name} on page {page_num}. Skipping upload.")
