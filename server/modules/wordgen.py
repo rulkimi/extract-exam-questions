@@ -1,11 +1,48 @@
 import requests
+import re
 import io
 from docx import Document
 from docx.shared import Inches, Cm, Twips
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.enum.table import WD_TABLE_ALIGNMENT, WD_ROW_HEIGHT
 
-def add_content_to_cell(cell, content, level):
+def _add_image_with_caption(paragraph, item, image_lookup, width):
+    """Finds an image URL from the lookup, downloads, and inserts it with a caption."""
+    # 1. Create a unique key to find the image in the lookup dictionary
+    # The key normalizes whitespace in the number to ensure a match
+    normalized_number = re.sub(r'\s+', '', str(item['number']))
+    lookup_key = (str(item['page']), item['type'], normalized_number)
+    
+    image_url = image_lookup.get(lookup_key)
+
+    if image_url:
+        try:
+            # Download and insert the image
+            response = requests.get(image_url)
+            response.raise_for_status() # Raise an exception for bad status codes
+            image_stream = io.BytesIO(response.content)
+            run = paragraph.add_run()
+            run.add_picture(image_stream, width=width)
+        except Exception as e:
+            paragraph.text = f"[{item['type'].upper()} {item['number']}]"
+            print(f"Failed to load image from URL {image_url}: {e}")
+    else:
+        # Fallback text if the image URL isn't found
+        paragraph.text = f"[{item['type'].upper()} {item['number']} (URL not found)]"
+
+    # Add caption below image
+    cell = paragraph._parent
+    caption_para = cell.add_paragraph()
+    caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    if item["type"] == "diagram":
+        caption_para.text = f"Rajah {item['number']}"
+        caption_run = caption_para.add_run(f"\nDiagram {item['number']}")
+    else:  # table
+        caption_para.text = f"Jadual {item['number']}"
+        caption_run = caption_para.add_run(f"\nTable {item['number']}")
+    caption_run.italic = True
+
+def add_content_to_cell(cell, content, level, image_lookup):
     """Helper function to add content to a cell."""
     # Return early if content is empty or not valid
     if not content or not isinstance(content, dict):
@@ -24,81 +61,28 @@ def add_content_to_cell(cell, content, level):
             run = cell.paragraphs[0].add_run(f"\n{english_text}")  # Add English text in the same paragraph
             run.italic = True  # Set the run to italic
     elif content["type"] == "row":
-        # Create a table within the cell for the row items
         if "items" in content and len(content["items"]) > 0:
-            # Clear any existing content
             cell.text = ""
-            # Create a table with 1 row and columns equal to number of items
             table = cell.add_table(rows=1, cols=len(content["items"]))
-            # table.style = "Table Grid"
             table.alignment = WD_TABLE_ALIGNMENT.CENTER
-
-            # Process each item in the row
             for idx, item in enumerate(content["items"]):
+                item_cell = table.cell(0, idx)
                 if item["type"] in ["diagram", "table"]:
-                    cell = table.cell(0, idx)
-                    cell.text = ""  # Clear any existing content
-                    paragraph = cell.paragraphs[0]
+                    item_cell.text = ""
+                    paragraph = item_cell.paragraphs[0]
                     paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                    
-                    if "url" in item:
-                        run = paragraph.add_run()
-                        try:
-                            # Download image from URL
-                            response = requests.get(item["url"])
-                            image_stream = io.BytesIO(response.content)
-                            # Add the image from the stream with adjusted width
-                            width = Inches(6.0 / len(content["items"]))
-                            run.add_picture(image_stream, width=width)
-                        except Exception as e:
-                            paragraph.text = f"[{item['type'].upper()} {item['number']}]"
-                            print(f"Failed to load image: {e}")
-                    else:
-                        paragraph.text = f"[{item['type'].upper()} {item['number']}]"
-
-                    # Add caption below image
-                    caption_para = cell.add_paragraph()
-                    caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                    if item["type"] == "diagram":
-                        caption_para.text = f"Rajah {item['number']}"
-                        caption_run = caption_para.add_run(f"\nDiagram {item['number']}")
-                    else:  # table
-                        caption_para.text = f"Jadual {item['number']}"
-                        caption_run = caption_para.add_run(f"\nTable {item['number']}")
-                    caption_run.italic = True
-        else:
-            cell.text = "[ROW ITEM]"
-            cell.paragraphs[0].alignment = WD_ALIGN_PARAGRAPH.CENTER
+                    # Use the new helper function
+                    width = Inches(6.0 / len(content["items"]))
+                    _add_image_with_caption(paragraph, item, image_lookup, width)
+                else:
+                    # Handle other item types if necessary
+                    item_cell.text = "[ROW ITEM]"
     elif content["type"] in ["diagram", "table"]:
-        # Clear existing content
         cell.text = ""
         paragraph = cell.paragraphs[0]
         paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        
-        if "url" in content:
-            run = paragraph.add_run()
-            try:
-                # Download image from URL
-                response = requests.get(content["url"])
-                image_stream = io.BytesIO(response.content)
-                # Add the image from the stream
-                run.add_picture(image_stream, width=Inches(6))
-            except Exception as e:
-                paragraph.text = f"[{content['type'].upper()} {content['number']}]"
-                print(f"Failed to load image: {e}")
-        else:
-            paragraph.text = f"[{content['type'].upper()} {content['number']}]"
-
-        # Add caption below image
-        caption_para = cell.add_paragraph()
-        caption_para.alignment = WD_ALIGN_PARAGRAPH.CENTER
-        if content["type"] == "diagram":
-            caption_para.text = f"Rajah {content['number']}"
-            caption_run = caption_para.add_run(f"\nDiagram {content['number']}")
-        else:  # table
-            caption_para.text = f"Jadual {content['number']}"
-            caption_run = caption_para.add_run(f"\nTable {content['number']}")
-        caption_run.italic = True
+        # Use the new helper function
+        _add_image_with_caption(paragraph, content, image_lookup, width=Inches(6))
     elif content['type'] == "answer_space":
         if content['format'] == "line":
             for i in range(content['lines']):
@@ -147,10 +131,15 @@ def replace_newlines(data):
         for item in data:
             replace_newlines(item)
             
-def generate(data):
+def generate(data, image_data=None):
     replace_newlines(data)
     buffer = io.BytesIO()
     doc = Document()
+    
+    image_lookup = {
+        (str(img['page']), img['type'], re.sub(r'\s+', '', str(img['number']))): img['url']
+        for img in image_data
+    }
 
     # Set page margins
     section = doc.sections[0]
@@ -194,7 +183,7 @@ def generate(data):
                     table.rows[current_row].cells[0].text = main_q["number"]
                 main_q_content_cell = table.rows[current_row].cells[1]
                 main_q_content_cell.merge(table.rows[current_row].cells[-1])
-                add_content_to_cell(main_q_content_cell, content, 'main_q')
+                add_content_to_cell(main_q_content_cell, content, 'main_q', image_lookup)
                 current_row += 1
 
         # Handle questions
@@ -210,7 +199,7 @@ def generate(data):
             for content in question.get("content_flow", []):
                 q_content_cell = table.rows[current_row].cells[2]
                 q_content_cell.merge(table.rows[current_row].cells[-1])
-                add_content_to_cell(q_content_cell, content, 'question')
+                add_content_to_cell(q_content_cell, content, 'question', image_lookup)
                 current_row += 1
                     
             if "marks" in question and "sub_questions" not in question:
@@ -239,7 +228,7 @@ def generate(data):
                         print(f"Error: current_row {current_row} exceeds total_rows {total_rows} before adding content")
                         break  # Prevent accessing out of range
                     
-                    add_content_to_cell(sub_q_content_cell, content, 'sub_q')
+                    add_content_to_cell(sub_q_content_cell, content, 'sub_q', image_lookup)
                     current_row += 1
 
                 # Check if current_row is within the valid range before accessing marks cell

@@ -205,10 +205,7 @@ def run_pipeline(pdf, page_numbers, model, reader, supabase_client, bucket_name,
     return all_detections
 
 # --- Main Script Execution ---
-def get_images_and_update_json(original_json_data, pdf, supabase, bucket_name, document_id):
-    # ✅ FIX: Create a deep copy immediately to avoid modifying the original data.
-    json_with_urls = copy.deepcopy(original_json_data)
-    
+def get_images_and_update_json(original_json_data, pdf, supabase, bucket_name, document_id):    
     # --- 1. Load Models ---
     print("Loading models...")
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -217,7 +214,7 @@ def get_images_and_update_json(original_json_data, pdf, supabase, bucket_name, d
     
     # --- 2. Identify Target Pages (now working on the copied data) ---
     types_to_find = ["diagram", "table"]
-    found_items = find_objects(json_with_urls, types_to_find)
+    found_items = find_objects(original_json_data, types_to_find)
     page_numbers = sorted(set(int(item['page']) for item in found_items))
     print(f"Found pages to process: {page_numbers}\n")
 
@@ -230,12 +227,15 @@ def get_images_and_update_json(original_json_data, pdf, supabase, bucket_name, d
         (item['page'], item['type'], item['number']): item['url']
         for item in pipeline_results
     }
-    print(f"Match dictionary created with {len(match_dict)} entries.")
-
-    # --- 5. Merge URLs into the copied JSON Data ---
-    print("Merging URLs back into the JSON structure...")
-    merge_urls_into_json(json_with_urls, match_dict)
+    image_data = [
+        {
+            "page": str(item["page"]),
+            "type": item["type"],
+            "number": str(item["number"]),
+            "url": item["url"]
+        }
+        for item in pipeline_results
+    ]
+    print(f"Image data created with {len(match_dict)} entries.")
     
-    print("Merging complete.")
-    # Return the newly modified copy
-    return json_with_urls
+    return image_data

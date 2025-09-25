@@ -88,7 +88,7 @@ async def analyse_pdf(background_tasks: BackgroundTasks, pdf_file: UploadFile = 
 
         insert_response = supabase.table("documents").insert({"file_name": pdf_file.filename, "file_url": download_link}).execute()
         document_id = insert_response.data[0]['id']
-   
+        print(f"Processing PDF: {pdf_file.filename}, assigned ID: {document_id}")
         background_tasks.add_task(extract_data, user_pdf_content, document_id)
         
         return {
@@ -101,17 +101,17 @@ async def analyse_pdf(background_tasks: BackgroundTasks, pdf_file: UploadFile = 
 
 def extract_data(pdf, document_id):
     start_time = time.time()  # Capture the start time
-    initial_json = {}
-    full_json = {}
+    data = {}
+    image_data = {}
     ai_client = AIClient()
 
     try:
-        initial_json = ai_client.extract_full(pdf)
+        data = ai_client.extract_full(pdf)
         print("Initial JSON extraction complete.")
 
-        full_json = get_images_and_update_json(initial_json, pdf, supabase, "img", document_id)
+        image_data = get_images_and_update_json(data, pdf, supabase, "img", document_id)
 
-        supabase.table("documents").update({"data": full_json, "status": "extracted"}).eq("id", document_id).execute()
+        supabase.table("documents").update({"data": data, "status": "extracted", "image_data": image_data}).eq("id", document_id).execute()
         end_time = time.time()  # Capture the end time
         elapsed_time = end_time - start_time  # Calculate elapsed time
         print(f"Total elapsed time: {elapsed_time} seconds")
@@ -120,7 +120,8 @@ def extract_data(pdf, document_id):
             "status": "success",
             "message": "Questions extracted successfully",
             "elapsed_time": elapsed_time,
-            "data": full_json
+            "data": data,
+            "image_data": image_data
         }
     except Exception as e:
         print(f"Error extracting questions: {str(e)}")
@@ -131,9 +132,8 @@ def extract_data(pdf, document_id):
 @app.post("/generate_word")
 async def generate_word(request: Request):
     data = await request.json()
-    
     json_data = data.get('jsonData')  # Access jsonData
+    image_data = data.get('imageData')  # Access imageData
     filename = data.get('filename')  # Access filename
-    buffer = generate(json_data)
-    
+    buffer = generate(json_data, image_data=image_data)
     return StreamingResponse(buffer, media_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document', headers={"Content-Disposition": f"attachment; filename={filename}"})
