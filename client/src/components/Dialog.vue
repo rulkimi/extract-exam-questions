@@ -151,7 +151,6 @@ onBeforeUnmount(() => {
 
 // Watch for modelValue changes
 watch(() => props.modelValue, (newValue) => {
-  console.log('here')
   if (newValue) {
     onOpen();
   } else {
