@@ -21,7 +21,7 @@ const fetchDocumentDetail = async () => {
     const response = await axios.get(API_URL + `/documents/${props.id}`);
     const { data, status, message } = response.data;
     documentDetail.value = data;
-    console.log(documentDetail.value)
+    console.log(documentDetail.value.image_data)
   } catch (error) {
     console.error(error)
   }
@@ -29,8 +29,9 @@ const fetchDocumentDetail = async () => {
 
 function download(jsonData, pdfname) {
   const filename = pdfname.replace(/\.pdf$/, '.docx');
+  const imageData = documentDetail.value?.image_data;
 
-  axios.post(API_URL + '/generate_word', { jsonData, filename }, {
+  axios.post(API_URL + '/generate_word', { jsonData, imageData, filename }, {
     responseType: 'blob' // This is important for file downloads
   })
     .then(response => {
@@ -75,7 +76,7 @@ onMounted(() => {
   </div>
   <div class="flex h-[92%] w-full">
     <JSONEditor v-if="documentDetail && documentDetail.data" class="h-full overflow-auto w-1/2"
-      :data="documentDetail.data" />
+      :data="documentDetail.data" :image_data="documentDetail?.image_data" />
     <PDFViewerWithNavigation v-if="documentDetail && documentDetail.file_url" :id="id" class="w-1/2" :auto-fit="true"
       :file-name="documentDetail.file_name" :fileURL="documentDetail.file_url" />
   </div>
