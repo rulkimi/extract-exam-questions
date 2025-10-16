@@ -3,9 +3,7 @@ import { useRoute } from 'vue-router';
 import { ref, onMounted } from 'vue';
 import PDFViewerWithNavigation from '@/components/PDFViewerWithNavigation.vue';
 import JSONEditor from '@/components/jsoneditor/index.vue';
-import axios from 'axios'
-
-const API_URL = import.meta.env.VITE_API_URL;
+import apiClient from '@/api';
 
 const documentDetail = ref(null)
 
@@ -18,7 +16,7 @@ const props = defineProps({
 
 const fetchDocumentDetail = async () => {
   try {
-    const response = await axios.get(API_URL + `/documents/${props.id}`);
+    const response = await apiClient.get(`/documents/${props.id}`);
     const { data, status, message } = response.data;
     documentDetail.value = data;
     console.log(documentDetail.value.image_data)
@@ -31,7 +29,7 @@ function download(jsonData, pdfname) {
   const filename = pdfname.replace(/\.pdf$/, '.docx');
   const imageData = documentDetail.value?.image_data;
 
-  axios.post(API_URL + '/generate_word', { jsonData, imageData, filename }, {
+  apiClient.post('/generate_word', { jsonData, imageData, filename }, {
     responseType: 'blob' // This is important for file downloads
   })
     .then(response => {
@@ -59,14 +57,14 @@ onMounted(() => {
     <div class="flex justify-between items-center">
       <h1 class="text-xl font-semibold">Document Detail</h1>
       <button @click="download(documentDetail.data, documentDetail.file_name)"
-        class="px-3 py-2 bg-teal-500 text-white rounded-lg font-semibold">
+        class="px-3 py-2 bg-indigo-500 text-white rounded-lg font-semibold">
         <font-awesome-icon class="mx-2" :icon="['fas', 'download']" />Download .docx</button>
     </div>
 
     <nav>
       <ol class="list-reset flex items-center">
         <li>
-          <router-link to="/docs" class="text-teal-500 hover:underline">Documents</router-link>
+          <router-link to="/docs" class="text-indigo-500 hover:underline">Documents</router-link>
         </li>
         <font-awesome-icon class="mx-2" :icon="['fas', 'chevron-right']" size="xs" />
         <li v-if="documentDetail" class="text-gray-500">{{ documentDetail.file_name }}</li>

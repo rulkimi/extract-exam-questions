@@ -23,7 +23,7 @@ defineProps({
 				'w-3 h-3': size === 'small',
 
 				'fill-black ': variant.includes('default'),
-				'fill-teal-600 ': variant.includes('primary'),
+				'fill-indigo-600 ': variant.includes('primary'),
 				'fill-secondary ': variant.includes('secondary'),
 				'fill-tertiary ': variant.includes('tertiary'),
 			}"

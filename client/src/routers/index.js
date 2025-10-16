@@ -1,18 +1,20 @@
 import { createWebHashHistory, createRouter } from "vue-router";
+import BaseLayout from '@/layouts/BaseLayout.vue';
 
 const routes = [
-  { path: '/', redirect: '/docs' },
-  // { path: '/upload', component: UploadPage },
   {
-    path: '/docs', component: () => import("@/views/documents/index.vue"),
-    redirect: '/docs/list',
+    path: '/',
+    component: BaseLayout,
+    redirect: '/list',
     children: [
-      { path: 'list', component: () => import("@/views/documents/list.vue") },
-      // { path: 'upload', component: () => import("@/views/documents/upload.vue") },
-      { path: ':id', name: 'doc-detail', component: () => import("@/views/documents/detail.vue"), props: route => ({ id: route.params.id }) }
+      { path: 'list', name: 'doc-list', component: () => import("@/views/documents/list.vue") },
+      { path: ':id', name: 'doc-detail', component: () => import("@/views/documents/detail.vue"), props: route => ({ id: route.params.id }) },
+      { path: 'settings', name: 'doc-settings', component: () => import("@/views/settings.vue") }
     ]
   },
-  { path: '/playground', component: () => import("@/views/playground.vue") }
+  { path: '/landing', name: 'landing', component: () => import("@/views/landing.vue") },
+  { path: '/signin', name: 'signin', component: () => import("@/views/auth/signin.vue")},
+  { path: '/signup', name: 'signup', component: () => import("@/views/auth/signup.vue")},
 ];
 
 const router = createRouter({

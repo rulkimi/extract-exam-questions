@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
-import axios from "axios"
+import apiClient from "@/api";
 import Table from '@/components/Table.vue';
 import { formatDate } from "@/utils";
 import { useToastStore } from "@/stores/toastStore";
@@ -9,13 +9,12 @@ import Dialog from "@/components/Dialog.vue";
 import UploadFile from "@/components/UploadFile.vue";
 import Spinner from "@/components/Spinner.vue";
 
-const API_URL = import.meta.env.VITE_API_URL;
 const headers = [
-	// { key: 'id', label: 'ID'  },
-	{ key: 'file_name', label: 'Name' },
-	{ key: 'status', label: 'Status' },
-	{ key: 'uploaded_date', label: 'Date' },
-	{ key: 'actions', width: '100px' }
+  // { key: 'id', label: 'ID'  },
+  { key: 'file_name', label: 'Name' },
+  { key: 'status', label: 'Status' },
+  { key: 'uploaded_date', label: 'Date' },
+  { key: 'actions', width: '100px' }
 ];
 const tableData = ref([])
 const loading = ref(false)
@@ -28,7 +27,7 @@ onMounted(() => {
 const fetchDocuments = async () => {
   loading.value = true;
   try {
-    const response = await axios.get(API_URL + '/documents');
+    const response = await apiClient.get('/documents');
     const { data, message, status } = response.data;
     tableData.value = data.documents;
     // If any document is in process, start polling
@@ -37,7 +36,7 @@ const fetchDocuments = async () => {
     } else {
       stopPolling();
     }
-    console.log(tableData.value)
+    // console.log(tableData.value)
   } catch (error) {
     console.error(error)
   } finally {
@@ -60,39 +59,39 @@ function stopPolling() {
 }
 
 const getStatusClass = (status) => {
-	switch (status) {
-		case 'in process':
-			return 'border-indigo-500 text-indigo-500';
-		case 'extracted':
-			return 'border-teal-500 text-teal-500';
-		case 'edited':
-			return 'border-blue-500 text-blue-500';
-		case 'failed':
-			return 'border-red-500 text-red-500';
-		default:
-			return 'border-gray-400';
-	}
+  switch (status) {
+    case 'in process':
+      return 'border-indigo-500 text-indigo-500';
+    case 'extracted':
+      return 'border-indigo-500 text-indigo-500';
+    case 'edited':
+      return 'border-blue-500 text-blue-500';
+    case 'failed':
+      return 'border-red-500 text-red-500';
+    default:
+      return 'border-gray-400';
+  }
 };
 
 function download(jsonData, pdfname) {
-	const filename = pdfname.replace(/\.pdf$/, '.docx');
+  const filename = pdfname.replace(/\.pdf$/, '.docx');
 
-  axios.post(API_URL + '/generate_word', { jsonData, filename }, {
-		responseType: 'blob' // This is important for file downloads
-	})
-		.then(response => {
-			const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
-			const url = window.URL.createObjectURL(blob);
-			const link = document.createElement('a');
-			link.href = url;
-			link.setAttribute('download', filename); // Use the specified filename
-			document.body.appendChild(link);
-			link.click();
-			link.remove();
-		})
-		.catch(error => {
-			console.error('Error:', error);
-		});
+  apiClient.post('/generate_word', { jsonData, filename }, {
+    responseType: 'blob' // This is important for file downloads
+  })
+    .then(response => {
+      const blob = new Blob([response.data], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename); // Use the specified filename
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+    });
 }
 
 // State for delete confirmation dialog
@@ -101,44 +100,44 @@ const deleteTargetId = ref(null);
 const deleteTargetName = ref('');
 
 const confirmDelete = (id, name) => {
-	deleteTargetId.value = id;
-	deleteTargetName.value = name;
-	showDeleteDialog.value = true;
+  deleteTargetId.value = id;
+  deleteTargetName.value = name;
+  showDeleteDialog.value = true;
 };
 
 const deleteItem = async () => {
-	if (!deleteTargetId.value) return;
-	try {
-		const response = await axios.delete(`${API_URL}/documents/${deleteTargetId.value}`);
-		if (response.status === 200) {
-			toast.showToast({ message: 'Document deleted successfully.' });
-			fetchDocuments();
-		}
-	} catch (error) {
-		console.error('Error deleting item:', error);
-		toast.showToast({ message: 'Failed to delete document. Please try again.' });
-	} finally {
-		showDeleteDialog.value = false;
-		deleteTargetId.value = null;
-		deleteTargetName.value = '';
-	}
+  if (!deleteTargetId.value) return;
+  try {
+    const response = await apiClient.delete(`/documents/${deleteTargetId.value}`);
+    if (response.status === 200) {
+      toast.showToast({ message: 'Document deleted successfully.' });
+      fetchDocuments();
+    }
+  } catch (error) {
+    console.error('Error deleting item:', error);
+    toast.showToast({ message: 'Failed to delete document. Please try again.' });
+  } finally {
+    showDeleteDialog.value = false;
+    deleteTargetId.value = null;
+    deleteTargetName.value = '';
+  }
 };
 
 const router = useRouter()
 const toast = useToastStore()
 const onRowClick = (item) => {
-	if (item.status === 'failed' || item.status === 'in process') {
-		toast.showToast({ message: `Item is ${item.status}. Please try again later or contact the team.` });
-		return;
-	}
-	router.push({ name: 'doc-detail', params: { id: item.id } });
+  if (item.status === 'failed' || item.status === 'in process') {
+    toast.showToast({ message: `Item is ${item.status}. Please try again later or contact the team.` });
+    return;
+  }
+  router.push({ name: 'doc-detail', params: { id: item.id } });
 }
 
 const showUploadDialog = ref(false);
 
 const uploadFileKey = ref(1);
 const onUploadDialogClose = () => {
-	uploadFileKey.value++;
+  uploadFileKey.value++;
 }
 
 const onUploaded = () => {
@@ -152,7 +151,7 @@ const onUploaded = () => {
 <template>
   <div class="flex justify-between mb-4">
     <h1 class="text-xl font-semibold">Documents</h1>
-    <button class="px-3 py-2 bg-teal-500 text-white rounded-lg font-semibold" @click="showUploadDialog = true">
+    <button class="px-3 py-2 bg-indigo-500 text-white rounded-lg font-semibold" @click="showUploadDialog = true">
       Upload Paper
     </button>
   </div>
@@ -179,8 +178,8 @@ const onUploaded = () => {
           <div class="flex justify-end space-x-2">
             <button v-if="rowData.status === 'extracted' || rowData.status === 'edited'"
               @click.stop="download(rowData.data, rowData.file_name)"
-              class="px-2 py-1 rounded-lg border border-teal-500 text-teal-500 hover:text-white hover:bg-teal-500">
-              Download
+              class="px-2 py-1 rounded-lg border border-indigo-500 text-indigo-500 hover:text-white hover:bg-indigo-500">
+              <font-awesome-icon :icon="['fas', 'download']" />
             </button>
             <button class="text-red-500 hover:text-white px-2 py-1 border border-red-500 hover:bg-red-500 rounded-lg"
               @click.stop="deleteItem(rowData.id)">

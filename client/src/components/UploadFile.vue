@@ -1,6 +1,6 @@
 <script setup>
 import FileUploadBox from "@/components/FileUploadBox.vue";
-import axios from 'axios';
+import apiClient from '@/api';
 import { ref } from 'vue';
 
 const API_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL;
@@ -16,7 +16,7 @@ const uploadFile = async (file) => {
   try {
     const formData = new FormData();
     formData.append('pdf_file', file);
-    const response = await axios.post(API_URL + '/extract_questions', formData);
+    const response = await apiClient.post('/extract_questions', formData);
     const { status } = response.data;
     if (status === "success") {
       uploadSuccess.value = true;
@@ -32,17 +32,10 @@ const uploadFile = async (file) => {
 
 <template>
   <div class="flex w-full justify-center">
-    <FileUploadBox
-      v-if="!uploadSuccess"
-      description="PDF files not more than 30MB"
-      verticalUI
-      accept=".pdf"
-      :max-size="30"
-      :loading="loading"
-      @upload-files="uploadFile"
-    />
+    <FileUploadBox v-if="!uploadSuccess" description="PDF files not more than 30MB" verticalUI accept=".pdf"
+      :max-size="30" :loading="loading" @upload-files="uploadFile" />
     <div v-else class="flex flex-col items-center">
-      <font-awesome-icon class="text-teal-500 mb-2 size-[5rem]" :icon="['fas', 'check-circle']" />
+      <font-awesome-icon class="text-indigo-500 mb-2 size-[5rem]" :icon="['fas', 'check-circle']" />
       <p class="text-lg text-gray-700">Upload successful! Your file is being processed.</p>
 
     </div>

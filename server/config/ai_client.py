@@ -483,3 +483,20 @@ Do not copy exactly from these references when generating JSON output, ONLY stud
     def convert_pdf_to_part(pdf_bytes: bytes):
         # Utility method for PDF conversion
         return {"mime_type": "application/pdf", "data": base64.b64encode(pdf_bytes).decode("utf-8")}
+
+        
+    def cleanup(self):
+        """Clean up uploaded files and chat history to free memory"""
+        try:
+            # Delete uploaded files from Gemini
+            for file in self.uploaded_files:
+                try:
+                    self.client.files.delete(name=file.name)
+                except Exception as e:
+                    print(f"Error deleting file {file.name}: {e}")
+            
+            self.uploaded_files = []
+            self.chat_history = []
+            print("AI client cleaned up successfully")
+        except Exception as e:
+            print(f"Error during cleanup: {e}")

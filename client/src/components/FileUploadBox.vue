@@ -23,7 +23,7 @@
 						mediumIcon || areFilesSelected || skipInitialUpload ? 'upload-icon-md' : 'upload-icon-lg',
 						areFilesSelected || skipInitialUpload ? 'order-md-first' : '',
 						active ? 'active' : '',
-						error ? 'text-red-500 shake' : loading ? 'text-slate-500' : 'text-teal-500'
+						error ? 'text-red-500 shake' : loading ? 'text-slate-500' : 'text-indigo-500'
 					]"
 					:icon="['fas', 'cloud-arrow-up']"
 				/>
@@ -36,7 +36,7 @@
 					class="px-3 py-2 rounded-lg border cursor-pointer"
 					:class="[
 						areFilesSelected || skipInitialUpload ? 'order-md-last' : '',
-						error ? ' text-red-500 border-red-500 hover:text-white hover:bg-red-500' : 'text-teal-500 border-teal-500 hover:text-white hover:bg-teal-500',
+						error ? ' text-red-500 border-red-500 hover:text-white hover:bg-red-500' : 'text-indigo-500 border-indigo-500 hover:text-white hover:bg-indigo-500',
 						loading ? '!text-slate-500 !border-slate-500' : ''
 					]"
 					for="dropzoneFile"
@@ -51,10 +51,10 @@
 					<ul class="list-none">
 						<li v-for="(file, index) in files" :key="index" class="flex justify-between items-center mt-2">
 							<div>
-								<font-awesome-icon class="text-teal-500 mr-2" :icon="getFileIcon(file)" size="xl" />
+								<font-awesome-icon class="text-indigo-500 mr-2" :icon="getFileIcon(file)" size="xl" />
 								<span>{{ truncateString(file.name, 25, 4) }}</span>
 								<span class="text-slate-500">&#x30FB;</span>
-								<a :href="getFileURL(file)" :download="file.name" target="_blank" class="text-teal-500 no-underline cursor-pointer">Preview</a>
+								<a :href="getFileURL(file)" :download="file.name" target="_blank" class="text-indigo-500 no-underline cursor-pointer">Preview</a>
 							</div>
 							<div>
 								<span class="text-slate-500">{{ formatFileSize(file.size) }}</span>
@@ -74,13 +74,13 @@
 					<div class="flex gap-2">
 						<button
 							v-if="!noCancelButton"
-							class="px-3 py-2 rounded-lg border text-teal-500 border-teal-500 hover:text-white hover:bg-teal-500"
+							class="px-3 py-2 rounded-lg border text-indigo-500 border-indigo-500 hover:text-white hover:bg-indigo-500"
 							@click="cancel"
 						>
 							{{ cancelButtonText }}
 						</button>
 						<button v-if="!noUploadButton"
-							class="px-3 py-2 rounded-lg border cursor-pointer text-white bg-teal-500 flex items-center gap-2"
+							class="px-3 py-2 rounded-lg border cursor-pointer text-white bg-indigo-500 flex items-center gap-2"
 							:class="{ 'w-full': noCancelButton, 'opacity-50' : loading }"
 							:disabled="loading || !areFilesSelected || disableUploadButton"
 							@click="upload"
@@ -328,7 +328,7 @@ export default {
 
 <style scoped>
 .dropzone {
-	border: 3px dashed rgba(56, 178, 172, 0.45); /* bg-teal-500 color with 0.45 opacity */
+	border: 3px dashed rgba(97,95,255, 0.45); /* bg-indigo-500 color with 0.45 opacity */
 	width: 65vw;
 	max-width: 700px;
 }
