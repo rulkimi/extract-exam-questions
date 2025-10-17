@@ -7,6 +7,7 @@ from ultralytics import YOLO
 import easyocr
 import re
 import copy
+import gc
 
 # --- find_objects ---
 def find_objects(data_structure, target_types):
@@ -62,7 +63,7 @@ def run_pipeline(pdf, page_numbers, model, reader, supabase_client, bucket_name,
     for page_num in page_numbers:
         print(f"Processing page {page_num}...")
         page = doc.load_page(page_num - 1)
-        pix = page.get_pixmap(dpi=300)
+        pix = page.get_pixmap(dpi=150)
   
         # Convert to OpenCV image
         img_array = np.frombuffer(pix.samples, dtype=np.uint8).reshape(pix.height, pix.width, pix.n)
@@ -139,7 +140,7 @@ def run_pipeline(pdf, page_numbers, model, reader, supabase_client, bucket_name,
                         print('No number above found, checking previous page...')
                         # Run OCR detection on the full previous page
                         prev_page = doc.load_page(page_num - 2)
-                        prev_pix = prev_page.get_pixmap(dpi=300)
+                        prev_pix = prev_page.get_pixmap(dpi=150)
                         prev_img_array = np.frombuffer(prev_pix.samples, dtype=np.uint8).reshape(prev_pix.height, prev_pix.width, prev_pix.n)
                         prev_img_bgr = cv2.cvtColor(prev_img_array, cv2.COLOR_RGB2BGR)
                         prev_ocr_result = reader.readtext(prev_img_bgr, detail=0, paragraph=True)
@@ -201,7 +202,16 @@ def run_pipeline(pdf, page_numbers, model, reader, supabase_client, bucket_name,
                 except Exception as e:
                     print(f"  -> ERROR during Supabase upload: {e}")
 
+            # Memory cleanup after processing each page
+            del img_array, img_bgr, pix
+            if 'prev_img_array' in locals():
+                del prev_img_array, prev_img_bgr, prev_pix
+            gc.collect()
+
     doc.close()
+    # Final cleanup
+    del doc
+    gc.collect()
     return all_detections
 
 # --- Main Script Execution ---
@@ -220,6 +230,9 @@ def get_images_and_update_json(original_json_data, pdf, supabase, bucket_name, d
 
     # --- 3. Run the Full Pipeline ---
     pipeline_results = run_pipeline(pdf, page_numbers, model, reader, supabase, bucket_name, document_id)
+    # Cleanup models to free memory
+    del model, reader
+    gc.collect()
 
     # --- 4. Build the Match Dictionary ---
     print("\nBuilding match dictionary from results...")

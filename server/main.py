@@ -1,15 +1,13 @@
-import json
-import re
 import os
 from datetime import datetime
 from dotenv import load_dotenv
 import time
+import gc
 
 from fastapi import FastAPI, HTTPException, File, UploadFile, BackgroundTasks, Request, Path
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 
-from modules.utils import get_reference_pdf, get_rasterized_pdf
 from modules.wordgen import generate
 from modules.extract_images import get_images_and_update_json
 
@@ -110,6 +108,10 @@ def extract_data(pdf, document_id):
         print("Initial JSON extraction complete.")
 
         image_data = get_images_and_update_json(data, pdf, supabase, "img", document_id)
+        # Cleanup AI client to free memory
+        ai_client.cleanup()
+        del ai_client
+        gc.collect()
 
         supabase.table("documents").update({"data": data, "status": "extracted", "image_data": image_data}).eq("id", document_id).execute()
         end_time = time.time()  # Capture the end time
