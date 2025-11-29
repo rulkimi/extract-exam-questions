@@ -4,10 +4,10 @@
     <header class="absolute top-0 left-0 right-0 z-10 p-4">
       <div class="container mx-auto flex justify-between items-center">
         <h1 class="text-2xl font-bold text-white">Exam Extractor</h1>
-        <a href="#signin"
+        <router-link to="/signin"
           class="hidden md:inline-block bg-white text-indigo-600 font-semibold px-5 py-2 rounded-lg shadow-md hover:bg-gray-100 transition-colors">
           Get Started
-        </a>
+        </router-link>
       </div>
     </header>
 

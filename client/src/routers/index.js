@@ -1,4 +1,4 @@
-import { createWebHashHistory, createRouter } from "vue-router";
+import { createRouter, createWebHistory } from "vue-router";
 import BaseLayout from '@/layouts/BaseLayout.vue';
 
 const routes = [
@@ -15,10 +15,11 @@ const routes = [
   { path: '/landing', name: 'landing', component: () => import("@/views/landing.vue") },
   { path: '/signin', name: 'signin', component: () => import("@/views/auth/signin.vue")},
   { path: '/signup', name: 'signup', component: () => import("@/views/auth/signup.vue")},
+  { path: '/oauth-callback', name: 'oauth-callback', component: () => import("@/views/OAuthCallback.vue")},
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(),
   routes,
 });
 

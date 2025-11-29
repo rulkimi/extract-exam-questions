@@ -12,41 +12,114 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/supabase'
 
 const router = useRouter()
+const hasRedirected = ref(false)
+
+const upsertUserProfile = async (userData) => {
+  console.log('Upserting user profile:', userData)
+  const { data, error } = await supabase
+    .from('profiles')
+    .upsert({
+      ...userData,
+      updated_at: new Date().toISOString()
+    })
+    .select() // Add this to return the updated/inserted record
+  
+  console.log('Upsert result:', { data, error })
+  
+  if (error) {
+    console.error('Error upserting profile:', error)
+    throw error
+  }
+  
+  return data
+}
 
 onMounted(async () => {
-  try {
-    // Get the current session to process the OAuth callback
-    const { data: { session }, error } = await supabase.auth.getSession()
+  console.log('OAuthCallback mounted, checking for session...');
+  
+  // Check for existing session
+  const { data: { session: initialSession }, error: sessionError } = await supabase.auth.getSession();
+  console.log('Initial session check:', { initialSession, sessionError });
 
-    if (error) {
-      console.error('OAuth callback error:', error)
-      router.push({
-        name: 'signup',
-        query: { error: 'oauth_failed', message: error.message }
-      })
-      return
+  // Listen for auth state changes
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    console.log('Auth state change:', { event, session });
+
+    if (hasRedirected.value) {
+      console.log('Already redirected, ignoring duplicate event');
+      return;
     }
 
-    if (session) {
-      // Successfully signed in, redirect to main app
-      console.log('OAuth successful, redirecting to app')
-      router.push({ name: 'doc-list' })
-    } else {
-      // No session found, redirect back to signup
-      console.warn('No session found after OAuth callback')
-      router.push({ name: 'signup' })
+    if (event === 'SIGNED_IN' && session) {
+      console.log('SIGNED_IN event received with session');
+      hasRedirected.value = true;
+      try {
+        const { user } = session
+        console.log('User signed in:', user)
+        
+        // Get user's full name from OAuth data
+        const fullName = user.user_metadata?.full_name || 
+                        user.user_metadata?.name ||
+                        (user.user_metadata?.first_name && user.user_metadata?.last_name 
+                          ? `${user.user_metadata.first_name} ${user.user_metadata.last_name}` 
+                          : 'User')
+        
+        console.log('Upserting profile for OAuth user...')
+        await upsertUserProfile({
+          id: user.id,
+          email: user.email,
+          full_name: fullName
+        })
+        
+        console.log('Profile updated, redirecting to app...')
+        router.push({ name: 'doc-list' })
+        
+      } catch (error) {
+        console.error('Error in auth state change handler:', error)
+        errorMessage.value = "Failed to complete sign in. Please try again."
+      }
+    } else if (event === 'INITIAL_SESSION') {
+      console.log('INITIAL_SESSION event:', { hasSession: !!session });
+      if (session) {
+        console.log('Session found on initial load');
+        hasRedirected.value = true;
+        try {
+        const { user } = session
+        console.log('User signed in:', user)
+        
+        // Get user's full name from OAuth data
+        const fullName = user.user_metadata?.full_name || 
+                        user.user_metadata?.name ||
+                        (user.user_metadata?.first_name && user.user_metadata?.last_name 
+                          ? `${user.user_metadata.first_name} ${user.user_metadata.last_name}` 
+                          : 'User')
+        
+        console.log('Upserting profile for OAuth user...')
+        await upsertUserProfile({
+          id: user.id,
+          email: user.email,
+          full_name: fullName,
+        })
+        
+        console.log('Profile updated, redirecting to app...')
+        router.push({ name: 'doc-list' })
+        
+      } catch (error) {
+        console.error('Error in auth state change handler:', error)
+        error.value = "Failed to complete sign in. Please try again."
+      }
+      }
     }
-  } catch (error) {
-    console.error('OAuth callback processing error:', error)
-    router.push({
-      name: 'signup',
-      query: { error: 'oauth_processing_failed' }
-    })
-  }
-})
+  });
+
+  onUnmounted(() => {
+    console.log('OAuthCallback unmounting, cleaning up');
+    subscription?.unsubscribe();
+  });
+});
 </script>

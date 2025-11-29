@@ -19,7 +19,7 @@ const fetchDocumentDetail = async () => {
     const response = await apiClient.get(`/documents/${props.id}`);
     const { data, status, message } = response.data;
     documentDetail.value = data;
-    console.log(documentDetail.value.image_data)
+    // console.log(documentDetail.value.image_data)
   } catch (error) {
     console.error(error)
   }
@@ -53,26 +53,24 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="space-y-2 mb-4">
-    <div class="flex justify-between items-center">
-      <h1 class="text-xl font-semibold">Document Detail</h1>
+  <div class="space-y-2 mb-4 p-4">
+    <div class="flex justify-between items-center text-black">
+      <router-link to="/list" class="font-medium hover:bg-gray-200 px-3 py-2 rounded-lg">
+        <font-awesome-icon :icon="['fas', 'arrow-left']" class="mr-2" />
+        Back to Dashboard
+      </router-link>
+      <div class="flex items-center flex-col">
+        <h1 class="text-xl font-semibold">Document Detail</h1>
+        <span v-if="documentDetail" class="text-gray-500">{{ documentDetail.file_name }}</span>
+      </div>
+
       <button @click="download(documentDetail.data, documentDetail.file_name)"
-        class="px-3 py-2 bg-indigo-500 text-white rounded-lg font-semibold">
+        class="px-3 py-2 bg-indigo-500 text-white rounded-lg font-semibold hover:bg-indigo-600">
         <font-awesome-icon class="mx-2" :icon="['fas', 'download']" />Download .docx</button>
     </div>
 
-    <nav>
-      <ol class="list-reset flex items-center">
-        <li>
-          <router-link to="/docs" class="text-indigo-500 hover:underline">Documents</router-link>
-        </li>
-        <font-awesome-icon class="mx-2" :icon="['fas', 'chevron-right']" size="xs" />
-        <li v-if="documentDetail" class="text-gray-500">{{ documentDetail.file_name }}</li>
-      </ol>
-    </nav>
-
   </div>
-  <div class="flex h-[92%] w-full">
+  <div class="flex h-[92%]">
     <JSONEditor v-if="documentDetail && documentDetail.data" class="h-full overflow-auto w-1/2"
       :data="documentDetail.data" :image_data="documentDetail?.image_data" />
     <PDFViewerWithNavigation v-if="documentDetail && documentDetail.file_url" :id="id" class="w-1/2" :auto-fit="true"

@@ -202,12 +202,11 @@ def run_pipeline(pdf, page_numbers, model, reader, supabase_client, bucket_name,
                 except Exception as e:
                     print(f"  -> ERROR during Supabase upload: {e}")
                 
-                        
-                # Memory cleanup after processing each page
-                del img_array, img_bgr, pix
-                if 'prev_img_array' in locals():
-                    del prev_img_array, prev_img_bgr, prev_pix
-                gc.collect()
+            # Memory cleanup after processing each page
+            del img_array, img_bgr, pix
+            if 'prev_img_array' in locals():
+                del prev_img_array, prev_img_bgr, prev_pix
+            gc.collect()
 
     doc.close()
     # Final cleanup

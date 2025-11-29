@@ -5,7 +5,7 @@ import { fileURLToPath, URL } from 'node:url'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/extract-exam-questions/',
+  // base: '/extract-exam-questions/',
   plugins: [vue()],
   resolve: {
     alias: {

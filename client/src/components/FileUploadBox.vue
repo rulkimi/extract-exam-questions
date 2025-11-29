@@ -11,6 +11,7 @@
 				@drop.prevent="filesDropped"
 				@change="selectedFiles"
 				class="dropzone transition-all ease duration-300 rounded-lg mx-auto px-4 flex flex-col gap-3 items-center text-lg justify-center text-center"
+				:style="dropzoneStyle"
 				:class="[
 					!verticalUI || areFilesSelected ? 'flex md:flex-row justify-between py-4' : 'py-5',
 					error ? 'error' : '',
@@ -27,12 +28,12 @@
 					]"
 					:icon="['fas', 'cloud-arrow-up']"
 				/>
-				<div class="flex flex-col items-center gap-2 text-lg">
-					<span class="font-bold" :class="{ 'text-slate-500': loading }">{{ allowMultiple ? 'Select files' : 'Select file' }} or drag and drop here</span>
+				<div class="flex flex-col items-center gap-2 text-lg" @click="hideBrowseButton && openFileDialog()" :class="[ hideBrowseButton ? 'cursor-pointer' : '' ]">
+					<span class="font-bold" :class="{ 'text-slate-500': loading }">{{ titleMessage }}</span>
 					<span v-if="!error" class="text-slate-500">{{ description }}</span>
 					<span v-if="error" class="text-red-500">{{ errorMessage }}</span>
 				</div>
-				<label
+				<label v-if="!hideBrowseButton"
 					class="px-3 py-2 rounded-lg border cursor-pointer"
 					:class="[
 						areFilesSelected || skipInitialUpload ? 'order-md-last' : '',
@@ -172,15 +173,37 @@ export default {
 			type: Boolean,
 			default: false
 		},
+		dropzoneWidth: {
+			type: String,
+			default: ''
+		},
+		hideBrowseButton: {
+			type: Boolean,
+			default: false
+		},
+		titleText: {
+			type: String,
+			default: ''
+		},
 	},
 	computed: {
 		areFilesSelected() {
 			return this.files.length > 0;
+		},
+		dropzoneStyle() {
+			return this.dropzoneWidth ? { width: this.dropzoneWidth } : {};
+		},
+		titleMessage() {
+			return this.titleText || 'Drag and drop your PDF here, or click to browse';
 		}
 	},
 	methods: {
 		formatFileSize,
 		truncateString,
+		openFileDialog() {
+			if (this.loading) return;
+			this.$refs.dropzoneFile && this.$refs.dropzoneFile.click();
+		},
 		cancel() {
 			this.removeAllFiles();
 			this.$emit('cancel');
@@ -243,6 +266,7 @@ export default {
 			this.$refs.dropzoneFile.value = '';
 			this.error = false;
 			this.errorMessage = '';
+			this.$emit('file-changes', this.allowMultiple ? this.files : this.files[0]);
 		},
 		removeFile(index) {
 			if (this.handleUploadInProgress()) return;
@@ -251,6 +275,7 @@ export default {
 			URL.revokeObjectURL(this.getFileURL(file)); // Revoke the object URL to avoid memory leaks
 			this.files.splice(index, 1);
 			if(!this.allowMultiple) this.$refs.dropzoneFile.value = '';
+			this.$emit('file-changes', this.allowMultiple ? this.files : this.files[0]);
 		},
 		handleFiles(newFiles) {
 			// check if multiple file upload is not allowed but multiple files are provided

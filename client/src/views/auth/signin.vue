@@ -32,9 +32,9 @@
               <label for="password" class="block text-sm font-semibold text-gray-700">
                 Password
               </label>
-              <a href="#" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+              <router-link to="/forgot-password" class="text-sm font-medium text-indigo-600 hover:text-indigo-500">
                 Forgot password?
-              </a>
+              </router-link>
             </div>
             <input v-model="password" type="password" id="password" name="password" required
               class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
@@ -65,9 +65,9 @@
 
         <p class="text-center text-sm text-gray-600">
           Don't have an account?
-          <a href="#signup" class="font-medium text-indigo-600 hover:text-indigo-500">
+          <router-link to="/signup" class="font-medium text-indigo-600 hover:text-indigo-500">
             Sign up for free
-          </a>
+          </router-link>
         </p>
 
       </div>
@@ -76,7 +76,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { supabase } from '@/supabase'
 
@@ -96,7 +96,7 @@ const handleLogin = async () => {
       password: password.value,
     })
     if (error) throw error
-    router.push('/list')
+    router.push({ name: 'doc-list' })
   } catch (error) {
     errorMessage.value = error.error_description || error.message
   } finally {
@@ -104,31 +104,55 @@ const handleLogin = async () => {
   }
 };
 
+// const signInWithGoogle = async () => {
+//   try {
+//     loading.value = true
+//     errorMessage.value = null
+//     console.log(`window location origin: ${window.location.origin}`)
+//     console.log(`import.meta.env.VITE_BASE_URL: ${import.meta.env.VITE_BASE_URL}`)
+
+//     const { error } = await supabase.auth.signInWithOAuth({
+//       provider: 'google',
+//       options: {
+//         // redirectTo: `${window.location.origin}${import.meta.env.VITE_BASE_URL || ''}/#/oauth-callback`,
+//         redirectTo: `http://localhost:5173/extract-exam-questions/#/oauth-callback`,
+//         // redirectTo: `https://fulwwvxvxcgpfcqthkkc.supabase.co/auth/v1/callback`,
+//       }
+//     })
+
+//     if (error) throw error
+//     // The redirect will happen automatically
+
+//   } catch (error) {
+//     errorMessage.value = error.message || "An error occurred during Google sign up"
+//     loading.value = false
+//   }
+// }
+
 const signInWithGoogle = async () => {
   try {
-    loading.value = true
-    errorMessage.value = null
-
+    loading.value = true;
+    errorMessage.value = null;
+    
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}${import.meta.env.VITE_BASE_URL || ''}`,
+        redirectTo: `${window.location.origin}/oauth-callback`,
         queryParams: {
-          // This ensures it's treated as a sign-up flow
           access_type: 'offline',
           prompt: 'consent',
         }
       }
-    })
+    });
 
-    if (error) throw error
-    // The redirect will happen automatically
-
+    if (error) throw error;
   } catch (error) {
-    errorMessage.value = error.message || "An error occurred during Google sign up"
-    loading.value = false
+    errorMessage.value = error.message || "An error occurred during Google sign in";
+    console.error('Google sign-in error:', error);
+  } finally {
+    loading.value = false;
   }
-}
+};
 
 onMounted(() => {
   // This listener handles the redirect back from Google

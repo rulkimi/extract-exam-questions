@@ -40,9 +40,9 @@ const setActiveMenu = (url) => {
 
     <div class="divide-y">
       <div class="flex items-center m-2 gap-3 cursor-pointer rounded-lg">
-        <a href="#landing" class="size-10 p-3 flex items-center justify-center bg-indigo-500 rounded-lg">
+        <router-link to="/" class="size-10 p-3 flex items-center justify-center bg-indigo-500 rounded-lg">
           <font-awesome-icon class="text-white" :icon="['fas', 'flask']" />
-        </a>
+        </router-link>
         <div class="text-nowrap leading-none">
           <span class="block text-indigo-500 font-semibold">EduWizard</span>
           <span class="text-slate-500 text-sm">Physics Paper 2</span>

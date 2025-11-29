@@ -9,8 +9,10 @@ const checkUser = async () => {
 
 const signout = async () => {
   const { error } = await supabase.auth.signOut()
-  console.log(error)
-  // window.location.href = '/landing'
+  if (error) {
+    console.log(error)
+    return
+  }
   router.push({ name: 'landing' })
 }
 

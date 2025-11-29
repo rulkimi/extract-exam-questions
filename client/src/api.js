@@ -8,21 +8,6 @@ const apiClient = axios.create({
 
 // Add a request interceptor to automatically attach the auth token
 apiClient.interceptors.request.use(async (config) => {
-  // Skip interceptor for URLs that contain OAuth parameters or are not API calls
-  const isOAuthCallback =
-    config.url?.includes('access_token=') ||
-    config.url?.includes('provider_token=') ||
-    config.url?.includes('error=') ||
-    config.url?.includes('error_code=') ||
-    config.url?.includes('error_description=') ||
-    config.url?.includes('/auth/') ||
-    config.url?.startsWith('/documents/access_token') || // This is your specific case
-    !config.url?.startsWith('/'); // Skip if not a relative path
-
-  if (isOAuthCallback) {
-    console.warn('Skipping API interceptor for OAuth callback URL:', config.url);
-    return Promise.reject(new Error('OAuth callback URL - not an API request'));
-  }
 
   try {
     const { data: { session } } = await supabase.auth.getSession();

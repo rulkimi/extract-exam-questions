@@ -23,9 +23,10 @@ defineProps({
 				'w-3 h-3': size === 'small',
 
 				'fill-black ': variant.includes('default'),
-				'fill-indigo-600 ': variant.includes('primary'),
+				'fill-indigo-500 ': variant.includes('primary'),
 				'fill-secondary ': variant.includes('secondary'),
 				'fill-tertiary ': variant.includes('tertiary'),
+				'fill-yellow-500 ': variant.includes('yellow'),
 			}"
 			viewBox="0 0 100 101" 
 			fill="none"

@@ -20,6 +20,14 @@
 
         <form @submit.prevent="handleSignup" class="space-y-6">
           <div>
+            <label for="fullName" class="block text-sm font-semibold text-gray-700 mb-2">
+              Full Name
+            </label>
+            <input v-model="fullName" type="text" id="fullName" name="fullName" placeholder="John Doe" required
+              class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+          </div>
+
+          <div>
             <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
               Email Address
             </label>
@@ -72,9 +80,9 @@
 
         <p class="text-center text-sm text-gray-600">
           Already have an account?
-          <a href="#signin" class="font-medium text-indigo-600 hover:text-indigo-500">
+          <router-link to="/signin" class="font-medium text-indigo-600 hover:text-indigo-500">
             Sign in
-          </a>
+          </router-link>
         </p>
 
       </div>
@@ -91,6 +99,7 @@ import { supabase } from '@/supabase'
 const email = ref('')
 const password = ref('')
 const confirm_password = ref('')
+const fullName = ref('')
 const loading = ref(false)
 const errorMessage = ref(null)
 const router = useRouter()
@@ -112,30 +121,86 @@ const handleSignup = async () => {
     loading.value = true
     errorMessage.value = null
 
-    const { data, error } = await supabase.auth.signUp({
+    console.log('Starting signup process...')  // Added log
+
+    // 1. Sign up the user with Supabase Auth
+    console.log('Calling supabase.auth.signUp...')  // Added log
+    const { data: authData, error: signUpError } = await supabase.auth.signUp({
       email: email.value,
       password: password.value,
+      options: {
+        data: {
+          full_name: fullName.value
+        }
+      }
     })
 
-    if (error) throw error
+    console.log('Signup response:', { authData, signUpError })  // Added log
 
-    // Check if email confirmation is required
-    if (data.user && !data.session) {
+    if (signUpError) {
+      console.error('Signup error:', signUpError)  // Added log
+      throw signUpError
+    }
+
+    // 2. Insert user data into the profiles table
+    if (authData?.user) {
+      console.log('Attempting to upsert user profile...')  // Added log
+      try {
+        const result = await upsertUserProfile({
+          id: authData.user.id,
+          email: email.value,
+          full_name: fullName.value
+        })
+        console.log('Profile upsert result:', result)  // Added log
+      } catch (profileError) {
+        console.error('Failed to upsert profile:', profileError)  // Added log
+        throw profileError
+      }
+    } else {
+      console.error('No user data in auth response')  // Added log
+    }
+
+    // 3. Handle email confirmation or redirect
+    if (authData.user && !authData.session) {
       // Email confirmation required
+      console.log('Email confirmation required, redirecting...')  // Added log
       router.push({
         name: 'confirm-email',
         query: { email: email.value }
       })
-    } else if (data.session) {
+    } else if (authData.session) {
       // Auto-confirmed, redirect to app
-      router.push('/docs')
+      console.log('Auto-confirmed, redirecting to app...')  // Added log
+      router.push('/list')
     }
 
   } catch (error) {
+    console.error('Error in handleSignup:', error)  // Added log
     errorMessage.value = error.message || "An error occurred during sign up"
   } finally {
     loading.value = false
   }
+}
+
+// Helper function to upsert user profile
+const upsertUserProfile = async (userData) => {
+  console.log('Upserting user profile:', userData)
+  const { data, error } = await supabase
+    .from('profiles')
+    .upsert({
+      ...userData,
+      updated_at: new Date().toISOString()
+    })
+    .select() // Add this to return the updated/inserted record
+  
+  console.log('Upsert result:', { data, error })
+  
+  if (error) {
+    console.error('Error upserting profile:', error)
+    throw error
+  }
+  
+  return data
 }
 
 const signUpWithGoogle = async () => {
@@ -143,11 +208,15 @@ const signUpWithGoogle = async () => {
     loading.value = true
     errorMessage.value = null
 
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}${import.meta.env.VITE_BASE_URL || ''}`,
-        skipBrowserRedirect: false
+        redirectTo: `${window.location.origin}/oauth-callback`,
+        skipBrowserRedirect: false,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
       }
     })
 
@@ -161,10 +230,33 @@ const signUpWithGoogle = async () => {
 
 onMounted(() => {
   // This listener handles the redirect back from Google
-  const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN') {
-      // Redirect to the documents list page after successful sign-in/sign-up
-      router.push({ name: 'doc-list' })
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session?.user) {
+      try {
+        // Get user info from the session
+        const { user } = session
+        
+        // Check if we have a full name from the OAuth provider
+        let fullName = user.user_metadata?.full_name || 
+                       user.user_metadata?.name ||
+                       (user.user_metadata?.first_name && user.user_metadata?.last_name 
+                         ? `${user.user_metadata.first_name} ${user.user_metadata.last_name}` 
+                         : 'User')
+        
+        // Update or create the user's profile
+        await upsertUserProfile({
+          id: user.id,
+          email: user.email,
+          full_name: fullName,
+          avatar_url: user.user_metadata?.avatar_url || null
+        })
+        
+      } catch (error) {
+        console.error('Error updating user profile:', error)
+      } finally {
+        // Redirect to the documents list page after successful sign-in/sign-up
+        router.push({ name: 'doc-list' })
+      }
     } else if (event === 'SIGNED_OUT') {
       // When user signs out, ensure they are on the landing or signin page
       if (router.currentRoute.value.name !== 'landing' && router.currentRoute.value.name !== 'signin') {
@@ -172,6 +264,11 @@ onMounted(() => {
       }
     }
   })
+  
+  // Cleanup subscription on component unmount
+  return () => {
+    subscription?.unsubscribe()
+  }
 })
 </script>
 

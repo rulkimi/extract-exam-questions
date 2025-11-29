@@ -7,7 +7,7 @@ import time
 import jwt
 import gc
 
-from fastapi import FastAPI, HTTPException, File, UploadFile, BackgroundTasks, Request, Path, Depends
+from fastapi import FastAPI, HTTPException, File, UploadFile, BackgroundTasks, Request, Path, Depends, Form
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.security import OAuth2PasswordBearer
@@ -66,7 +66,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
 
 @app.get("/documents")
 def get_documents(user: dict = Depends(get_current_user)):
-    response = supabase.table("documents").select("*").order("uploaded_date", desc=True).execute()
+    response = supabase.table("documents").select("*").eq("user_id", user["id"]).order("uploaded_date", desc=True).execute()
     return {
         "status": "success",
         "message": "Documents fetched successfully",
@@ -99,7 +99,7 @@ def delete_document(id: str = Path(...), user: dict = Depends(get_current_user))
 		raise HTTPException(status_code=404, detail="Document not found")
 
 @app.post("/extract_questions")
-async def analyse_pdf(background_tasks: BackgroundTasks, pdf_file: UploadFile = File(...), user: dict = Depends(get_current_user)):
+async def analyse_pdf(background_tasks: BackgroundTasks, pdf_file: UploadFile = File(...), subject: str = Form(...), user: dict = Depends(get_current_user)):
     try:
         if not pdf_file.filename.endswith(".pdf"):
             raise HTTPException(status_code=400, detail="Input PDF file must end with .pdf")
@@ -110,7 +110,13 @@ async def analyse_pdf(background_tasks: BackgroundTasks, pdf_file: UploadFile = 
         supabase.storage.from_("files").upload(unique_id, user_pdf_content)
         download_link = supabase.storage.from_("files").get_public_url(unique_id)
 
-        insert_response = supabase.table("documents").insert({"file_name": pdf_file.filename, "file_url": download_link}).execute()
+        insert_response = supabase.table("documents").insert({
+            "file_name": pdf_file.filename,
+            "file_url": download_link,
+            "user_id": user["id"],
+            "subject": subject,
+            "has_answer_scheme": False
+        }).execute()
         document_id = insert_response.data[0]['id']
         print(f"Processing PDF: {pdf_file.filename}, assigned ID: {document_id}")
         background_tasks.add_task(extract_data, user_pdf_content, document_id)
@@ -141,11 +147,11 @@ def extract_data(pdf, document_id):
         del ai_client
         gc.collect()
 
-        supabase.table("documents").update({"data": data, "status": "extracted", "image_data": image_data}).eq("id", document_id).execute()
         end_time = time.time()  # Capture the end time
         elapsed_time = end_time - start_time  # Calculate elapsed time
         print(f"Total elapsed time: {elapsed_time} seconds")
-        
+        supabase.table("documents").update({"data": data, "status": "extracted", "image_data": image_data, "elapsed_time": elapsed_time}).eq("id", document_id).execute()
+
         return {
             "status": "success",
             "message": "Questions extracted successfully",
