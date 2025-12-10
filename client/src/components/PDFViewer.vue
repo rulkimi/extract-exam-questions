@@ -48,9 +48,9 @@
 		</div>
 
 		<!-- header: file name -->
-		<div class="bg-white/50 border rounded-lg my-2 text-xs text-gray-400 p-2 sticky top-0 z-[10] w-full">
+		<!-- <div class="bg-white/50 border rounded-lg my-2 text-xs text-gray-400 p-2 sticky top-0 z-[10] w-full">
 			<slot name="header">{{ fileName }}</slot>
-		</div>
+		</div> -->
 
 		<!-- PDF display -->
 		<div v-for="page in pages" :key="page" class="mb-5" :ref="`page-${page}`">

@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div
     class="h-full relative overflow-y-scroll"
     @scroll="handleScroll"
@@ -89,6 +89,10 @@ export default {
     autoFit: {
       type: Boolean,
       default: false
+    },
+    gotoPage: {
+      type: Number,
+      default: null
     }
   },
   mounted() {
@@ -102,6 +106,7 @@ export default {
       window.removeEventListener('resize', this.calculateScale);
     }
   },
+  // REMOVED: watch handler for gotoPage
   methods: {
     calculateScale() {
       const container = this.$el;
@@ -128,10 +133,10 @@ export default {
       });
     },
     zoomIn() {
-      this.localScale = Math.min(this.localScale + 0.1, 2); 
+      this.localScale = Math.min(this.localScale + 0.05, 2); 
     },
     zoomOut() {
-      this.localScale = Math.max(this.localScale - 0.1, 0.5);
+      this.localScale = Math.max(this.localScale - 0.05, 0.5);
     },
     triggerSearch() {
       this.isSearchInputVisible = true;
@@ -178,8 +183,11 @@ export default {
       this.$refs[this.id + '-ref'].scrollToPage(this.currentPage);
       this.setCancelUpdateThroughScrollToFalse();
     },
+    // This is the primary method used by detail.vue to initiate scroll
     handleInputPageChanged(page) {
       this.cancelUpdateThroughScroll = true;
+      // The internal PDFViewer component (referenced by :ref="id + '-ref'")
+      // must have the scrollToPage method implemented.
       this.$refs[this.id + '-ref'].scrollToPage(page);
       this.setCancelUpdateThroughScrollToFalse();
     },
