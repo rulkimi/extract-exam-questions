@@ -40,6 +40,7 @@ class AIClient:
     **GENERAL RULES**
     - Avoid null values at ALL COSTS.
     - Each main_question, question, and sub-question consists of a number and a content_flow array.
+    - **Every main_question object MUST include a "start_page" key indicating the PDF page number where the question begins.**
     - The JSON output must follow this format:
         - main_questions → Top-level questions numbered \"1\", \"2\", \"3\", etc.
         - questions → Sub-questions numbered \"1(a)\", \"2(b)\", \"3(c)\", etc.
@@ -64,11 +65,13 @@ class AIClient:
     **GENERAL SCHEMA**
     Guide to identify main questions:
     - numbered \"1\", \"2\", \"3\", etc in **bold** font
+    - **Identify the PDF page number where the bold number appears and assign it to "start_page".**
     ```json
     {
         \"main_questions\": [
             {
                 \"number\": \"<1 | 2 | 3 | etc.>\",
+                \"start_page\": \"<Page Number>\",
                 \"content_flow\": [
                     {
                         \"type\": \"text\",
@@ -161,6 +164,7 @@ class AIClient:
     \"main_questions\": [
         {
             \"number\": \"1\",
+            \"start_page\": \"4\",
             \"content_flow\": [
             ],
             \"questions\": [
