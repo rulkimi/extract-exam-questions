@@ -1,13 +1,7 @@
 <script setup>
-import DiagramContent from './DiagramContent.vue';
-import TextContent from './TextContent.vue';
-import RowContent from './RowContent.vue';
+import ContentFlow from './ContentFlow.vue';
 
-defineProps({
-  number: {
-    type: String,
-    required: true
-  },
+const props = defineProps({
   content: {
     type: Object,
     required: true
@@ -15,43 +9,20 @@ defineProps({
   index: {
     type: Number,
     required: true
+  },
+  number: {
+    type: String,
+    required: true
   }
-})
+});
 </script>
 
 <template>
-  <tr v-if="content.type === 'text'">
-    <td v-if="index === 0">{{ number }}.</td>
-    <td v-else></td>
-    <td colspan="3">
-      <TextContent :content="content" />
-    </td>
-  </tr>
-  <tr v-if="content.type === 'diagram'">
-    <td></td>
-    <td colspan="3">
-      <DiagramContent :content="content" />
-    </td>
-  </tr>
-  <tr v-if="content.type === 'row'">
-    <td></td>
-    <td colspan="3">
-      <RowContent :content="content.items" />
+  <tr class="border bg-blue-50">
+    <td v-if="props.number && props.index === 0" class="border p-2 w-16">{{ props.number }}</td>
+    <td v-else class="border p-2 w-16"></td>
+    <td class="border p-2 space-y-6" colspan="3">
+      <ContentFlow :content="props.content" />
     </td>
   </tr>
 </template>
-
-<style scoped>
-th,
-td {
-  border: 1px solid black;
-  padding: 8px;
-  vertical-align: top;
-}
-.checkbox {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 1px solid black;
-}
-</style>

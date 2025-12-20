@@ -1,8 +1,8 @@
 <script setup>
-import AnswerSpaceContent from './AnswerSpaceContent.vue';
+import TextContent from './TextContent.vue';
 import DiagramContent from './DiagramContent.vue';
 import TableContent from './TableContent.vue';
-import TextContent from './TextContent.vue';
+import AnswerSpaceContent from './AnswerSpaceContent.vue';
 import RowContent from './RowContent.vue';
 
 const props = defineProps({
@@ -10,23 +10,23 @@ const props = defineProps({
     type: Object,
     required: true
   }
-})
+});
 </script>
 
 <template>
-  <div v-if="content.type === 'text'">
-    <TextContent :content="content" />
+  <div v-if="props.content.type === 'text'">
+    <TextContent :content="props.content" />
   </div>
-  <div v-if="content.type === 'diagram'">
-    <DiagramContent :content="content" />
+  <div v-else-if="props.content.type === 'diagram'">
+    <DiagramContent :content="props.content" />
   </div>
-  <div v-if="content.type === 'table'">
-    <TableContent :content="content" />
+  <div v-else-if="props.content.type === 'table'">
+    <TableContent :content="props.content" />
   </div>
-  <div v-if="content.type === 'answer_space'">
-    <AnswerSpaceContent :content="content" />
+  <div v-else-if="props.content.type === 'answer_space'">
+    <AnswerSpaceContent :content="props.content" />
   </div>
-  <div v-if="content.type === 'row'">
-    <RowContent :content="content.items" />
+  <div v-else-if="props.content.type === 'row'">
+    <RowContent :content="props.content.items" />
   </div>
 </template>

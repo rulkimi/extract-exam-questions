@@ -1,28 +1,15 @@
 <script setup>
-import { computed
-
- } from 'vue';
 const props = defineProps({
   content: {
     type: Object,
     required: true
-  },
-})
-
-const formattedMalay = computed(() => {
-  const text = props.content.text.malay?.replace(/\\n/g, '<br />'); 
-  return text;
-})
-
-const formattedEnglish = computed(() => {
-  const text = props.content.text.english?.replace(/\\n/g, '<br />');
-  return text;
-})
+  }
+});
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
-    <div v-html="formattedMalay"></div>
-    <div class="italic" v-html="formattedEnglish"></div>
+  <div class="p-4 bg-gray-100 rounded-md">
+    <div v-if="props.content.text.malay" v-html="props.content.text.malay"></div>
+    <div v-if="props.content.text.english" class="mt-2 italic text-gray-600" v-html="props.content.text.english"></div>
   </div>
 </template>
