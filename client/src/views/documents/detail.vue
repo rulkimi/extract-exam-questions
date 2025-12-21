@@ -22,6 +22,17 @@ const pdfViewerRef = ref(null)
 const totalMainQuestions = computed(() => documentDetail.value?.data?.main_questions?.length || 0)
 const hasAnswerScheme = computed(() => !!documentDetail.value?.has_answer_scheme)
 
+const fetchDocumentDetail = async () => {
+  try {
+    const response = await apiClient.get(`/documents/${props.id}`);
+    const { data, status, message } = response.data;
+    documentDetail.value = data;
+    // console.log(documentDetail.value.image_data)
+  } catch (error) {
+    console.error(error)
+  }
+}
+
 function download(jsonData, pdfname) {
   const filename = pdfname.replace(/\.pdf$/, '.docx');
   const imageData = documentDetail.value?.image_data;
