@@ -49,7 +49,6 @@ function updateEnglishText(value) {
           v-model="props.content.text.malay"
           @input="updateMalayText($event.target.value)"
           class="w-full p-2 border rounded-md text-sm resize-none"
-          rows="3"
           placeholder="Malay text..."
         ></textarea>
       </div>
@@ -59,7 +58,6 @@ function updateEnglishText(value) {
           v-model="props.content.text.english"
           @input="updateEnglishText($event.target.value)"
           class="w-full p-2 border rounded-md text-sm resize-none italic text-gray-600"
-          rows="2"
           placeholder="English text..."
         ></textarea>
       </div>
