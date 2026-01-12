@@ -20,9 +20,19 @@ const props = defineProps({
 const activeMainIndex = ref(0)
 const approvedCount = ref(0)
 const pdfViewerRef = ref(null)
+const isEditMode = ref(false)
 
 const totalMainQuestions = computed(() => documentDetail.value?.data?.main_questions?.length || 0)
 const hasAnswerScheme = computed(() => !!documentDetail.value?.has_answer_scheme)
+
+function getQuestionStartPage(index) {
+  const mqs = documentDetail.value?.data?.main_questions || []
+  return parseInt(mqs[index]?.start_page, 10) || null
+}
+
+function toggleEditMode() {
+  isEditMode.value = !isEditMode.value
+}
 
 const fetchDocumentDetail = async () => {
   try {
@@ -37,19 +47,20 @@ const fetchDocumentDetail = async () => {
 
 const saveDocumentDetail = async () => {
   if (isSaving.value) return
-  
+
   isSaving.value = true
   saveStatus.value = 'Saving...'
-  
+
   try {
     const response = await apiClient.put(`/documents/${props.id}`, {
       data: documentDetail.value.data
     });
-    
+
     saveStatus.value = 'Saved successfully!'
     setTimeout(() => {
       saveStatus.value = ''
     }, 3000)
+    isEditMode.value = false
   } catch (error) {
     console.error('Error saving document:', error)
     saveStatus.value = 'Error saving document'
@@ -112,7 +123,7 @@ async function jumpToStartPage(index) {
   // Check if the page is valid
   if (!startPage || startPage < 1) return
 
-  // Wait for the DOM update (if any)
+  // Wait for the DOM update
   await nextTick()
 
   const instance = pdfViewerRef.value
@@ -149,7 +160,7 @@ onMounted(() => {
       </div>
 
       <div class="flex">
-        <div class="space-x-2 pr-4">
+        <div v-if="isEditMode" class="space-x-2 pr-4 border-r">
           <button class="px-3 py-2 text-gray-800 rounded-lg font-semibold hover:bg-gray-200">
             <font-awesome-icon :icon="['fas', 'undo']" />
           </button>
@@ -157,10 +168,13 @@ onMounted(() => {
             <font-awesome-icon :icon="['fas', 'redo']" />
           </button>
         </div>
-        <div class="border-l pl-4 space-x-2">
-          <button 
-            @click="saveDocumentDetail"
-            :disabled="isSaving"
+        <div class="pl-4 space-x-2">
+          <button v-if="!isEditMode" @click="toggleEditMode"
+            class="px-3 py-2 text-gray-800 border rounded-lg font-semibold hover:bg-gray-200">
+            <font-awesome-icon :icon="['fas', 'edit']" />
+            Edit
+          </button>
+          <button v-if="isEditMode" @click="saveDocumentDetail" :disabled="isSaving"
             class="px-3 py-2 text-gray-800 rounded-lg font-semibold hover:bg-gray-200 border disabled:opacity-50 disabled:cursor-not-allowed relative">
             <font-awesome-icon class="mr-2" :icon="['fas', 'floppy-disk']" />
             {{ isSaving ? 'Saving...' : 'Save' }}
@@ -171,12 +185,17 @@ onMounted(() => {
               {{ saveStatus }}
             </span>
           </button>
-          <button class="px-3 py-2 text-gray-800 rounded-lg font-semibold hover:bg-gray-100 border"
-          @click="download(documentDetail.data, documentDetail.file_name)">
+          <button v-if="isEditMode" @click="toggleEditMode"
+            class="px-3 py-2 text-gray-800 rounded-lg font-semibold hover:bg-gray-200 border">
+            Cancel
+          </button>
+          <button v-if="!isEditMode" class="px-3 py-2 text-gray-800 rounded-lg font-semibold hover:bg-gray-100 border"
+            @click="download(documentDetail.data, documentDetail.file_name)">
             <font-awesome-icon class="mr-2" :icon="['fas', 'download']" />
             Export
           </button>
-          <button class="px-3 py-2 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 border">
+          <button v-if="!isEditMode"
+            class="px-3 py-2 bg-gray-500 text-white rounded-lg font-semibold hover:bg-gray-600 border">
             <font-awesome-icon class="mr-2" :icon="['fas', 'check']" />
             Completed
           </button>
@@ -186,13 +205,14 @@ onMounted(() => {
     </div>
 
     <div class="grid grid-cols-12 gap-4 text-black">
-      <div :class="['col-span-12', hasAnswerScheme ? 'lg:col-span-3' : 'lg:col-span-5']">
+      <div :class="['col-span-12', hasAnswerScheme ? 'lg:col-span-3' : 'lg:col-span-6']">
         <div class="border rounded-lg bg-white shadow">
           <div class="px-4 py-3 border-b font-medium">Question Paper</div>
-          <div class="p-4">
+          <div>
             <div v-if="documentDetail && documentDetail.file_url" class="h-[calc(100vh-260px)]">
               <PDFViewerWithNavigation ref="pdfViewerRef" :id="'qp-' + id" class="w-full h-full rounded-md border"
-                :auto-fit="true" :file-name="documentDetail.file_name" :fileURL="documentDetail.file_url" />
+                :auto-fit="true" :file-name="documentDetail.file_name" :fileURL="documentDetail.file_url" 
+                :gotoPage="getQuestionStartPage(activeMainIndex)" />
             </div>
             <div v-else
               class="h-[calc(100vh-260px)] flex items-center justify-center rounded-md bg-gray-100 text-gray-400">
@@ -202,15 +222,10 @@ onMounted(() => {
         </div>
       </div>
 
-      <div :class="['col-span-12', hasAnswerScheme ? 'lg:col-span-6' : 'lg:col-span-7']">
-        <ExtractedQuestions 
-          :document-detail="documentDetail" 
-          :active-main-index="activeMainIndex"
-          :approved-count="approvedCount" 
-          @approve-question="approveQuestion" 
-          @jump-to-page="jumpToStartPage"
-          @update:document-detail="updateDocumentDetail"
-        />
+      <div :class="['col-span-12', hasAnswerScheme ? 'lg:col-span-6' : 'lg:col-span-6']">
+        <ExtractedQuestions :document-detail="documentDetail" :active-main-index="activeMainIndex"
+          :approved-count="approvedCount" :editable="isEditMode" @approve-question="approveQuestion"
+          @jump-to-page="jumpToStartPage" @update:document-detail="updateDocumentDetail" />
       </div>
 
       <div v-if="hasAnswerScheme" class="col-span-12 lg:col-span-3">
