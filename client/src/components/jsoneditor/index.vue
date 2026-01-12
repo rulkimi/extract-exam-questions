@@ -16,13 +16,17 @@ const props = defineProps({
     type: Number,
     required: true
   },
+  editable: {
+    type: Boolean,
+    default: true
+  }
 })
 
 provide('imageData', computed(() => props.documentDetail?.image_data || []));
 
 const emit = defineEmits(['approve-question', 'jump-to-page', 'update:document-detail'])
 
-const isEditMode = ref(false)
+const containerRef = ref(null)
 
 const totalMainQuestions = computed(() => props.documentDetail?.data?.main_questions?.length || 0)
 const currentMainQuestion = computed(() => {
@@ -36,10 +40,10 @@ function approveQuestion() {
 
 function jumpToStartPage(index) {
   emit('jump-to-page', index)
-}
-
-function toggleEditMode() {
-  isEditMode.value = !isEditMode.value
+  // Scroll to top when clicking question button
+  if (containerRef.value) {
+    containerRef.value.scrollTop = 0
+  }
 }
 
 function updateDocumentDetail(updatedDetail) {
@@ -70,17 +74,6 @@ function updateSubQuestionContent(questionIndex, subQuestionIndex, contentIndex,
     <div class="px-4 py-3 border-b flex items-center justify-between">
       <h2 class="font-medium">Extracted Questions</h2>
       <div class="flex items-center gap-2">
-        <button 
-          @click="toggleEditMode"
-          :class="[
-            'px-3 py-1 rounded-md text-sm font-medium transition-colors',
-            isEditMode 
-              ? 'bg-green-600 text-white hover:bg-green-700' 
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          ]">
-          <font-awesome-icon :icon="['fas', isEditMode ? 'save' : 'edit']" class="mr-1" />
-          {{ isEditMode ? 'Editing' : 'Edit' }}
-        </button>
         <button v-for="i in totalMainQuestions" :key="i" @click="jumpToStartPage(i - 1)"
           class="h-8 w-8 rounded-md border text-sm"
           :class="activeMainIndex === i - 1 ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white hover:bg-gray-50'">
@@ -88,14 +81,14 @@ function updateSubQuestionContent(questionIndex, subQuestionIndex, contentIndex,
         </button>
       </div>
     </div>
-    <!-- TODO: make sure to overflow -->
-    <div class="p-4 space-y-4 overflow-auto" style="height: calc(100vh - 200px);">
-      <div v-if="currentMainQuestion" class="border p-4 rounded-md bg-white shadow-md text-left flex flex-col">
+    
+    <div ref="containerRef" class="p-4 space-y-4 overflow-auto" style="height: calc(100vh - 200px);">
+      <div v-if="currentMainQuestion" class="border p-4 rounded-md bg-white shadow-md text-left flex flex-col space-y-2">
         <div>Question {{ currentMainQuestion.number }}</div>
         <template v-for="(content, index) in currentMainQuestion.content_flow" :key="index">
           <ContentFlow 
             :content="content" 
-            :editable="isEditMode"
+            :editable="props.editable"
             @update:content="(newContent) => updateContentFlow(index, newContent)"
           />
         </template>
@@ -103,50 +96,74 @@ function updateSubQuestionContent(questionIndex, subQuestionIndex, contentIndex,
 
         <!-- display question -->
         <div v-for="(question, questionIndex) in currentMainQuestion.questions" :key="question.number" class="mb-4 flex flex-col">
-          <!-- for each content flow items -->
-          <template v-if="question.content_flow.length > 0" v-for="(content, index) in question.content_flow" :key="index">
-            <!-- only add a number at the first content item  -->
-            <div v-if="question.number && index === 0">
-              {{ question.number.replace(/^\d+/, "") }}
+          <div v-if="question.content_flow.length > 0" class="flex items-start">
+            <!-- question number on the left -->
+            <div v-if="question.number">{{ question.number.replace(/^\d+/, "") }}</div>
+            <!-- all content flow items grouped on the right -->
+            <div class="ml-2 flex-1 flex flex-col space-y-2">
+              <template v-for="(content, index) in question.content_flow" :key="index">
+                <ContentFlow 
+                  :content="content" 
+                  :editable="props.editable"
+                  @update:content="(newContent) => updateQuestionContent(questionIndex, index, newContent)"
+                />
+              </template>
+              
+              <!-- display sub-questions nested within main question content -->
+              <div v-for="(subQuestion, subQuestionIndex) in question.sub_questions" :key="subQuestion.number" class="flex flex-col">
+                <div v-if="subQuestion.content_flow.length > 0" class="flex items-start">
+                  <!-- sub-question number on the left -->
+                  <div v-if="subQuestion.number">{{ subQuestion.number.match(/\([^)]*\)$/)?.[0] }}</div>
+                  <!-- sub-question content flow on the right -->
+                  <div class="ml-2 flex-1 flex flex-col space-y-2">
+                    <template v-for="(content, index) in subQuestion.content_flow" :key="index">
+                      <ContentFlow 
+                        :content="content" 
+                        :editable="props.editable"
+                        @update:content="(newContent) => updateSubQuestionContent(questionIndex, subQuestionIndex, index, newContent)"
+                      />
+                    </template>
+                  </div>
+                </div>
+                
+                <template v-if="subQuestion.marks" class="text-right">
+                  <MarksDisplay :marks="subQuestion.marks" />
+                </template>
+              </div>
             </div>
-            <ContentFlow 
-              :content="content" 
-              :editable="isEditMode"
-              @update:content="(newContent) => updateQuestionContent(questionIndex, index, newContent)"
-            />
-          </template>
+          </div>
           <template v-else>
-            {{ question.number.replace(/^\d+/, "") }}
+            <div class="flex items-start">
+              <div>{{ question.number.replace(/^\d+/, "") }}</div>
+              <div class="ml-2 flex-1 flex flex-col space-y-2">
+                <!-- display sub-questions nested within main question content -->
+                <div v-for="(subQuestion, subQuestionIndex) in question.sub_questions" :key="subQuestion.number" class="flex flex-col">
+                  <div v-if="subQuestion.content_flow.length > 0" class="flex items-start">
+                    <!-- sub-question number on the left -->
+                    <div v-if="subQuestion.number">{{ subQuestion.number.match(/\([^)]*\)$/)?.[0] }}</div>
+                    <!-- sub-question content flow on the right -->
+                    <div class="ml-2 flex-1 flex flex-col space-y-2">
+                      <template v-for="(content, index) in subQuestion.content_flow" :key="index">
+                        <ContentFlow 
+                          :content="content" 
+                          :editable="props.editable"
+                          @update:content="(newContent) => updateSubQuestionContent(questionIndex, subQuestionIndex, index, newContent)"
+                        />
+                      </template>
+                    </div>
+                  </div>
+                  
+                  <template v-if="subQuestion.marks" class="text-right">
+                    <MarksDisplay :marks="subQuestion.marks" />
+                  </template>
+                </div>
+              </div>
+            </div>
           </template>
 
-          <!-- show marks after content flow object -->
-          <!-- TO-DO: make sure justify-right -->
           <template v-if="question.marks" class="text-right">
             <MarksDisplay :marks="question.marks" />
           </template>
-
-          <!-- display sub-questions -->
-          <div v-for="(subQuestion, subQuestionIndex) in question.sub_questions" :key="subQuestion.number" class="ml-4 flex flex-col">
-            <!-- for each content flow items -->
-            <template v-for="(content, index) in subQuestion.content_flow" :key="index">
-              <!-- only add a number at the first content item  -->
-              <div v-if="subQuestion.number && index === 0">
-                {{ subQuestion.number.match(/\([^)]*\)$/)?.[0] }}
-              </div>
-              <ContentFlow 
-                :content="content" 
-                :editable="isEditMode"
-                @update:content="(newContent) => updateSubQuestionContent(questionIndex, subQuestionIndex, index, newContent)"
-              />
-            </template>
-
-            <!-- show marks after content flow object -->
-            <!-- TO-DO: make sure justify-right -->
-            <template v-if="subQuestion.marks" class="text-right">
-              <MarksDisplay :marks="subQuestion.marks" />
-            </template>
-          </div>
-
         </div>
 
       </div>

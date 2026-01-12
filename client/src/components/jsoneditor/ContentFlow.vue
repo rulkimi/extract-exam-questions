@@ -20,23 +20,22 @@ const emit = defineEmits(['update:content'])
 </script>
 
 <template>
-  <div v-if="props.content.type === 'text'">
-    <TextContent 
-      :content="props.content" 
-      :editable="props.editable"
-      @update:content="$emit('update:content', $event)"
-    />
-  </div>
-  <div v-else-if="props.content.type === 'diagram'">
-    <DiagramContent :content="props.content" />
-  </div>
-  <div v-else-if="props.content.type === 'table'">
-    <TableContent :content="props.content" />
-  </div>
-  <div v-else-if="props.content.type === 'answer_space'">
-    <AnswerSpaceContent :content="props.content" />
-  </div>
-  <div v-else-if="props.content.type === 'row'">
-    <RowContent :content="props.content.items" />
+  <div>
+    <div v-if="props.content.type === 'text'">
+      <TextContent :content="props.content" :editable="props.editable"
+        @update:content="$emit('update:content', $event)" />
+    </div>
+    <div v-else-if="props.content.type === 'diagram'">
+      <DiagramContent :content="props.content" />
+    </div>
+    <div v-else-if="props.content.type === 'table'">
+      <TableContent :content="props.content" />
+    </div>
+    <div v-else-if="props.content.type === 'answer_space'">
+      <AnswerSpaceContent :content="props.content"/>
+    </div>
+    <div v-else-if="props.content.type === 'row'">
+      <RowContent :content="props.content.items" />
+    </div>
   </div>
 </template>
