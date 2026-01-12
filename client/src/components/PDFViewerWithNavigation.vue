@@ -100,6 +100,14 @@ export default {
       this.calculateScale();
       window.addEventListener('resize', this.calculateScale);
     }
+    
+    // Handle gotoPage prop when component mounts
+    if (this.gotoPage && this.gotoPage > 0) {
+      // Wait a bit for the PDF to load and initialize
+      setTimeout(() => {
+        this.handleInputPageChanged(this.gotoPage);
+      }, 500);
+    }
   },
   beforeUnmount() {
     if (this.autoFit) {
