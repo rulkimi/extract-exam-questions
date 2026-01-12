@@ -165,6 +165,30 @@ def extract_data(pdf, document_id):
         raise HTTPException(status_code=500, detail=str(e))
 
     
+@app.put("/documents/{id}")
+async def update_document(id: str, request: Request, user: dict = Depends(get_current_user)):
+    try:
+        # Get the request body
+        body = await request.json()
+        data = body.get("data")
+        
+        if not data:
+            raise HTTPException(status_code=400, detail="Data field is required")
+        
+        # Update the document in Supabase
+        response = supabase.table("documents").update({"data": data}).eq("id", id).execute()
+        
+        if not response.data:
+            raise HTTPException(status_code=404, detail="Document not found")
+        
+        return {
+            "status": "success",
+            "message": "Document updated successfully",
+            "data": response.data[0]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error updating document: {str(e)}")
+
 @app.post("/generate_word")
 async def generate_word(request: Request, user: dict = Depends(get_current_user)):
     data = await request.json()

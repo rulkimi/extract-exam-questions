@@ -9,13 +9,23 @@ const props = defineProps({
   content: {
     type: Object,
     required: true
+  },
+  editable: {
+    type: Boolean,
+    default: false
   }
 });
+
+const emit = defineEmits(['update:content'])
 </script>
 
 <template>
   <div v-if="props.content.type === 'text'">
-    <TextContent :content="props.content" />
+    <TextContent 
+      :content="props.content" 
+      :editable="props.editable"
+      @update:content="$emit('update:content', $event)"
+    />
   </div>
   <div v-else-if="props.content.type === 'diagram'">
     <DiagramContent :content="props.content" />

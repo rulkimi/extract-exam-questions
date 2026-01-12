@@ -6,6 +6,8 @@ import ExtractedQuestions from '@/components/JsonEditor/Index.vue';
 import apiClient from '@/api';
 
 const documentDetail = ref(null)
+const isSaving = ref(false)
+const saveStatus = ref('')
 
 const props = defineProps({
   id: {
@@ -33,9 +35,40 @@ const fetchDocumentDetail = async () => {
   }
 }
 
+const saveDocumentDetail = async () => {
+  if (isSaving.value) return
+  
+  isSaving.value = true
+  saveStatus.value = 'Saving...'
+  
+  try {
+    const response = await apiClient.put(`/documents/${props.id}`, {
+      data: documentDetail.value.data
+    });
+    
+    saveStatus.value = 'Saved successfully!'
+    setTimeout(() => {
+      saveStatus.value = ''
+    }, 3000)
+  } catch (error) {
+    console.error('Error saving document:', error)
+    saveStatus.value = 'Error saving document'
+    setTimeout(() => {
+      saveStatus.value = ''
+    }, 3000)
+  } finally {
+    isSaving.value = false
+  }
+}
+
+function updateDocumentDetail(updatedDetail) {
+  documentDetail.value = updatedDetail
+}
+
 function download(jsonData, pdfname) {
   const filename = pdfname.replace(/\.pdf$/, '.docx');
   const imageData = documentDetail.value?.image_data;
+  console.log('downloading...')
 
   apiClient.post('/generate_word', { jsonData, imageData, filename }, {
     responseType: 'blob' // This is important for file downloads
@@ -125,11 +158,21 @@ onMounted(() => {
           </button>
         </div>
         <div class="border-l pl-4 space-x-2">
-          <button class="px-3 py-2 text-gray-800 rounded-lg font-semibold hover:bg-gray-200 border">
+          <button 
+            @click="saveDocumentDetail"
+            :disabled="isSaving"
+            class="px-3 py-2 text-gray-800 rounded-lg font-semibold hover:bg-gray-200 border disabled:opacity-50 disabled:cursor-not-allowed relative">
             <font-awesome-icon class="mr-2" :icon="['fas', 'floppy-disk']" />
-            Save
+            {{ isSaving ? 'Saving...' : 'Save' }}
+            <span v-if="saveStatus" :class="[
+              'absolute -top-8 left-1/2 transform -translate-x-1/2 px-2 py-1 text-xs rounded whitespace-nowrap',
+              saveStatus.includes('Error') ? 'bg-red-500 text-white' : 'bg-green-500 text-white'
+            ]">
+              {{ saveStatus }}
+            </span>
           </button>
-          <button class="px-3 py-2 text-gray-800 rounded-lg font-semibold hover:bg-gray-100 border">
+          <button class="px-3 py-2 text-gray-800 rounded-lg font-semibold hover:bg-gray-100 border"
+          @click="download(documentDetail.data, documentDetail.file_name)">
             <font-awesome-icon class="mr-2" :icon="['fas', 'download']" />
             Export
           </button>
@@ -160,8 +203,14 @@ onMounted(() => {
       </div>
 
       <div :class="['col-span-12', hasAnswerScheme ? 'lg:col-span-6' : 'lg:col-span-7']">
-        <ExtractedQuestions :document-detail="documentDetail" :active-main-index="activeMainIndex"
-          :approved-count="approvedCount" @approve-question="approveQuestion" @jump-to-page="jumpToStartPage" />
+        <ExtractedQuestions 
+          :document-detail="documentDetail" 
+          :active-main-index="activeMainIndex"
+          :approved-count="approvedCount" 
+          @approve-question="approveQuestion" 
+          @jump-to-page="jumpToStartPage"
+          @update:document-detail="updateDocumentDetail"
+        />
       </div>
 
       <div v-if="hasAnswerScheme" class="col-span-12 lg:col-span-3">
