@@ -1,6 +1,6 @@
 <script setup>
 import { useRoute } from 'vue-router';
-import { ref, onMounted, computed, nextTick } from 'vue';
+import { ref, onMounted, onUnmounted, computed, nextTick } from 'vue';
 import PDFViewerWithNavigation from '@/components/PDFViewerWithNavigation.vue';
 import ExtractedQuestions from '@/components/JsonEditor/Index.vue';
 import apiClient from '@/api';
@@ -24,6 +24,13 @@ const isEditMode = ref(false)
 
 const fileURL = computed(() => documentDetail.value?.file_url || '')
 const fileName = computed(() => documentDetail.value?.file_name || '')
+// Undo/Redo state
+const documentHistory = ref([])
+const currentHistoryIndex = ref(-1)
+const MAX_HISTORY = 50 // Maximum number of history states to keep
+const changeTimeout = ref(null)
+const lastChangeTime = ref(0)
+const CHANGE_DEBOUNCE = 1000 // 1 second debounce for grouping changes
 
 const totalMainQuestions = computed(() => documentDetail.value?.data?.main_questions?.length || 0)
 const hasAnswerScheme = computed(() => !!documentDetail.value?.has_answer_scheme)
@@ -34,6 +41,14 @@ function getQuestionStartPage(index) {
 }
 
 function toggleEditMode() {
+  if (!isEditMode.value) {
+    // When entering edit mode, save current state
+    saveToHistory()
+  } else {
+    // When exiting edit mode, clear history
+    documentHistory.value = []
+    currentHistoryIndex.value = -1
+  }
   isEditMode.value = !isEditMode.value
 }
 
@@ -46,6 +61,90 @@ const fetchDocumentDetail = async () => {
   } catch (error) {
     console.error(error)
   }
+}
+
+// Save current state to history with debouncing
+function saveToHistory() {
+  // Don't save if we're not in edit mode
+  if (!isEditMode.value) return
+  
+  // Clear any pending saves
+  if (changeTimeout.value) {
+    clearTimeout(changeTimeout.value)
+  }
+  
+  const now = Date.now()
+  const timeSinceLastChange = now - lastChangeTime.value
+  
+  // If it's been a while since the last change, save immediately
+  if (timeSinceLastChange > CHANGE_DEBOUNCE) {
+    _saveToHistory()
+  } else {
+    // Otherwise, debounce to group rapid changes
+    changeTimeout.value = setTimeout(() => {
+      _saveToHistory()
+    }, CHANGE_DEBOUNCE)
+  }
+  
+  lastChangeTime.value = now
+}
+
+// Internal function to actually save the history
+function _saveToHistory() {
+  // Don't save if we're not in edit mode
+  if (!isEditMode.value) return
+  
+  // Create a deep copy of the current document data
+  const snapshot = JSON.parse(JSON.stringify(documentDetail.value))
+  
+  // Don't save if nothing has changed
+  if (documentHistory.value.length > 0) {
+    const lastState = documentHistory.value[currentHistoryIndex.value]
+    if (JSON.stringify(lastState) === JSON.stringify(snapshot)) {
+      return
+    }
+  }
+  
+  // If we're not at the end of history, remove the future history
+  if (currentHistoryIndex.value < documentHistory.value.length - 1) {
+    documentHistory.value = documentHistory.value.slice(0, currentHistoryIndex.value + 1)
+  }
+  
+  // Add new state to history
+  documentHistory.value.push(snapshot)
+  currentHistoryIndex.value = documentHistory.value.length - 1
+  
+  // Limit history size
+  if (documentHistory.value.length > MAX_HISTORY) {
+    documentHistory.value.shift()
+    currentHistoryIndex.value--
+  }
+}
+
+// Undo to previous state
+function undo() {
+  if (currentHistoryIndex.value > 0) {
+    currentHistoryIndex.value--
+    documentDetail.value = JSON.parse(JSON.stringify(documentHistory.value[currentHistoryIndex.value]))
+  }
+}
+
+// Redo to next state
+function redo() {
+  if (currentHistoryIndex.value < documentHistory.value.length - 1) {
+    currentHistoryIndex.value++
+    documentDetail.value = JSON.parse(JSON.stringify(documentHistory.value[currentHistoryIndex.value]))
+  }
+}
+
+// Reset to last saved state
+function resetToLastSaved() {
+  if (documentHistory.value.length > 0) {
+    documentDetail.value = JSON.parse(JSON.stringify(documentHistory.value[0]))
+    documentHistory.value = []
+    currentHistoryIndex.value = -1
+  }
+  isEditMode.value = false
 }
 
 const saveDocumentDetail = async () => {
@@ -63,6 +162,10 @@ const saveDocumentDetail = async () => {
     setTimeout(() => {
       saveStatus.value = ''
     }, 3000)
+    
+    // After saving, clear history and exit edit mode
+    documentHistory.value = []
+    currentHistoryIndex.value = -1
     isEditMode.value = false
   } catch (error) {
     console.error('Error saving document:', error)
@@ -77,7 +180,15 @@ const saveDocumentDetail = async () => {
 
 function updateDocumentDetail(updatedDetail) {
   documentDetail.value = updatedDetail
+  saveToHistory()
 }
+
+// Clean up any pending timeouts when component is unmounted
+onUnmounted(() => {
+  if (changeTimeout.value) {
+    clearTimeout(changeTimeout.value)
+  }
+})
 
 function download(jsonData, pdfname) {
   const filename = pdfname.replace(/\.pdf$/, '.docx');
@@ -165,10 +276,30 @@ onMounted(() => {
 
       <div class="flex">
         <div v-if="isEditMode" class="space-x-2 pr-4 border-r">
-          <button class="px-3 py-2 text-gray-800 rounded-lg font-semibold hover:bg-gray-200">
+          <button 
+            @click="undo" 
+            :disabled="currentHistoryIndex <= 0"
+            :class="[
+              'px-3 py-2 rounded-lg font-semibold',
+              currentHistoryIndex <= 0 
+                ? 'text-gray-400' 
+                : 'text-gray-800 hover:bg-gray-200'
+            ]"
+            :title="currentHistoryIndex <= 0 ? 'Nothing to undo' : 'Undo'"
+          >
             <font-awesome-icon :icon="['fas', 'undo']" />
           </button>
-          <button class="px-3 py-2 text-gray-800 rounded-lg font-semibold hover:bg-gray-200">
+          <button 
+            @click="redo"
+            :disabled="currentHistoryIndex >= documentHistory.length - 1"
+            :class="[
+              'px-3 py-2 rounded-lg font-semibold',
+              currentHistoryIndex >= documentHistory.length - 1 
+                ? 'text-gray-400' 
+                : 'text-gray-800 hover:bg-gray-200'
+            ]"
+            :title="currentHistoryIndex >= documentHistory.length - 1 ? 'Nothing to redo' : 'Redo'"
+          >
             <font-awesome-icon :icon="['fas', 'redo']" />
           </button>
         </div>
@@ -189,7 +320,7 @@ onMounted(() => {
               {{ saveStatus }}
             </span>
           </button>
-          <button v-if="isEditMode" @click="toggleEditMode"
+          <button v-if="isEditMode" @click="resetToLastSaved"
             class="px-3 py-2 text-gray-800 rounded-lg font-semibold hover:bg-gray-200 border">
             Cancel
           </button>
