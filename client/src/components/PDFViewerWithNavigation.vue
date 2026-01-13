@@ -1,43 +1,29 @@
 ﻿<template>
-  <div
-    class="h-full relative overflow-y-scroll"
-    @scroll="handleScroll"
-  >
-    <div class="flex justify-center items-center">
-      <PDFViewer
-        :ref="id + '-ref'"
-        :id="id"
-        :file-name="fileName"
-        :scale="localScale" 
-        :current-page="currentPage"
-        :fileURL="fileURL"
-        @total-pages="initTotalPages"
-        :is-search-input-visible="isSearchInputVisible"
-        @close-search-input="isSearchInputVisible = false"
-      >
-        <template #header>
-          <slot name="header"></slot>
-        </template>
-      </PDFViewer>
-    </div>
-    <div
-      class="max-w-fit p-5 mx-auto sticky bottom-0 z-[1020] mb-6"
-      @mouseenter="handleMouseEnter" 
-      @mouseleave="handleMouseLeave"
-    >
-      <DocNavigation
-        :id="id"
-        class="relative transition-all duration-300"
-        :class="isHovered || isScrolling ? 'bottom-0' : '-bottom-32'"
-        :currentPage="currentPage"
-        :totalPages="totalPages"
-        @page-changed="handleInputPageChanged"
-        @next-page="nextPage"
-        @previous-page="previousPage"
-        @zoom-in="zoomIn"
-        @zoom-out="zoomOut"
-        @search-text="triggerSearch"
-      />
+  <div :class="['col-span-12', hasAnswerScheme ? 'lg:col-span-3' : 'lg:col-span-6']">
+    <div class="border rounded-lg bg-white shadow">
+      <div class="p-4 border-b font-medium">Question Paper</div>
+      <div v-if="fileURL" class="h-[calc(100vh-200px)]">
+        <div class="h-full relative overflow-y-scroll">
+          <div class="flex justify-center items-center">
+            <PDFViewer :ref="id + '-ref'" :id="id" :file-name="fileName" :scale="localScale" :current-page="currentPage"
+              :fileURL="fileURL" @total-pages="initTotalPages" :is-search-input-visible="isSearchInputVisible"
+              @close-search-input="isSearchInputVisible = false">
+              <template #header>
+                <slot name="header"></slot>
+              </template>
+            </PDFViewer>
+          </div>
+          <div class="sticky bottom-0 left-0 right-0 z-[1020] bg-white border-t shadow-lg">
+            <DocNavigation :id="id" :currentPage="currentPage"
+              :totalPages="totalPages" @page-changed="handleInputPageChanged" @next-page="nextPage"
+              @previous-page="previousPage" @zoom-in="zoomIn" @zoom-out="zoomOut" 
+              @search-text="triggerSearch" />
+          </div>
+        </div>
+      </div>
+      <div v-else class="h-[calc(100vh-200px)] flex items-center justify-center rounded-md bg-gray-100 text-gray-400">
+        PDF Preview
+      </div>
     </div>
   </div>
 </template>
@@ -56,13 +42,10 @@ export default {
     return {
       currentPage: 1,
       totalPages: 0,
-      localScale: this.scale || 0.8,
+      localScale: this.scale || 0.9,
       pdfWidth: null,
       containerWidth: 0,
 
-      isScrolling: false,
-      isHovered: false,
-      scrollTimeout: null,
       cancelUpdateThroughScroll: false,
       cancelUpdateTimeout: null,
 
@@ -70,6 +53,10 @@ export default {
     }
   },
   props: {
+    documentDetail: {
+      type: Object,
+      required: true
+    },
     id: {
       type: String,
       required: true
@@ -100,7 +87,7 @@ export default {
       this.calculateScale();
       window.addEventListener('resize', this.calculateScale);
     }
-    
+
     // Handle gotoPage prop when component mounts
     if (this.gotoPage && this.gotoPage > 0) {
       // Wait a bit for the PDF to load and initialize
@@ -114,7 +101,6 @@ export default {
       window.removeEventListener('resize', this.calculateScale);
     }
   },
-  // REMOVED: watch handler for gotoPage
   methods: {
     calculateScale() {
       const container = this.$el;
@@ -141,7 +127,7 @@ export default {
       });
     },
     zoomIn() {
-      this.localScale = Math.min(this.localScale + 0.05, 2); 
+      this.localScale = Math.min(this.localScale + 0.05, 2);
     },
     zoomOut() {
       this.localScale = Math.max(this.localScale - 0.05, 0.5);
@@ -153,13 +139,6 @@ export default {
       });
     },
 
-    // scroll handling
-    handleScroll() {
-      this.isScrolling = true;
-      this.hoverTimeout();
-      if (this.cancelUpdateThroughScroll) return;
-      this.updateCurrentPage();
-    },
     updateCurrentPage() {
       const pdfViewer = this.$refs[this.id + '-ref'];
       if (pdfViewer) {
@@ -178,7 +157,6 @@ export default {
       }
     },
 
-    // page navigation
     nextPage(page) {
       this.cancelUpdateThroughScroll = true;
       this.currentPage = page;
@@ -191,40 +169,18 @@ export default {
       this.$refs[this.id + '-ref'].scrollToPage(this.currentPage);
       this.setCancelUpdateThroughScrollToFalse();
     },
-    // This is the primary method used by detail.vue to initiate scroll
     handleInputPageChanged(page) {
       this.cancelUpdateThroughScroll = true;
-      // The internal PDFViewer component (referenced by :ref="id + '-ref'")
-      // must have the scrollToPage method implemented.
       this.$refs[this.id + '-ref'].scrollToPage(page);
       this.setCancelUpdateThroughScrollToFalse();
     },
 
-    // navigator mouse events
-    handleMouseEnter() {
-      this.isHovered = true;
-      clearTimeout(this.scrollTimeout);
-    },
-    handleMouseLeave() {
-      this.isHovered = false;
-      this.hoverTimeout();
-    },
-
-    // utilities
-    hoverTimeout() {
-      if (!this.isHovered) {
-        clearTimeout(this.scrollTimeout);
-        this.scrollTimeout = setTimeout(() => {
-          this.isScrolling = false;
-        }, 1000);
-      }
-    },
     setCancelUpdateThroughScrollToFalse() {
       clearTimeout(this.cancelUpdateTimeout)
       this.cancelUpdateTimeout = setTimeout(() => {
         this.cancelUpdateThroughScroll = false;
       }, 1000);
-    }, 
+    },
   }
 }
 </script>

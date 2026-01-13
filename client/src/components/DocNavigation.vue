@@ -1,43 +1,41 @@
 <template>
-	<div class="w-full bg-gray-100 shadow-sm rounded-md p-1 flex flex-col gap-2">
+	<div class="w-full bg-white-100 shadow-sm rounded-md p-1 flex items-center justify-center gap-2 relative">
 		<transition name="appear">
-			<span v-if="pageInputError" class="w-full flex text-red-500 justify-center">Page doesn't exist</span>
+			<span v-if="pageInputError" class="absolute -top-6 text-red-500 text-xs">Page doesn't exist</span>
 		</transition>
 		<div class="flex items-center gap-2">
-			<div class="flex items-center gap-2">
-				<div class="flex gap-1">
-					<button class="px-2 py-1 rounded bg-gray-300" type="button" @click="previousPage">
-						<font-awesome-icon :icon="['fas', 'chevron-left']" size="sm" />
-					</button>
-					<input
-						:id="id + 'page-number'"
-						type="number"
-						class="w-[40px] border outline-none text-center bg-gray-300"
-						:class="{ 'border-red-500 border-2': pageInputError }"
-						:value="currentPage"
-						@change="handlePageInput($event)"
-						min="1"
-						:max="totalPages"
-					/>
-					<button class="px-2 py-1 rounded bg-gray-300" type="button" @click="nextPage">
-						<font-awesome-icon :icon="['fas', 'chevron-right']" size="sm" />
-					</button>
-				</div>
-				<span class="whitespace-nowrap">of {{ totalPages }}</span>
-			</div>
-			<div class="flex border-l border-gray-500">
-				<button class="p-1 ml-1" @click="zoomIn">
-					<font-awesome-icon :icon="['fas', 'plus']" size="sm" />
+			<div class="flex gap-1">
+				<button class="px-2 py-1 rounded bg-gray-200" type="button" @click="previousPage">
+					<font-awesome-icon :icon="['fas', 'chevron-left']" size="sm" />
 				</button>
-				<button class="p-1" @click="zoomOut">
-					<font-awesome-icon :icon="['fas', 'minus']" size="sm" />
+				<input
+					:id="id + 'page-number'"
+					type="number"
+					class="w-[40px] border outline-none text-center bg-gray-200"
+					:class="{ 'border-red-500 border-2': pageInputError }"
+					:value="currentPage"
+					@change="handlePageInput($event)"
+					min="1"
+					:max="totalPages"
+				/>
+				<button class="px-2 py-1 rounded bg-gray-200" type="button" @click="nextPage">
+					<font-awesome-icon :icon="['fas', 'chevron-right']" size="sm" />
 				</button>
 			</div>
-			<div class="flex border-l border-gray-500">
-				<button class="p-1 mx-1" @click="search">
-					<font-awesome-icon :icon="['fas', 'search']" size="sm" />
-				</button>
-			</div>
+			<span class="whitespace-nowrap text-sm">of {{ totalPages }}</span>
+		</div>
+		<div class="flex border-l border-gray-500">
+			<button class="p-1 ml-1" @click="zoomIn">
+				<font-awesome-icon :icon="['fas', 'plus']" size="sm" />
+			</button>
+			<button class="p-1" @click="zoomOut">
+				<font-awesome-icon :icon="['fas', 'minus']" size="sm" />
+			</button>
+		</div>
+		<div class="flex border-l border-gray-500">
+			<button class="p-1 mx-1" @click="search">
+				<font-awesome-icon :icon="['fas', 'search']" size="sm" />
+			</button>
 		</div>
 	</div>
 </template>

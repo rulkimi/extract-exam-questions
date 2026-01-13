@@ -22,6 +22,9 @@ const approvedCount = ref(0)
 const pdfViewerRef = ref(null)
 const isEditMode = ref(false)
 
+const fileURL = computed(() => documentDetail.value?.file_url || '')
+const fileName = computed(() => documentDetail.value?.file_name || '')
+
 const totalMainQuestions = computed(() => documentDetail.value?.data?.main_questions?.length || 0)
 const hasAnswerScheme = computed(() => !!documentDetail.value?.has_answer_scheme)
 
@@ -146,6 +149,7 @@ onMounted(() => {
 
 <template>
   <div class="p-4 space-y-4">
+    <!-- Top Navbar -->
     <div class="flex items-center justify-between text-black">
       <div class="flex gap-12">
         <router-link to="/list" class="font-medium hover:bg-gray-100 px-3 py-2 rounded-lg">
@@ -190,7 +194,7 @@ onMounted(() => {
             Cancel
           </button>
           <button v-if="!isEditMode" class="px-3 py-2 text-gray-800 rounded-lg font-semibold hover:bg-gray-100 border"
-            @click="download(documentDetail.data, documentDetail.file_name)">
+            @click="download(documentDetail?.data, fileName)">
             <font-awesome-icon class="mr-2" :icon="['fas', 'download']" />
             Export
           </button>
@@ -204,23 +208,13 @@ onMounted(() => {
 
     </div>
 
+    <!-- Content -->
     <div class="grid grid-cols-12 gap-4 text-black">
-      <div :class="['col-span-12', hasAnswerScheme ? 'lg:col-span-3' : 'lg:col-span-6']">
-        <div class="border rounded-lg bg-white shadow">
-          <div class="px-4 py-3 border-b font-medium">Question Paper</div>
-          <div>
-            <div v-if="documentDetail && documentDetail.file_url" class="h-[calc(100vh-260px)]">
-              <PDFViewerWithNavigation ref="pdfViewerRef" :id="'qp-' + id" class="w-full h-full rounded-md border"
-                :auto-fit="true" :file-name="documentDetail.file_name" :fileURL="documentDetail.file_url" 
-                :gotoPage="getQuestionStartPage(activeMainIndex)" />
-            </div>
-            <div v-else
-              class="h-[calc(100vh-260px)] flex items-center justify-center rounded-md bg-gray-100 text-gray-400">
-              PDF Preview
-            </div>
-          </div>
-        </div>
-      </div>
+
+      <PDFViewerWithNavigation ref="pdfViewerRef" :id="'qp-' + id" class="w-full h-full" :auto-fit="true"
+        :file-name="fileName" :fileURL="fileURL"
+        :gotoPage="getQuestionStartPage(activeMainIndex)" />
+
 
       <div :class="['col-span-12', hasAnswerScheme ? 'lg:col-span-6' : 'lg:col-span-6']">
         <ExtractedQuestions :document-detail="documentDetail" :active-main-index="activeMainIndex"
